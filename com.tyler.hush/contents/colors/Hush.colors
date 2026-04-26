@@ -1,5 +1,5 @@
 # Hush — KDE Plasma 6 color scheme
-# Palette: 16 colors in 4 tiers (Hearth, Glow, Mist, Spark). Source of truth: ~/projects/kde-theme/palette-preview.svg
+# Palette: 16 colors in 4 tiers (Hearth, Glow, Mist, Spark). Source of truth: palette-preview.svg in the repo root.
 #   Hearth (surfaces):  #242424 #2B2B2B #333333 #444444
 #   Glow (warm fgs):    #A89986 #D4BC91 #E1CDA5 #E1E1E1
 #   Mist (cool accents): #7AA8AC #88A6C5 #A8BDD6

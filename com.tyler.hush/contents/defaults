@@ -1,21 +1,24 @@
-[kdeglobals][KDE]
-widgetStyle=Breeze
-
 [kdeglobals][General]
 ColorScheme=Hush
 
 [kdeglobals][Icons]
-Theme=breeze-dark
+Theme=Newaita-reborn-light-brown-dark
 
-[plasmarc][Theme]
-name=default
+[kdeglobals][KDE]
+widgetStyle=Breeze
 
 [kcminputrc][Mouse]
-cursorTheme=breeze_cursors
+cursorTheme=Hush-cursor
+
+[ksplashrc][KSplash]
+Theme=com.tyler.hush
 
 [kwinrc][org.kde.kdecoration2]
 library=org.kde.breeze
 theme=Breeze
 
-[KSplash]
-Theme=com.tyler.hush
+[plasmarc][Theme]
+name=default
+
+[Wallpaper]
+Image=Hush

@@ -7,3 +7,13 @@ palette-preview.png
 *.swp
 *~
 .DS_Store
+
+# Python build artifacts (from scripts/)
+__pycache__/
+*.pyc
+*.pyo
+
+# Browser extension build outputs (source is the manifest.json + assets)
+*.xpi
+*.crx
+*.zip

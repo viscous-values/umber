@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Wallpaper/Images",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Tyler"
+            }
+        ],
+        "Description": "Procedurally generated charcoal-to-faint-peach gradient — see scripts/render_wallpaper.py.",
+        "Id": "Hush",
+        "License": "GPL-3.0-or-later",
+        "Name": "Hush"
+    }
+}

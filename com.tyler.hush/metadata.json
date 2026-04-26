@@ -3,7 +3,6 @@
     "KPlugin": {
         "Authors": [
             {
-                "Email": "user@example.com",
                 "Name": "Tyler"
             }
         ],
@@ -16,7 +15,8 @@
         "ServiceTypes": [
             "Plasma/LookAndFeel"
         ],
-        "Website": "https://github.com/MarianArlt/sddm-sugar-dark"
+        "Version": "1.0.0",
+        "Website": "https://github.com/tyler872010/hush"
     },
     "X-Plasma-APIVersion": "2",
     "X-Plasma-MainScript": "defaults"

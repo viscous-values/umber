@@ -127,25 +127,25 @@
     <circle cx="20" cy="16" r="5" fill="#E06C75"/>
     <circle cx="38" cy="16" r="5" fill="#E5C07B"/>
     <circle cx="56" cy="16" r="5" fill="#98C379"/>
-    <text x="288" y="20" text-anchor="middle" font-size="12" fill="#A89986">tyler@arch — Konsole</text>
+    <text x="288" y="20" text-anchor="middle" font-size="12" fill="#A89986">Hush — Konsole</text>
 
     <!-- Terminal content -->
     <g class="mono" font-size="12">
       <!-- prompt line 1 -->
       <text x="16" y="58">
-        <tspan fill="#88A6C5">~/projects/kde-theme</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
+        <tspan fill="#88A6C5">~/hush</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
       </text>
       <text x="16" y="76">
         <tspan fill="#D4BC91">❯ </tspan><tspan fill="#E1CDA5">ls -la</tspan>
       </text>
-      <text x="16" y="94" fill="#A89986">drwxr-xr-x  4 tyler tyler   100 Apr 26 11:45 <tspan fill="#88A6C5">com.tyler.hush</tspan></text>
-      <text x="16" y="110" fill="#A89986">drwxr-xr-x  3 tyler tyler    80 Apr 26 11:46 <tspan fill="#88A6C5">hush-sddm</tspan></text>
-      <text x="16" y="126" fill="#A89986">-rw-r--r--  1 tyler tyler  2195 Apr 25 13:24 <tspan fill="#D4BC91">preview.svg</tspan></text>
-      <text x="16" y="142" fill="#A89986">-rw-r--r--  1 tyler tyler  4830 Apr 26 12:00 <tspan fill="#D4BC91">palette-preview.svg</tspan></text>
+      <text x="16" y="94" fill="#A89986">drwxr-xr-x  4 user user   100 Jan  1 12:00 <tspan fill="#88A6C5">com.tyler.hush</tspan></text>
+      <text x="16" y="110" fill="#A89986">drwxr-xr-x  3 user user    80 Jan  1 12:00 <tspan fill="#88A6C5">hush-sddm</tspan></text>
+      <text x="16" y="126" fill="#A89986">-rw-r--r--  1 user user  2195 Jan  1 12:00 <tspan fill="#D4BC91">preview.svg</tspan></text>
+      <text x="16" y="142" fill="#A89986">-rw-r--r--  1 user user  4830 Jan  1 12:00 <tspan fill="#D4BC91">palette-preview.svg</tspan></text>
 
       <!-- prompt line 2 -->
       <text x="16" y="172">
-        <tspan fill="#88A6C5">~/projects/kde-theme</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
+        <tspan fill="#88A6C5">~/hush</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
       </text>
       <text x="16" y="190">
         <tspan fill="#D4BC91">❯ </tspan><tspan fill="#E1CDA5">git status</tspan>
@@ -156,7 +156,7 @@
 
       <!-- prompt line 3 -->
       <text x="16" y="268">
-        <tspan fill="#88A6C5">~/projects/kde-theme</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
+        <tspan fill="#88A6C5">~/hush</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
       </text>
       <text x="16" y="286">
         <tspan fill="#D4BC91">❯ </tspan><tspan fill="#E1CDA5">npm test</tspan>
@@ -309,5 +309,5 @@
   </g>
 
   <!-- ============ FOOTER ============ -->
-  <text x="48" y="1066" font-size="10" fill="#A89986" class="mono">~/projects/kde-theme/palette-preview.svg · 16 colors · 4 tiers</text>
+  <text x="48" y="1066" font-size="10" fill="#A89986" class="mono">palette-preview.svg · 16 colors · 4 tiers</text>
 </svg>
