@@ -1,0 +1,9 @@
+# Generated render of palette-preview.svg — rebuild with `rsvg-convert -w 1280 palette-preview.svg -o palette-preview.png`
+palette-preview.png
+
+# Editor/OS noise
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

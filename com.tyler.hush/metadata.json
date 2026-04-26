@@ -1,0 +1,23 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "user@example.com",
+                "Name": "Tyler"
+            }
+        ],
+        "Category": "Plasma Look And Feel",
+        "Description": "Quiet warm peach foreground on neutral charcoal — palette adapted from MarianArlt's Sugar Dark, muted for long sessions.",
+        "EnabledByDefault": true,
+        "Id": "com.tyler.hush",
+        "License": "GPL-3.0-or-later",
+        "Name": "Hush",
+        "ServiceTypes": [
+            "Plasma/LookAndFeel"
+        ],
+        "Website": "https://github.com/MarianArlt/sddm-sugar-dark"
+    },
+    "X-Plasma-APIVersion": "2",
+    "X-Plasma-MainScript": "defaults"
+}
