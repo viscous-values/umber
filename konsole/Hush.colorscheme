@@ -1,3 +1,8 @@
+# Hush — Konsole 16-ANSI color scheme
+# Part of the Hush theme suite — https://github.com/viscous-values/hush
+# Copyright (C) 2026 viscous-values — GPL-3.0-or-later
+# Spark accent hexes adapted from Atom One Dark.
+
 [General]
 Description=Hush
 Opacity=1
