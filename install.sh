@@ -183,6 +183,18 @@ step "Applying Global Theme"
 # Force-rewrite [WM] inline values by toggling colorscheme.
 plasma-apply-colorscheme BreezeLight >/dev/null 2>&1 || true
 plasma-apply-colorscheme Hush >/dev/null 2>&1 || true
+# plasma-apply-lookandfeel honors [General].ColorScheme but skips [Icons].Theme
+# and is unreliable for cursor — apply both explicitly.
+changeicons=""
+for p in /usr/lib/plasma-changeicons /usr/libexec/plasma-changeicons; do
+    [[ -x "$p" ]] && { changeicons="$p"; break; }
+done
+if [[ -n "$changeicons" ]]; then
+    "$changeicons" "$NEWAITA_VARIANT" >/dev/null 2>&1 || true
+else
+    note "plasma-changeicons helper not found — pick icons manually in System Settings."
+fi
+plasma-apply-cursortheme Hush-cursor >/dev/null 2>&1 || true
 ok "Global Theme applied"
 
 # ---------------------------------------------------------------------------
