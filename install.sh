@@ -205,9 +205,24 @@ cat <<EOF
 These can't be automated by this script (sudo, browser UI, or out-of-process action):
 
 \033[1;36mSDDM (login screen)\033[0m — needs sudo:
-    sudo cp -r "$REPO_ROOT/hush-sddm" /usr/share/sddm/themes/hush
+    sudo mkdir -p /usr/share/sddm/themes/hush
+    sudo cp -r "$REPO_ROOT/hush-sddm/." /usr/share/sddm/themes/hush/
     sudo sed -i 's/^Current=.*/Current=hush/' /etc/sddm.conf.d/kde_settings.conf
+  Note: the trailing /. on the source copies contents, so re-running this
+  updates an existing install in place (instead of nesting hush-sddm/ inside).
+  Any KCM-set background (theme.conf.user, wallpaper png in the theme dir)
+  is preserved — only files shipped by Hush are overwritten.
   Test windowed first: sddm-greeter-qt6 --test-mode --theme "$REPO_ROOT/hush-sddm"
+
+\033[1;36mLock screen\033[0m — optional, makes kscreenlocker reuse SDDM's wallpaper:
+    SDDM_BG="\$(awk -F= '/^background=/{print \$2}' /usr/share/sddm/themes/hush/theme.conf.user 2>/dev/null)"
+    [[ -n "\$SDDM_BG" ]] && kwriteconfig6 --file kscreenlockerrc \\
+        --group Greeter --group Wallpaper --group org.kde.image --group General \\
+        --key Image "/usr/share/sddm/themes/hush/\$SDDM_BG"
+  The lock UI itself is Plasma's default LockScreenUi.qml — it auto-inherits
+  the Hush color scheme. A custom Hush-styled lock UI would need ~400 lines
+  of org.kde.plasma.private.* QML and would break across Plasma minor versions,
+  so it's intentionally not bundled.
 
 \033[1;36mFirefox theme\033[0m — load via about:debugging:
     1. Visit about:debugging#/runtime/this-firefox

@@ -25,34 +25,75 @@ import Qt5Compat.GraphicalEffects
 Column {
     id: inputContainer
     Layout.fillWidth: true
+    spacing: root.font.pointSize * 0.7
 
-    property Control exposeLogin: loginButton
+    property Item exposeLogin: loginButton
     property bool failed
+
+    // Shared field height — both pills are exactly the same size and shape.
+    property real fieldHeight: root.font.pointSize * 2.8
 
     // USERNAME INPUT
     Item {
         id: usernameField
 
-        height: root.font.pointSize * 4.5
-        width: parent.width / 2
+        height: inputContainer.fieldHeight
+        width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
 
+        // Single pill border. Always 1px; focus changes color only, never thickness.
+        Rectangle {
+            id: usernamePill
+            anchors.fill: parent
+            color: "transparent"
+            border.color: username.activeFocus ? root.palette.highlight : root.palette.text
+            border.width: 1
+            radius: config.RoundCorners || 0
+        }
+
+        // Source image — invisible. ColorOverlay below uses it to render a tinted icon.
+        // ColorOverlay reliably tints any SVG regardless of fill attributes, unlike
+        // Button.icon.color on an SVGZ that lacks fill="currentColor".
+        Image {
+            id: userIconImg
+            source: Qt.resolvedUrl("../Assets/User.svgz")
+            width: parent.height * 0.42
+            height: parent.height * 0.42
+            sourceSize.width: width * 2
+            sourceSize.height: height * 2
+            fillMode: Image.PreserveAspectFit
+            anchors.left: parent.left
+            anchors.leftMargin: parent.height * 0.42
+            anchors.verticalCenter: parent.verticalCenter
+            visible: false
+        }
+
+        ColorOverlay {
+            id: userIcon
+            anchors.fill: userIconImg
+            source: userIconImg
+            color: root.palette.text
+            z: 2
+        }
+
+        // Invisible click target for the user picker, sized over the icon area.
         ComboBox {
-
             id: selectUser
-
             width: parent.height
             height: parent.height
             anchors.left: parent.left
-            z: 2
+            anchors.verticalCenter: parent.verticalCenter
+            z: 3
 
             model: userModel
             currentIndex: model.lastIndex
             textRole: "name"
             hoverEnabled: true
-            onActivated: {
-                username.text = currentText
-            }
+            onActivated: { username.text = currentText }
+
+            background: Rectangle { color: "transparent"; border.color: "transparent" }
+            contentItem: Item { }
+            indicator: Item { }
 
             delegate: ItemDelegate {
                 width: parent.width
@@ -71,32 +112,8 @@ Column {
                 }
             }
 
-            indicator: Button {
-                    id: usernameIcon
-                    width: selectUser.height * 0.8
-                    height: parent.height
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.leftMargin: selectUser.height * 0.25
-                    icon.height: parent.height * 0.45
-                    icon.width: parent.height * 0.45
-                    enabled: false
-                    icon.color: root.palette.text
-                    icon.source: Qt.resolvedUrl("../Assets/User.svgz")
-                    background: Rectangle {
-                        color: "transparent"
-                        border.color: "transparent"
-                    }
-            }
-
-            background: Rectangle {
-                color: "transparent"
-                border.color: "transparent"
-            }
-
             popup: Popup {
-                y: parent.height - username.height / 3
-                rightMargin: config.ForceRightToLeft == "true" ? root.padding + usernameField.width / 2 : undefined
+                y: usernameField.height
                 width: usernameField.width
                 implicitHeight: contentItem.implicitHeight
                 padding: 10
@@ -128,144 +145,74 @@ Column {
                     NumberAnimation { property: "opacity"; from: 0; to: 1 }
                 }
             }
-
-            states: [
-                State {
-                    name: "pressed"
-                    when: selectUser.down
-                    PropertyChanges {
-                        target: usernameIcon
-                        icon.color: Qt.lighter(root.palette.highlight, 1.1)
-                    }
-                },
-                State {
-                    name: "hovered"
-                    when: selectUser.hovered
-                    PropertyChanges {
-                        target: usernameIcon
-                        icon.color: Qt.lighter(root.palette.highlight, 1.2)
-                    }
-                },
-                State {
-                    name: "focused"
-                    when: selectUser.visualFocus
-                    PropertyChanges {
-                        target: usernameIcon
-                        icon.color: root.palette.highlight
-                    }
-                }
-            ]
-
-            transitions: [
-                Transition {
-                    PropertyAnimation {
-                        properties: "color, border.color, icon.color"
-                        duration: 150
-                    }
-                }
-            ]
-
         }
 
+        // TextField fills the entire pill. Equal left/right padding makes HCenter
+        // genuinely center the text in the pill — not in the right-of-icon strip.
+        // leftPadding ≈ icon area width so text never collides with the icon.
         TextField {
             id: username
-            text: config.ForceLastUser == "true" ? selectUser.currentText : null
-            font.capitalization: Font.Capitalize
-            anchors.centerIn: parent
-            height: root.font.pointSize * 3
-            width: parent.width
+            text: config.ForceLastUser == "true" ? selectUser.currentText : ""
+            anchors.fill: parent
+            leftPadding: parent.height
+            rightPadding: parent.height
+            verticalAlignment: TextInput.AlignVCenter
+            horizontalAlignment: TextInput.AlignHCenter
             placeholderText: config.TranslateUsernamePlaceholder || textConstants.userName
             selectByMouse: true
-            horizontalAlignment: TextInput.AlignHCenter
             renderType: Text.QtRendering
-            background: Rectangle {
-                color: "transparent"
-                border.color: root.palette.text
-                border.width: parent.activeFocus ? 2 : 1
-                radius: config.RoundCorners || 0
-            }
+            color: activeFocus ? root.palette.highlight : root.palette.text
+            background: null
             Keys.onReturnPressed: loginButton.clicked()
             KeyNavigation.down: password
             z: 1
-
-            states: [
-                State {
-                    name: "focused"
-                    when: username.activeFocus
-                    PropertyChanges {
-                        target: username.background
-                        border.color: root.palette.highlight
-                    }
-                    PropertyChanges {
-                        target: username
-                        color: root.palette.highlight
-                    }
-                }
-            ]
         }
-
     }
 
     // PASSWORD INPUT
     Item {
         id: passwordField
-        height: root.font.pointSize * 4.5
-        width: parent.width / 2
+        height: inputContainer.fieldHeight
+        width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
+
+        Rectangle {
+            id: passwordPill
+            anchors.fill: parent
+            color: "transparent"
+            border.color: password.activeFocus ? root.palette.highlight : root.palette.text
+            border.width: 1
+            radius: config.RoundCorners || 0
+        }
 
         TextField {
             id: password
-            anchors.centerIn: parent
-            height: root.font.pointSize * 3
-            width: parent.width
+            anchors.fill: parent
+            leftPadding: parent.height
+            rightPadding: parent.height
+            verticalAlignment: TextInput.AlignVCenter
+            horizontalAlignment: TextInput.AlignHCenter
             focus: config.ForcePasswordFocus == "true" ? true : false
             selectByMouse: true
             echoMode: revealSecret.checked ? TextInput.Normal : TextInput.Password
             placeholderText: config.TranslatePasswordPlaceholder || textConstants.password
-            horizontalAlignment: TextInput.AlignHCenter
             passwordCharacter: "•"
             passwordMaskDelay: config.ForceHideCompletePassword == "true" ? undefined : 1000
             renderType: Text.QtRendering
-            background: Rectangle {
-                color: "transparent"
-                border.color: root.palette.text
-                border.width: parent.activeFocus ? 2 : 1
-                radius: config.RoundCorners || 0
-            }
+            color: activeFocus ? root.palette.highlight : root.palette.text
+            background: null
             Keys.onReturnPressed: loginButton.clicked()
             KeyNavigation.down: revealSecret
         }
 
-        states: [
-            State {
-                name: "focused"
-                when: password.activeFocus
-                PropertyChanges {
-                    target: password.background
-                    border.color: root.palette.highlight
-                }
-                PropertyChanges {
-                    target: password
-                    color: root.palette.highlight
-                }
-            }
-        ]
-
-        transitions: [
-            Transition {
-                PropertyAnimation {
-                    properties: "color, border.color"
-                    duration: 150
-                }
-            }
-        ]
     }
 
-    // SHOW/HIDE PASS
+    // SHOW/HIDE PASS — hidden in Hush; modern login screens don't expose this.
     Item {
         id: secretCheckBox
-        height: root.font.pointSize * 7
-        width: parent.width / 2
+        visible: false
+        height: 0
+        width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
 
         CheckBox {
@@ -396,11 +343,13 @@ Column {
 
     }
 
-    // ERROR FIELD
+    // ERROR FIELD — collapses to zero height when no error is showing, so the
+    // password→login spacing stays tight unless we actually have something to say.
     Item {
-        height: root.font.pointSize * 2.3
-        width: parent.width / 2
+        height: errorMessage.opacity > 0 ? root.font.pointSize * 1.8 : 0
+        width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
+        Behavior on height { NumberAnimation { duration: 100 } }
         Label {
             id: errorMessage
             width: parent.width
@@ -442,32 +391,34 @@ Column {
     // LOGIN BUTTON
     Item {
         id: login
-        height: root.font.pointSize * 3
-        width: parent.width / 2
+        height: inputContainer.fieldHeight
+        width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
 
         Button {
             id: loginButton
             anchors.horizontalCenter: parent.horizontalCenter
             text: config.TranslateLogin || textConstants.login
-            height: root.font.pointSize * 3
+            height: inputContainer.fieldHeight
             implicitWidth: parent.width
             enabled: username.text != "" && password.text != "" ? true : false
             hoverEnabled: true
 
             contentItem: Text {
                 text: parent.text
-                color: "#444"
+                color: root.palette.text
                 font.pointSize: root.font.pointSize
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                opacity: 0.5
+                opacity: 0.55
             }
 
             background: Rectangle {
                 id: buttonBackground
-                color: "white"
-                opacity: 0.2
+                color: "transparent"
+                border.color: root.palette.text
+                border.width: 1
+                opacity: 0.55
                 radius: config.RoundCorners || 0
             }
 
@@ -517,12 +468,14 @@ Column {
                     name: "enabled"
                     when: loginButton.enabled
                     PropertyChanges {
-                        target: buttonBackground;
-                        color: root.palette.text;
+                        target: buttonBackground
+                        color: root.palette.text
+                        border.width: 0
                         opacity: 1
                     }
                     PropertyChanges {
-                        target: loginButton.contentItem;
+                        target: loginButton.contentItem
+                        color: config.BackgroundColor || "#2B2B2B"
                         opacity: 1
                     }
                 }
@@ -558,8 +511,8 @@ Column {
 
     Connections {
         target: sddm
-        onLoginSucceeded: {}
-        onLoginFailed: {
+        function onLoginSucceeded() {}
+        function onLoginFailed() {
             failed = true
             resetError.running ? resetError.stop() && resetError.start() : resetError.start()
         }
