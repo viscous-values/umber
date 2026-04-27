@@ -12,5 +12,4 @@ MainScript=Main.qml
 ConfigFile=theme.conf
 TranslationsDirectory=translations
 Theme-Id=hush
-Theme-API=2.11
 QtVersion=6

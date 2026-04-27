@@ -23,8 +23,8 @@ import Qt5Compat.GraphicalEffects
 
 Item {
     id: sessionButton
-    height: root.font.pointSize
-    width: parent.width / 2
+    height: root.font.pointSize * 2
+    width: parent.width
     anchors.horizontalCenter: parent.horizontalCenter
 
     property var selectedSession: selectSession.currentIndex
@@ -34,7 +34,7 @@ Item {
         id: selectSession
 
         hoverEnabled: true
-        anchors.left: parent.left
+        anchors.horizontalCenter: parent.horizontalCenter
 
         model: sessionModel
         currentIndex: model.lastIndex
@@ -64,10 +64,11 @@ Item {
             id: displayedItem
             text: (config.TranslateSession || (textConstantSession + ":")) + " " + selectSession.currentText
             color: root.palette.text
+            opacity: 0.65
             verticalAlignment: Text.AlignVCenter
-            anchors.left: parent.left
-            anchors.leftMargin: 3
-            font.pointSize: root.font.pointSize * 0.8
+            horizontalAlignment: Text.AlignHCenter
+            anchors.centerIn: parent
+            font.pointSize: root.font.pointSize * 0.75
         }
 
         background: Rectangle {
@@ -77,8 +78,7 @@ Item {
             height: parent.visualFocus ? 2 : 0
             width: displayedItem.implicitWidth
             anchors.top: parent.bottom
-            anchors.left: parent.left
-            anchors.leftMargin: 3
+            anchors.horizontalCenter: parent.horizontalCenter
         }
 
         popup: Popup {

@@ -26,8 +26,11 @@ import "Components"
 Pane {
     id: root
 
-    height: config.ScreenHeight || Screen.height
-    width: config.ScreenWidth || Screen.ScreenWidth
+    // Always size to the actual screen. The Sugar-Dark hand-edited config.ScreenHeight/Width
+    // were performance hints that, if set to a wrong value (e.g. 900 on a 1440-tall display),
+    // confined the entire UI to the upper portion of the screen.
+    height: Screen.height
+    width: Screen.width
 
     LayoutMirroring.enabled: config.ForceRightToLeft == "true" ? true : Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
@@ -40,7 +43,7 @@ Pane {
     palette.window: config.BackgroundColor || "#2B2B2B"
 
     font.family: config.Font
-    font.pointSize: config.FontSize !== "" ? config.FontSize : parseInt(height / 80)
+    font.pointSize: config.FontSize !== "" ? config.FontSize : Math.max(11, Math.min(15, Math.round(height / 80)))
     focus: true
 
     property bool leftleft: config.HaveFormBackground == "true" &&
@@ -83,12 +86,28 @@ Pane {
         LoginForm {
             id: form
 
-            height: virtualKeyboard.state == "visible" ? parent.height - virtualKeyboard.implicitHeight : parent.height
-            width: parent.width / 2.5
+            // Form is content-sized vertically and anchored to actual screen center —
+            // not stretched to full height with internal flex spacers (which broke when
+            // SystemButtons was invisible in test mode).
+            width: Math.min(parent.width * 0.32, 360)
             anchors.horizontalCenter: config.FormPosition == "center" ? parent.horizontalCenter : undefined
             anchors.left: config.FormPosition == "left" ? parent.left : undefined
             anchors.right: config.FormPosition == "right" ? parent.right : undefined
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenterOffset: virtualKeyboard.state == "visible" ? -virtualKeyboard.implicitHeight / 2 : 0
             virtualKeyboardActive: virtualKeyboard.state == "visible" ? true : false
+            z: 1
+        }
+
+        // Power buttons, bottom-right corner — out of the form column so they don't
+        // distort vertical centering when sddm.canSuspend etc. are false in test mode.
+        SystemButtons {
+            id: globalSystemButtons
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: root.font.pointSize * 2.5
+            anchors.bottomMargin: root.font.pointSize * 2
+            exposedLogin: form.exposeLogin
             z: 1
         }
 
@@ -196,8 +215,9 @@ Pane {
             ]
         }
 
+        // Solid color base — always present so an image failing to load falls back gracefully.
         Rectangle {
-            id: backgroundImage
+            id: backgroundColor
 
             height: parent.height
             width: config.HaveFormBackground == "true" && config.FormPosition != "center" && config.PartialBlur != "true" ? parent.width - formBackground.width : parent.width
@@ -207,8 +227,59 @@ Pane {
             color: config.BackgroundColor || "#2B2B2B"
         }
 
+        // Optional wallpaper. The KCM (System Settings → Login Screen → Background)
+        // writes `background=<filename>` into theme.conf.user; theme.conf carries a
+        // capitalized `Background=` for hand-edited installs. We honor both.
+        Image {
+            id: backgroundImage
+
+            anchors.fill: backgroundColor
+            source: {
+                var b = (typeof config.background === "string" && config.background !== "") ? config.background
+                      : (typeof config.Background === "string" && config.Background !== "") ? config.Background
+                      : ""
+                return b === "" ? "" : Qt.resolvedUrl(b)
+            }
+            fillMode: config.ScaleImageCropped == "false" ? Image.PreserveAspectFit : Image.PreserveAspectCrop
+            asynchronous: true
+            cache: true
+            clip: true
+            visible: parseFloat(config.BackgroundBlur || "0") <= 0 && source != "" && status === Image.Ready
+            sourceSize.width: width
+            sourceSize.height: height
+        }
+
+        // Source for the blur — invisible, just feeds the FastBlur node.
+        Image {
+            id: backgroundImageSource
+            anchors.fill: backgroundColor
+            source: backgroundImage.source
+            fillMode: backgroundImage.fillMode
+            asynchronous: true
+            cache: true
+            clip: true
+            visible: false
+            sourceSize.width: width
+            sourceSize.height: height
+        }
+
+        FastBlur {
+            id: backgroundBlur
+            anchors.fill: backgroundColor
+            source: backgroundImageSource
+            radius: parseFloat(config.BackgroundBlur || "0")
+            visible: radius > 0 && backgroundImageSource.status === Image.Ready
+        }
+
+        // Scrim under the form so peach text stays legible on busy wallpapers.
+        Rectangle {
+            anchors.fill: backgroundColor
+            color: "#000000"
+            opacity: (backgroundImage.visible || backgroundBlur.visible) ? parseFloat(config.BackgroundDimOpacity || "0") : 0
+        }
+
         MouseArea {
-            anchors.fill: backgroundImage
+            anchors.fill: backgroundColor
             onClicked: parent.forceActiveFocus()
         }
     }
