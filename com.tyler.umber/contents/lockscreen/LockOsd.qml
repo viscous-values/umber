@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2014 Aleix Pol Gonzalez <aleixpol@blue-systems.com>
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// Hush: verbatim copy of Plasma 6 stock LockOsd.qml.
+// Umber: verbatim copy of Plasma 6 stock LockOsd.qml.
 
 import QtQuick
 import org.kde.ksvg as KSvg

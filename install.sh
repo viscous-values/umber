@@ -1,5 +1,5 @@
 #!/bin/bash
-# Hush — one-shot installer for the full theme suite on KDE Plasma 6.
+# Umber — one-shot installer for the full theme suite on KDE Plasma 6.
 # Idempotent: safe to re-run. Manual steps that need sudo or out-of-process
 # action (SDDM, Firefox, Chromium) are printed at the end, not auto-executed.
 #
@@ -59,10 +59,10 @@ ok "all required commands present"
 # Overwrite confirmation.
 existing=()
 [[ -d "$LNF_DIR/com.tyler.hush" ]]   && existing+=("$LNF_DIR/com.tyler.hush")
-[[ -d "$ICONS_DIR/Hush-cursor" ]]    && existing+=("$ICONS_DIR/Hush-cursor")
-[[ -f "$SCHEMES_DIR/Hush.colors" ]]  && existing+=("$SCHEMES_DIR/Hush.colors")
+[[ -d "$ICONS_DIR/Umber-cursor" ]]    && existing+=("$ICONS_DIR/Umber-cursor")
+[[ -f "$SCHEMES_DIR/Umber.colors" ]]  && existing+=("$SCHEMES_DIR/Umber.colors")
 if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
-    step "Existing Hush install detected"
+    step "Existing Umber install detected"
     for p in "${existing[@]}"; do note "will overwrite: $p"; done
     printf "    Continue? [y/N] "
     read -r reply
@@ -96,21 +96,21 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-step "Hush-cursor"
+step "Umber-cursor"
 mkdir -p "$ICONS_DIR"
-if [[ ! -d "$REPO_ROOT/cursors/Hush-cursor" ]]; then
-    echo "ERROR: cursors/Hush-cursor not found in repo. Run scripts/build-cursor.sh." >&2
+if [[ ! -d "$REPO_ROOT/cursors/Umber-cursor" ]]; then
+    echo "ERROR: cursors/Umber-cursor not found in repo. Run scripts/build-cursor.sh." >&2
     exit 1
 fi
-rm -rf "$ICONS_DIR/Hush-cursor"
-cp -a "$REPO_ROOT/cursors/Hush-cursor" "$ICONS_DIR/Hush-cursor"
-ok "installed to $ICONS_DIR/Hush-cursor"
+rm -rf "$ICONS_DIR/Umber-cursor"
+cp -a "$REPO_ROOT/cursors/Umber-cursor" "$ICONS_DIR/Umber-cursor"
+ok "installed to $ICONS_DIR/Umber-cursor"
 
 # ---------------------------------------------------------------------------
-step "Hush color scheme"
+step "Umber color scheme"
 mkdir -p "$SCHEMES_DIR"
-cp "$REPO_ROOT/com.tyler.hush/contents/colors/Hush.colors" "$SCHEMES_DIR/Hush.colors"
-ok "installed to $SCHEMES_DIR/Hush.colors"
+cp "$REPO_ROOT/com.tyler.hush/contents/colors/Umber.colors" "$SCHEMES_DIR/Umber.colors"
+ok "installed to $SCHEMES_DIR/Umber.colors"
 
 # ---------------------------------------------------------------------------
 step "Plasma Look-and-Feel package"
@@ -122,9 +122,9 @@ ok "installed to $LNF_DIR/com.tyler.hush"
 # ---------------------------------------------------------------------------
 step "Konsole color scheme"
 mkdir -p "$KONSOLE_DIR"
-cp "$REPO_ROOT/konsole/Hush.colorscheme" "$KONSOLE_DIR/Hush.colorscheme"
-ok "installed to $KONSOLE_DIR/Hush.colorscheme"
-note "Konsole: open Settings → Edit Current Profile → Appearance → choose Hush."
+cp "$REPO_ROOT/konsole/Umber.colorscheme" "$KONSOLE_DIR/Umber.colorscheme"
+ok "installed to $KONSOLE_DIR/Umber.colorscheme"
+note "Konsole: open Settings → Edit Current Profile → Appearance → choose Umber."
 
 # ---------------------------------------------------------------------------
 step "VSCode (Microsoft) extension link + cache stub"
@@ -164,7 +164,7 @@ else:
     print("    .. tyler.hush already registered in extensions.json")
 PYEOF
     ok "linked to $VSCODE_EXT_DIR/tyler.hush-1.0.0"
-    note "Restart VSCode, then Ctrl+K Ctrl+T → Hush."
+    note "Restart VSCode, then Ctrl+K Ctrl+T → Umber."
 else
     note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/hush-vscode ~/.vscode-oss/extensions/tyler.hush-1.0.0"
 fi
@@ -182,7 +182,7 @@ step "Applying Global Theme"
 }
 # Force-rewrite [WM] inline values by toggling colorscheme.
 plasma-apply-colorscheme BreezeLight >/dev/null 2>&1 || true
-plasma-apply-colorscheme Hush >/dev/null 2>&1 || true
+plasma-apply-colorscheme Umber >/dev/null 2>&1 || true
 # plasma-apply-lookandfeel honors [General].ColorScheme but skips [Icons].Theme
 # and is unreliable for cursor — apply both explicitly.
 changeicons=""
@@ -194,10 +194,10 @@ if [[ -n "$changeicons" ]]; then
 else
     note "plasma-changeicons helper not found — pick icons manually in System Settings."
 fi
-plasma-apply-cursortheme Hush-cursor >/dev/null 2>&1 || true
+plasma-apply-cursortheme Umber-cursor >/dev/null 2>&1 || true
 # kscreenlocker_greet resolves its QML from contents/lockscreen/ inside the
 # active LookAndFeelPackage (set in kdeglobals by plasma-apply-lookandfeel).
-# Each lock spawns a fresh greeter process, so the Hush lockscreen picks up
+# Each lock spawns a fresh greeter process, so the Umber lockscreen picks up
 # the next time the screen locks (no daemon restart needed).
 ok "Global Theme applied"
 
@@ -254,7 +254,7 @@ These can't be automated by this script (sudo, browser UI, or out-of-process act
   Note: the trailing /. on the source copies contents, so re-running this
   updates an existing install in place (instead of nesting hush-sddm/ inside).
   Any KCM-set background (theme.conf.user, wallpaper png in the theme dir)
-  is preserved — only files shipped by Hush are overwritten.
+  is preserved — only files shipped by Umber are overwritten.
   Heads-up: SDDM reads /etc/sddm.conf.d/ with no extension filter (alphabetical,
   last wins). Don't leave .bak / .orig / editor-swap files in that directory —
   they will silently override Current=hush. The script scans for these above.
@@ -265,7 +265,7 @@ These can't be automated by this script (sudo, browser UI, or out-of-process act
     [[ -n "\$SDDM_BG" ]] && kwriteconfig6 --file kscreenlockerrc \\
         --group Greeter --group Wallpaper --group org.kde.image --group General \\
         --key Image "/usr/share/sddm/themes/hush/\$SDDM_BG"
-  The Hush-styled lock UI (charcoal floor + 0.55 scrim mirroring SDDM) is
+  The Umber-styled lock UI (charcoal floor + 0.55 scrim mirroring SDDM) is
   bundled in com.tyler.hush/contents/lockscreen/ and resolved automatically
   by kscreenlocker_greet from the active LookAndFeelPackage in kdeglobals.
   Test it with: loginctl lock-session   (Ctrl+Alt+L on most setups).

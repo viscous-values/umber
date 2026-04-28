@@ -1,10 +1,10 @@
-# Hush — Konsole 16-ANSI color scheme
-# Part of the Hush theme suite — https://github.com/tyler872010/hush
+# Umber — Konsole 16-ANSI color scheme
+# Part of the Umber theme suite — https://github.com/tyler872010/hush
 # Copyright (C) 2026 Tyler — GPL-3.0-or-later
 # Spark accent hexes adapted from Atom One Dark.
 
 [General]
-Description=Hush
+Description=Umber
 Opacity=1
 Wallpaper=
 Anchor=0.5,0.5

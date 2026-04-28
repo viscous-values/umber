@@ -1,10 +1,10 @@
-"""Render synthetic Plasma-desktop preview images for the Hush LnF package.
+"""Render synthetic Plasma-desktop preview images for the Umber LnF package.
 
 Outputs:
 - contents/previews/preview.png            — small thumbnail
 - contents/previews/fullscreenpreview.jpg  — large preview
 
-The render is symbolic, not a real screenshot: a desktop with the Hush
+The render is symbolic, not a real screenshot: a desktop with the Umber
 wallpaper, a panel, and a faux window/titlebar/buttons that show the active
 [WM], [Colors:Window], and [Colors:View] groups so a viewer in System Settings
 can see the palette at a glance.
@@ -141,7 +141,7 @@ def draw_window(img, x, y, w, h, font_title, font_body):
     draw.line([x, y + titlebar_h, x + w, y + titlebar_h], fill=HEARTH["high"])
 
     # Title text (WM activeForeground).
-    title = "Hush"
+    title = "Umber"
     tb = draw.textbbox((0, 0), title, font=font_title)
     draw.text((x + 16, y + (titlebar_h - (tb[3] - tb[1])) // 2 - 2),
               title, font=font_title, fill=GLOW["warm"])

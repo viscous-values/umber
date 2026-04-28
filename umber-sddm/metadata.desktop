@@ -1,5 +1,5 @@
 [SddmGreeterTheme]
-Name=Hush
+Name=Umber
 Description=A quiet warm peach login on charcoal. Adapted from MarianArlt's Sugar Dark, ported to Qt6/Plasma 6 with a muted palette and a solid background.
 Author=Tyler (port); Marian Arlt (original Sugar Dark)
 Copyright=Copyright (C) 2018 Marian Arlt; 2026 port and adaptations by Tyler

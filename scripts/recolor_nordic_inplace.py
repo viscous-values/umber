@@ -1,6 +1,6 @@
-"""Copy ~/.icons/Nordic-cursors to a Hush-cursor theme, then walk every
+"""Copy ~/.icons/Nordic-cursors to a Umber-cursor theme, then walk every
 xcursor binary inside it and remap pixel colors from the Nord palette to the
-Hush palette.
+Umber palette.
 
 XCursor stores pixels as 32-bit ARGB little-endian (= BGRA byte order) with
 *premultiplied* alpha. We un-premultiply, recolor, then re-premultiply.
@@ -8,11 +8,11 @@ XCursor stores pixels as 32-bit ARGB little-endian (= BGRA byte order) with
 Recolor strategy:
 - Transparent / near-transparent pixels: leave alone.
 - Saturated colored pixels (emblems like the help blue, copy green, context
-  red): classify by hue and snap to the matching Hush spark/mist palette
+  red): classify by hue and snap to the matching Umber spark/mist palette
   while preserving the original lightness/alpha.
 - Low-saturation pixels (the bulk of the cursor — dark body + bright border +
   anti-aliased edges): linearly interpolate luminance between Nord polar
-  night and Nord snow storm onto Hush hearth.deep ↔ Hush glow.peach.
+  night and Nord snow storm onto Umber hearth.deep ↔ Umber glow.peach.
 """
 
 import os
@@ -21,7 +21,7 @@ import struct
 from pathlib import Path
 
 SRC = Path(os.environ.get("HUSH_CURSOR_SRC", Path.home() / ".icons" / "Nordic-cursors"))
-DST = Path(os.environ.get("HUSH_CURSOR_DST", Path.home() / ".local" / "share" / "icons" / "Hush-cursor"))
+DST = Path(os.environ.get("HUSH_CURSOR_DST", Path.home() / ".local" / "share" / "icons" / "Umber-cursor"))
 
 IMG_TYPE = 0xfffd0002
 
@@ -37,7 +37,7 @@ SATURATED_TARGETS = [
     ((25,  50),  (0xD1, 0x9A, 0x66)),    # orange       -> spark.orange
     ((50,  75),  (0xE5, 0xC0, 0x7B)),    # yellow/amber -> spark.amber
     ((75, 165),  (0x98, 0xC3, 0x79)),    # green        -> spark.green
-    ((165, 200), (0xE5, 0xC0, 0x7B)),    # nord teal/cyan -> Hush spark.amber (accent slot)
+    ((165, 200), (0xE5, 0xC0, 0x7B)),    # nord teal/cyan -> Umber spark.amber (accent slot)
     ((200, 260), (0x88, 0xA6, 0xC5)),    # blue         -> mist.blue
     ((260, 345), (0xC5, 0x86, 0xB0)),    # purple       -> spark.violet
 ]
@@ -78,14 +78,14 @@ def remap_pixel(r, g, b, a):
 
     h, s, _v = rgb_to_hsv(ur, ug, ub)
     if s >= SAT_THRESHOLD:
-        # Saturated: snap to Hush palette by hue, preserve original lightness.
+        # Saturated: snap to Umber palette by hue, preserve original lightness.
         for (lo, hi), (tr, tg, tb) in SATURATED_TARGETS:
             if lo <= h < hi:
                 # Preserve relative lightness — mix the target with original
                 # luminance so anti-aliased edges still feather correctly.
                 lum = (ur + ug + ub) / 3 / 255.0  # 0..1
                 # Blend target * lum + black * (1 - lum) is too dark for
-                # bright emblems. Use a softer rule: lerp from Hush hearth
+                # bright emblems. Use a softer rule: lerp from Umber hearth
                 # to target, with t = lum.
                 nr = lerp(HUSH_DARK[0], tr, lum)
                 ng = lerp(HUSH_DARK[1], tg, lum)
@@ -94,7 +94,7 @@ def remap_pixel(r, g, b, a):
         else:
             nr, ng, nb = ur, ug, ub
     else:
-        # Monochrome: luminance interpolation onto Hush hearth ↔ glow.peach.
+        # Monochrome: luminance interpolation onto Umber hearth ↔ glow.peach.
         lum = (ur + ug + ub) / 3 / 255.0
         nr = lerp(HUSH_DARK[0], HUSH_LIGHT[0], lum)
         ng = lerp(HUSH_DARK[1], HUSH_LIGHT[1], lum)
@@ -149,8 +149,8 @@ def main():
     idx = DST / "index.theme"
     idx.write_text(
         "[Icon Theme]\n"
-        "Name=Hush\n"
-        "Comment=Hush — peach-on-charcoal recolor of Nordic-cursors\n"
+        "Name=Umber\n"
+        "Comment=Umber — peach-on-charcoal recolor of Nordic-cursors\n"
         "Inherits=hicolor\n"
     )
 

@@ -207,7 +207,7 @@ Column {
 
     }
 
-    // SHOW/HIDE PASS — hidden in Hush; modern login screens don't expose this.
+    // SHOW/HIDE PASS — hidden in Umber; modern login screens don't expose this.
     Item {
         id: secretCheckBox
         visible: false

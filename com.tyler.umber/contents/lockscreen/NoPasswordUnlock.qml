@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 David Edmundson <davidedmundson@kde.org>
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// Hush: verbatim copy of Plasma 6 stock NoPasswordUnlock.qml.
+// Umber: verbatim copy of Plasma 6 stock NoPasswordUnlock.qml.
 
 import QtQuick
 

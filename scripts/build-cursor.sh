@@ -1,5 +1,5 @@
 #!/bin/bash
-# Rebuild cursors/Hush-cursor/ from the user's installed Nordic-cursors.
+# Rebuild cursors/Umber-cursor/ from the user's installed Nordic-cursors.
 # Output is committed to the repo so users don't need to run this — only the
 # author regenerates after a palette change.
 
@@ -7,7 +7,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="${HUSH_CURSOR_SRC:-$HOME/.icons/Nordic-cursors}"
-DST="$REPO_ROOT/cursors/Hush-cursor"
+DST="$REPO_ROOT/cursors/Umber-cursor"
 
 if [[ ! -d "$SRC" ]]; then
     echo "ERROR: source theme not found at $SRC" >&2

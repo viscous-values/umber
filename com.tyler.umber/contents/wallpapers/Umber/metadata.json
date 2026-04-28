@@ -7,8 +7,8 @@
             }
         ],
         "Description": "Procedurally generated charcoal-to-faint-peach gradient — see scripts/render_wallpaper.py.",
-        "Id": "Hush",
+        "Id": "Umber",
         "License": "GPL-3.0-or-later",
-        "Name": "Hush"
+        "Name": "Umber"
     }
 }

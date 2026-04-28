@@ -1,6 +1,6 @@
 {
   "name": "hush",
-  "displayName": "Hush",
+  "displayName": "Umber",
   "description": "A quiet warm-on-charcoal theme — Hearth, Glow, Mist, Spark.",
   "version": "1.0.0",
   "publisher": "tyler",
@@ -14,9 +14,9 @@
   "contributes": {
     "themes": [
       {
-        "label": "Hush",
+        "label": "Umber",
         "uiTheme": "vs-dark",
-        "path": "./themes/Hush-color-theme.json"
+        "path": "./themes/Umber-color-theme.json"
       }
     ]
   }

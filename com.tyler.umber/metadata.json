@@ -11,7 +11,7 @@
         "EnabledByDefault": true,
         "Id": "com.tyler.hush",
         "License": "GPL-3.0-or-later",
-        "Name": "Hush",
+        "Name": "Umber",
         "ServiceTypes": [
             "Plasma/LookAndFeel"
         ],

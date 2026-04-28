@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2014 Aleix Pol Gonzalez <aleixpol@blue-systems.com>
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// Hush: based on Plasma 6's stock LockScreenUi.qml. The control flow,
+// Umber: based on Plasma 6's stock LockScreenUi.qml. The control flow,
 // authenticator wiring, fader, virtual keyboard, OSD, and footer are kept
 // identical so kscreenlocker's expected contract (magical globals like
 // `wallpaper`, `authenticator`, `kscreenlocker_userName`) keeps working.
@@ -200,7 +200,7 @@ Item {
 
         Component.onCompleted: launchAnimation.start();
 
-        // Hush charcoal floor — matches SDDM theme.conf BackgroundColor.
+        // Umber charcoal floor — matches SDDM theme.conf BackgroundColor.
         // Sits at the very bottom; visible if no wallpaper is set, or peeks
         // through translucent wallpapers, keeping the look-and-feel coherent.
         Rectangle {
@@ -220,7 +220,7 @@ Item {
             alwaysShowClock: config.alwaysShowClock && !config.hideClockWhenIdle
         }
 
-        // Hush scrim — dims the wallpaper so peach/navajowhite text reads.
+        // Umber scrim — dims the wallpaper so peach/navajowhite text reads.
         // Mirrors SDDM theme.conf BackgroundDimOpacity = 0.55.
         Rectangle {
             id: hushScrim

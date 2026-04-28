@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// Hush: verbatim copy of Plasma 6 stock config.qml.
+// Umber: verbatim copy of Plasma 6 stock config.qml.
 
 import QtQuick
 import QtQuick.Controls as QQC2

@@ -1,4 +1,4 @@
-# Hush
+# Umber
 
 A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Originally adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark), then muted for long-session comfort and built out into a full Nord-style palette.
 
@@ -23,8 +23,8 @@ Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, p
 
 | Path | What it is | Where it deploys |
 |------|------------|------------------|
-| `com.tyler.hush/` | Plasma 6 Look-and-Feel package + `Hush.colors` color scheme | `~/.local/share/plasma/look-and-feel/com.tyler.hush/` and `~/.local/share/color-schemes/Hush.colors` |
-| `konsole/Hush.colorscheme` | Konsole 16-ANSI palette | `~/.local/share/konsole/Hush.colorscheme` (referenced by a Konsole profile) |
+| `com.tyler.hush/` | Plasma 6 Look-and-Feel package + `Umber.colors` color scheme | `~/.local/share/plasma/look-and-feel/com.tyler.hush/` and `~/.local/share/color-schemes/Umber.colors` |
+| `konsole/Umber.colorscheme` | Konsole 16-ANSI palette | `~/.local/share/konsole/Umber.colorscheme` (referenced by a Konsole profile) |
 | `hush-sddm/` | SDDM greeter theme — Qt6 port of sddm-sugar-dark with solid charcoal background | `/usr/share/sddm/themes/hush/` (system-wide; needs sudo) |
 | `hush-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/tyler.hush-1.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
 | `hush-firefox/` | Firefox WebExtension theme (manifest v2) | loaded via `about:debugging` (temporary) or signed for permanent install |
@@ -33,11 +33,11 @@ Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, p
 | `preview.svg` | Small thumbnail for store listings | — |
 
 Bundled assets:
-- **Cursor:** `cursors/Hush-cursor/` — pre-built recolor of [Nordic-cursors](https://github.com/EliverLara/Nordic-cursors) (Nord palette → Hush palette, pixel-by-pixel). Regeneratable via `scripts/build-cursor.sh` if you have Nordic-cursors at `~/.icons/Nordic-cursors`.
-- **Wallpaper:** `com.tyler.hush/contents/wallpapers/Hush/` — 4K charcoal-to-faint-peach gradient. Regeneratable via `scripts/render_wallpaper.py`.
+- **Cursor:** `cursors/Umber-cursor/` — pre-built recolor of [Nordic-cursors](https://github.com/EliverLara/Nordic-cursors) (Nord palette → Umber palette, pixel-by-pixel). Regeneratable via `scripts/build-cursor.sh` if you have Nordic-cursors at `~/.icons/Nordic-cursors`.
+- **Wallpaper:** `com.tyler.hush/contents/wallpapers/Umber/` — 4K charcoal-to-faint-peach gradient. Regeneratable via `scripts/render_wallpaper.py`.
 
 External dependency (auto-installed by `install.sh`):
-- **Icons:** [Newaita-reborn-light-brown-dark](https://github.com/cbrnix/Newaita-reborn) — desaturated taupe folders match Hush's `glow.dim` register. The Global Theme references it by name; `install.sh` clones and copies the `Newaita-reborn-light-brown-dark/` variant if it isn't already present at `~/.local/share/icons/`.
+- **Icons:** [Newaita-reborn-light-brown-dark](https://github.com/cbrnix/Newaita-reborn) — desaturated taupe folders match Umber's `glow.dim` register. The Global Theme references it by name; `install.sh` clones and copies the `Newaita-reborn-light-brown-dark/` variant if it isn't already present at `~/.local/share/icons/`.
 
 ## Install
 
@@ -49,18 +49,18 @@ Run the one-shot installer from the repo root:
 ./install.sh
 ```
 
-This installs the Newaita icons (if missing), the Hush cursor, color scheme, Look-and-Feel package, Konsole scheme, and VSCode extension link, then applies the Global Theme. Components that need sudo or browser UI (SDDM, Firefox, Chromium) are listed at the end of the script's output for you to run manually.
+This installs the Newaita icons (if missing), the Umber cursor, color scheme, Look-and-Feel package, Konsole scheme, and VSCode extension link, then applies the Global Theme. Components that need sudo or browser UI (SDDM, Firefox, Chromium) are listed at the end of the script's output for you to run manually.
 
 ### What the Global Theme covers
 
 | Component | Auto-applied by Global Theme | Notes |
 |-----------|:---:|---|
-| Color scheme (Hush) | yes | via `defaults` |
+| Color scheme (Umber) | yes | via `defaults` |
 | Window decoration colors | yes | reads `[WM]` from the colorscheme |
-| Cursor (Hush-cursor) | yes | needs cursor installed first; `install.sh` handles |
+| Cursor (Umber-cursor) | yes | needs cursor installed first; `install.sh` handles |
 | Icons (Newaita-reborn-light-brown-dark) | yes | needs icons installed first; `install.sh` handles |
 | Splash screen | yes | the `Splash.qml` in this LnF |
-| Wallpaper | yes | bundled in `contents/wallpapers/Hush/` |
+| Wallpaper | yes | bundled in `contents/wallpapers/Umber/` |
 | Plasma widget style | no (uses Breeze) | no custom Plasma Style ships in v1 |
 | Aurorae window decoration | no (uses Breeze) | colorscheme drives titlebar palette |
 | Konsole profile colors | no | apply via Konsole settings (scheme is installed) |
@@ -75,18 +75,18 @@ If you want to install only one piece, the originals:
 ### Plasma colorscheme + Look-and-Feel
 ```fish
 cp -r com.tyler.hush ~/.local/share/plasma/look-and-feel/com.tyler.hush
-cp com.tyler.hush/contents/colors/Hush.colors ~/.local/share/color-schemes/Hush.colors
+cp com.tyler.hush/contents/colors/Umber.colors ~/.local/share/color-schemes/Umber.colors
 kbuildsycoca6 --noincremental
 cd /tmp; plasma-apply-lookandfeel -a com.tyler.hush
 # Force-reapply the colorscheme (toggle through BreezeLight to make Plasma rewrite [WM] inline values)
 plasma-apply-colorscheme BreezeLight
-plasma-apply-colorscheme Hush
+plasma-apply-colorscheme Umber
 ```
 
 ### Konsole
 ```fish
-cp konsole/Hush.colorscheme ~/.local/share/konsole/Hush.colorscheme
-# In Konsole: Settings → Edit Current Profile → Appearance → choose Hush
+cp konsole/Umber.colorscheme ~/.local/share/konsole/Umber.colorscheme
+# In Konsole: Settings → Edit Current Profile → Appearance → choose Umber
 ```
 
 ### SDDM (system-wide login)
@@ -119,7 +119,7 @@ if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in d):
     })
     p.write_text(json.dumps(d))
 '
-# Then Ctrl+K Ctrl+T → Hush.
+# Then Ctrl+K Ctrl+T → Umber.
 ```
 
 ### Firefox
@@ -144,17 +144,17 @@ if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in d):
 
 ## Known gotchas
 
-- **`plasma-apply-colorscheme Hush` says "already set" and is a no-op** when the scheme is already current — Plasma keeps any stale inline `[WM]` values in `~/.config/kdeglobals`. Toggle through another scheme (e.g. `BreezeLight`) first to force the rewrite.
+- **`plasma-apply-colorscheme Umber` says "already set" and is a no-op** when the scheme is already current — Plasma keeps any stale inline `[WM]` values in `~/.config/kdeglobals`. Toggle through another scheme (e.g. `BreezeLight`) first to force the rewrite.
 - **Don't run `plasma-apply-lookandfeel -a com.tyler.hush` from the project directory.** `kpackagetool6` resolves the source dir as a package path and the apply fails. Run from `/tmp` or anywhere outside the repo.
 - **Existing Konsole tabs hold the old palette** — open a new tab to see scheme changes.
 - The look-and-feel package's `metadata.json` needs `KPlugin.ServiceTypes: ["Plasma/LookAndFeel"]` *plus* top-level `X-Plasma-MainScript` and `X-Plasma-APIVersion`, otherwise `plasma-apply-lookandfeel` lists it but cannot apply it.
 
 ## Origin & credits
 
-- **Sugar Dark** by [Marian Arlt](https://github.com/MarianArlt/sddm-sugar-dark) (2018) — base for the SDDM theme and the warm-on-dark direction. Hush muted the palette (`#FFDEAD` navajowhite → `#D4BC91`; pure white `#FFFFFF` → `#E1E1E1`; View bg lifted `#1F1F1F` → `#242424`) and ported the QML to Qt6/Plasma 6. Upstream QML in `hush-sddm/` retains its GPL headers, and `hush-sddm/AUTHORS` + `CREDITS` + `COPYING` are preserved verbatim.
+- **Sugar Dark** by [Marian Arlt](https://github.com/MarianArlt/sddm-sugar-dark) (2018) — base for the SDDM theme and the warm-on-dark direction. Umber muted the palette (`#FFDEAD` navajowhite → `#D4BC91`; pure white `#FFFFFF` → `#E1E1E1`; View bg lifted `#1F1F1F` → `#242424`) and ported the QML to Qt6/Plasma 6. Upstream QML in `hush-sddm/` retains its GPL headers, and `hush-sddm/AUTHORS` + `CREDITS` + `COPYING` are preserved verbatim.
 - **Atom One Dark** — the Spark accent hexes (`#E06C75` red, `#D19A66` orange, `#E5C07B` amber, `#98C379` green) come from the One Dark palette, with `#C586B0` violet damped from One Dark's magenta for less ringing in long sessions.
 - **Nord** ([arcticicestudio/nord](https://www.nordtheme.com/)) — Mist tones (`#7AA8AC`, `#88A6C5`, `#A8BDD6`) lean on Nord's `nord8/9/10` for the cool counterweight.
-- **Nordic-cursors** by [EliverLara](https://github.com/EliverLara/Nordic-cursors) — pixel-source for `cursors/Hush-cursor/`. The recolor in `scripts/recolor_nordic_inplace.py` walks every xcursor binary and remaps Nord palette → Hush palette while preserving anti-aliased edges.
+- **Nordic-cursors** by [EliverLara](https://github.com/EliverLara/Nordic-cursors) — pixel-source for `cursors/Umber-cursor/`. The recolor in `scripts/recolor_nordic_inplace.py` walks every xcursor binary and remaps Nord palette → Umber palette while preserving anti-aliased edges.
 - **Newaita-reborn** by [cbrnix](https://github.com/cbrnix/Newaita-reborn) — paired icon set (`Newaita-reborn-light-brown-dark` variant); auto-installed by `install.sh`. Not redistributed in this repo.
 
 Licensed GPL-3.0-or-later. See `LICENSE` at the repo root.
