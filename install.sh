@@ -195,11 +195,54 @@ else
     note "plasma-changeicons helper not found — pick icons manually in System Settings."
 fi
 plasma-apply-cursortheme Hush-cursor >/dev/null 2>&1 || true
+# kscreenlocker_greet resolves its QML from contents/lockscreen/ inside the
+# active LookAndFeelPackage (set in kdeglobals by plasma-apply-lookandfeel).
+# Each lock spawns a fresh greeter process, so the Hush lockscreen picks up
+# the next time the screen locks (no daemon restart needed).
 ok "Global Theme applied"
 
 # ---------------------------------------------------------------------------
-cat <<EOF
+# SDDM conf.d shadow scan: SDDM's ConfigReader walks /etc/sddm.conf.d/ with
+# QDir::entryList(Files|NoDotAndDotDot, LocaleAware) — no extension filter,
+# alphabetical merge, last value wins. Any stray file (kde_settings.conf.bak,
+# editor swap files, distro leftovers) that defines [Theme]/Current= and
+# sorts after kde_settings.conf will silently override Current=hush. Renaming
+# inside conf.d cannot fix this; the file must be moved out of the directory.
+# This scan is read-only (the dir is world-readable) and builds a tailored
+# remediation block printed in the manual-steps section below.
+step "Scanning /etc/sddm.conf.d/ for shadow files"
+SDDM_CONF_D="/etc/sddm.conf.d"
+SDDM_SHADOW_BLOCK=""
+if [[ -d "$SDDM_CONF_D" ]]; then
+    shadow_files=()
+    while IFS= read -r f; do
+        [[ -f "$f" ]] || continue
+        bn="$(basename "$f")"
+        # kde_settings.conf is the canonical file install.sh & the KCM write to.
+        [[ "$bn" == "kde_settings.conf" ]] && continue
+        # Only flag files that try to set a non-empty theme.
+        if grep -qE '^[[:space:]]*Current=[^[:space:]]' "$f" 2>/dev/null; then
+            shadow_files+=("$f")
+        fi
+    done < <(find "$SDDM_CONF_D" -maxdepth 1 -type f 2>/dev/null | LC_ALL=C sort)
+    if (( ${#shadow_files[@]} > 0 )); then
+        for f in "${shadow_files[@]}"; do
+            err "shadow file: $f sets Current= and will override kde_settings.conf"
+        done
+        SDDM_SHADOW_BLOCK=$'\n\033[1;31m==> SDDM SHADOW FILES DETECTED\033[0m\nSDDM reads every file in /etc/sddm.conf.d/ (no extension filter, alphabetical,\nlast wins). The files below set [Theme]/Current= and will silently override\n/etc/sddm.conf.d/kde_settings.conf. Move them out of the directory to fix\n(content is preserved):\n'
+        for f in "${shadow_files[@]}"; do
+            SDDM_SHADOW_BLOCK+="    sudo mv \"$f\" \"/etc/$(basename "$f")\""$'\n'
+        done
+    else
+        ok "no shadow files in $SDDM_CONF_D"
+    fi
+else
+    note "$SDDM_CONF_D not present — SDDM may not be installed"
+fi
 
+# ---------------------------------------------------------------------------
+cat <<EOF
+$SDDM_SHADOW_BLOCK
 \033[1;33m==> MANUAL STEPS REMAINING\033[0m
 
 These can't be automated by this script (sudo, browser UI, or out-of-process action):
@@ -212,6 +255,9 @@ These can't be automated by this script (sudo, browser UI, or out-of-process act
   updates an existing install in place (instead of nesting hush-sddm/ inside).
   Any KCM-set background (theme.conf.user, wallpaper png in the theme dir)
   is preserved — only files shipped by Hush are overwritten.
+  Heads-up: SDDM reads /etc/sddm.conf.d/ with no extension filter (alphabetical,
+  last wins). Don't leave .bak / .orig / editor-swap files in that directory —
+  they will silently override Current=hush. The script scans for these above.
   Test windowed first: sddm-greeter-qt6 --test-mode --theme "$REPO_ROOT/hush-sddm"
 
 \033[1;36mLock screen\033[0m — optional, makes kscreenlocker reuse SDDM's wallpaper:
@@ -219,10 +265,10 @@ These can't be automated by this script (sudo, browser UI, or out-of-process act
     [[ -n "\$SDDM_BG" ]] && kwriteconfig6 --file kscreenlockerrc \\
         --group Greeter --group Wallpaper --group org.kde.image --group General \\
         --key Image "/usr/share/sddm/themes/hush/\$SDDM_BG"
-  The lock UI itself is Plasma's default LockScreenUi.qml — it auto-inherits
-  the Hush color scheme. A custom Hush-styled lock UI would need ~400 lines
-  of org.kde.plasma.private.* QML and would break across Plasma minor versions,
-  so it's intentionally not bundled.
+  The Hush-styled lock UI (charcoal floor + 0.55 scrim mirroring SDDM) is
+  bundled in com.tyler.hush/contents/lockscreen/ and resolved automatically
+  by kscreenlocker_greet from the active LookAndFeelPackage in kdeglobals.
+  Test it with: loginctl lock-session   (Ctrl+Alt+L on most setups).
 
 \033[1;36mFirefox theme\033[0m — load via about:debugging:
     1. Visit about:debugging#/runtime/this-firefox
