@@ -4,7 +4,7 @@ A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Originally ad
 
 ![Palette preview](palette-preview.svg)
 
-![Plasma preview](com.tyler.hush/contents/previews/fullscreenpreview.jpg)
+![Plasma preview](com.tyler.umber/contents/previews/fullscreenpreview.jpg)
 
 ## Palette
 
@@ -23,10 +23,10 @@ Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, p
 
 | Path | What it is | Where it deploys |
 |------|------------|------------------|
-| `com.tyler.hush/` | Plasma 6 Look-and-Feel package + `Umber.colors` color scheme | `~/.local/share/plasma/look-and-feel/com.tyler.hush/` and `~/.local/share/color-schemes/Umber.colors` |
+| `com.tyler.umber/` | Plasma 6 Look-and-Feel package + `Umber.colors` color scheme | `~/.local/share/plasma/look-and-feel/com.tyler.umber/` and `~/.local/share/color-schemes/Umber.colors` |
 | `konsole/Umber.colorscheme` | Konsole 16-ANSI palette | `~/.local/share/konsole/Umber.colorscheme` (referenced by a Konsole profile) |
 | `umber-sddm/` | SDDM greeter theme — Qt6 port of sddm-sugar-dark with solid charcoal background | `/usr/share/sddm/themes/umber/` (system-wide; needs sudo) |
-| `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/tyler.hush-1.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
+| `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/tyler.umber-1.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
 | `umber-firefox/` | Firefox WebExtension theme (manifest v2) | loaded via `about:debugging` (temporary) or signed for permanent install |
 | `umber-chromium/` | Chromium / Chrome theme extension (manifest v3) | loaded unpacked via `chrome://extensions/` |
 | `palette-preview.svg` | Canonical visual reference for the 16-color spec | — |
@@ -34,7 +34,7 @@ Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, p
 
 Bundled assets:
 - **Cursor:** `cursors/Umber-cursor/` — pre-built recolor of [Nordic-cursors](https://github.com/EliverLara/Nordic-cursors) (Nord palette → Umber palette, pixel-by-pixel). Regeneratable via `scripts/build-cursor.sh` if you have Nordic-cursors at `~/.icons/Nordic-cursors`.
-- **Wallpaper:** `com.tyler.hush/contents/wallpapers/Umber/` — 4K charcoal-to-faint-peach gradient. Regeneratable via `scripts/render_wallpaper.py`.
+- **Wallpaper:** `com.tyler.umber/contents/wallpapers/Umber/` — 4K charcoal-to-faint-peach gradient. Regeneratable via `scripts/render_wallpaper.py`.
 
 External dependency (auto-installed by `install.sh`):
 - **Icons:** [Newaita-reborn-light-brown-dark](https://github.com/cbrnix/Newaita-reborn) — desaturated taupe folders match Umber's `glow.dim` register. The Global Theme references it by name; `install.sh` clones and copies the `Newaita-reborn-light-brown-dark/` variant if it isn't already present at `~/.local/share/icons/`.
@@ -74,10 +74,10 @@ If you want to install only one piece, the originals:
 
 ### Plasma colorscheme + Look-and-Feel
 ```fish
-cp -r com.tyler.hush ~/.local/share/plasma/look-and-feel/com.tyler.hush
-cp com.tyler.hush/contents/colors/Umber.colors ~/.local/share/color-schemes/Umber.colors
+cp -r com.tyler.umber ~/.local/share/plasma/look-and-feel/com.tyler.umber
+cp com.tyler.umber/contents/colors/Umber.colors ~/.local/share/color-schemes/Umber.colors
 kbuildsycoca6 --noincremental
-cd /tmp; plasma-apply-lookandfeel -a com.tyler.hush
+cd /tmp; plasma-apply-lookandfeel -a com.tyler.umber
 # Force-reapply the colorscheme (toggle through BreezeLight to make Plasma rewrite [WM] inline values)
 plasma-apply-colorscheme BreezeLight
 plasma-apply-colorscheme Umber
@@ -100,7 +100,7 @@ sudo sed -i 's/^Current=.*/Current=umber/' /etc/sddm.conf.d/kde_settings.conf
 
 ### VSCode / code-oss
 ```fish
-ln -sfn $PWD/umber-vscode ~/.vscode/extensions/tyler.hush-1.0.0
+ln -sfn $PWD/umber-vscode ~/.vscode/extensions/tyler.umber-1.0.0
 # (or ~/.vscode-oss/extensions/ for code-oss)
 # Microsoft VSCode caches its extension list and won't auto-pick up a symlink
 # until you also register it in extensions.json — easiest fix is to add a stub
@@ -109,12 +109,12 @@ python3 -c '
 import json, time, pathlib
 p = pathlib.Path.home()/".vscode"/"extensions"/"extensions.json"
 d = json.loads(p.read_text())
-if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in d):
+if not any(e.get("identifier", {}).get("id") == "tyler.umber" for e in d):
     d.append({
-        "identifier": {"id": "tyler.hush"},
+        "identifier": {"id": "tyler.umber"},
         "version": "1.0.0",
-        "location": {"$mid": 1, "path": str(pathlib.Path.home()/".vscode/extensions/tyler.hush-1.0.0"), "scheme": "file"},
-        "relativeLocation": "tyler.hush-1.0.0",
+        "location": {"$mid": 1, "path": str(pathlib.Path.home()/".vscode/extensions/tyler.umber-1.0.0"), "scheme": "file"},
+        "relativeLocation": "tyler.umber-1.0.0",
         "metadata": {"installedTimestamp": int(time.time()*1000), "pinned": True, "source": "vsix"},
     })
     p.write_text(json.dumps(d))
@@ -145,7 +145,7 @@ if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in d):
 ## Known gotchas
 
 - **`plasma-apply-colorscheme Umber` says "already set" and is a no-op** when the scheme is already current — Plasma keeps any stale inline `[WM]` values in `~/.config/kdeglobals`. Toggle through another scheme (e.g. `BreezeLight`) first to force the rewrite.
-- **Don't run `plasma-apply-lookandfeel -a com.tyler.hush` from the project directory.** `kpackagetool6` resolves the source dir as a package path and the apply fails. Run from `/tmp` or anywhere outside the repo.
+- **Don't run `plasma-apply-lookandfeel -a com.tyler.umber` from the project directory.** `kpackagetool6` resolves the source dir as a package path and the apply fails. Run from `/tmp` or anywhere outside the repo.
 - **Existing Konsole tabs hold the old palette** — open a new tab to see scheme changes.
 - The look-and-feel package's `metadata.json` needs `KPlugin.ServiceTypes: ["Plasma/LookAndFeel"]` *plus* top-level `X-Plasma-MainScript` and `X-Plasma-APIVersion`, otherwise `plasma-apply-lookandfeel` lists it but cannot apply it.
 

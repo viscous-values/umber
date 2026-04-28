@@ -204,7 +204,7 @@ Item {
         // Sits at the very bottom; visible if no wallpaper is set, or peeks
         // through translucent wallpapers, keeping the look-and-feel coherent.
         Rectangle {
-            id: hushFloor
+            id: umberFloor
             anchors.fill: parent
             color: "#2B2B2B"
             z: -2
@@ -223,7 +223,7 @@ Item {
         // Umber scrim — dims the wallpaper so peach/navajowhite text reads.
         // Mirrors SDDM theme.conf BackgroundDimOpacity = 0.55.
         Rectangle {
-            id: hushScrim
+            id: umberScrim
             anchors.fill: parent
             color: "#000000"
             opacity: 0.55

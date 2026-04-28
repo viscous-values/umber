@@ -20,18 +20,18 @@ import shutil
 import struct
 from pathlib import Path
 
-SRC = Path(os.environ.get("HUSH_CURSOR_SRC", Path.home() / ".icons" / "Nordic-cursors"))
-DST = Path(os.environ.get("HUSH_CURSOR_DST", Path.home() / ".local" / "share" / "icons" / "Umber-cursor"))
+SRC = Path(os.environ.get("UMBER_CURSOR_SRC", Path.home() / ".icons" / "Nordic-cursors"))
+DST = Path(os.environ.get("UMBER_CURSOR_DST", Path.home() / ".local" / "share" / "icons" / "Umber-cursor"))
 
 IMG_TYPE = 0xfffd0002
 
 # Endpoints for luminance remap (low-saturation pixels).
-HUSH_DARK  = (0x24, 0x24, 0x24)   # hearth.deep — body
-HUSH_LIGHT = (0xE1, 0xCD, 0xA5)   # glow.peach  — border / highlight
+UMBER_DARK  = (0x24, 0x24, 0x24)   # hearth.deep — body
+UMBER_LIGHT = (0xE1, 0xCD, 0xA5)   # glow.peach  — border / highlight
 
 # Hue buckets for saturated pixels. Hues in [0, 360).
 SATURATED_TARGETS = [
-    # (low_h, high_h, hush_rgb)
+    # (low_h, high_h, umber_rgb)
     ((345, 360), (0x88, 0xA6, 0xC5)),    # wraparound red→ unused but reserved
     ((0,   25),  (0xE0, 0x6C, 0x75)),    # red          -> spark.red
     ((25,  50),  (0xD1, 0x9A, 0x66)),    # orange       -> spark.orange
@@ -87,18 +87,18 @@ def remap_pixel(r, g, b, a):
                 # Blend target * lum + black * (1 - lum) is too dark for
                 # bright emblems. Use a softer rule: lerp from Umber hearth
                 # to target, with t = lum.
-                nr = lerp(HUSH_DARK[0], tr, lum)
-                ng = lerp(HUSH_DARK[1], tg, lum)
-                nb = lerp(HUSH_DARK[2], tb, lum)
+                nr = lerp(UMBER_DARK[0], tr, lum)
+                ng = lerp(UMBER_DARK[1], tg, lum)
+                nb = lerp(UMBER_DARK[2], tb, lum)
                 break
         else:
             nr, ng, nb = ur, ug, ub
     else:
         # Monochrome: luminance interpolation onto Umber hearth ↔ glow.peach.
         lum = (ur + ug + ub) / 3 / 255.0
-        nr = lerp(HUSH_DARK[0], HUSH_LIGHT[0], lum)
-        ng = lerp(HUSH_DARK[1], HUSH_LIGHT[1], lum)
-        nb = lerp(HUSH_DARK[2], HUSH_LIGHT[2], lum)
+        nr = lerp(UMBER_DARK[0], UMBER_LIGHT[0], lum)
+        ng = lerp(UMBER_DARK[1], UMBER_LIGHT[1], lum)
+        nb = lerp(UMBER_DARK[2], UMBER_LIGHT[2], lum)
 
     # Re-premultiply.
     if a < 255:

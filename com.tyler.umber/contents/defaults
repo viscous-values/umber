@@ -11,7 +11,7 @@ widgetStyle=Breeze
 cursorTheme=Umber-cursor
 
 [ksplashrc][KSplash]
-Theme=com.tyler.hush
+Theme=com.tyler.umber
 
 [kwinrc][org.kde.kdecoration2]
 library=org.kde.breeze

@@ -58,7 +58,7 @@ ok "all required commands present"
 # ---------------------------------------------------------------------------
 # Overwrite confirmation.
 existing=()
-[[ -d "$LNF_DIR/com.tyler.hush" ]]   && existing+=("$LNF_DIR/com.tyler.hush")
+[[ -d "$LNF_DIR/com.tyler.umber" ]]   && existing+=("$LNF_DIR/com.tyler.umber")
 [[ -d "$ICONS_DIR/Umber-cursor" ]]    && existing+=("$ICONS_DIR/Umber-cursor")
 [[ -f "$SCHEMES_DIR/Umber.colors" ]]  && existing+=("$SCHEMES_DIR/Umber.colors")
 if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
@@ -109,15 +109,15 @@ ok "installed to $ICONS_DIR/Umber-cursor"
 # ---------------------------------------------------------------------------
 step "Umber color scheme"
 mkdir -p "$SCHEMES_DIR"
-cp "$REPO_ROOT/com.tyler.hush/contents/colors/Umber.colors" "$SCHEMES_DIR/Umber.colors"
+cp "$REPO_ROOT/com.tyler.umber/contents/colors/Umber.colors" "$SCHEMES_DIR/Umber.colors"
 ok "installed to $SCHEMES_DIR/Umber.colors"
 
 # ---------------------------------------------------------------------------
 step "Plasma Look-and-Feel package"
 mkdir -p "$LNF_DIR"
-rm -rf "$LNF_DIR/com.tyler.hush"
-cp -a "$REPO_ROOT/com.tyler.hush" "$LNF_DIR/com.tyler.hush"
-ok "installed to $LNF_DIR/com.tyler.hush"
+rm -rf "$LNF_DIR/com.tyler.umber"
+cp -a "$REPO_ROOT/com.tyler.umber" "$LNF_DIR/com.tyler.umber"
+ok "installed to $LNF_DIR/com.tyler.umber"
 
 # ---------------------------------------------------------------------------
 step "Konsole color scheme"
@@ -130,7 +130,7 @@ note "Konsole: open Settings → Edit Current Profile → Appearance → choose 
 step "VSCode (Microsoft) extension link + cache stub"
 if [[ -d "$VSCODE_EXT_DIR" ]] || [[ -d "$HOME/.vscode" ]]; then
     mkdir -p "$VSCODE_EXT_DIR"
-    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/tyler.hush-1.0.0"
+    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/tyler.umber-1.0.0"
     python3 - <<'PYEOF'
 import json, time, pathlib
 p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
@@ -142,16 +142,16 @@ else:
         data = json.loads(p.read_text() or "[]")
     except json.JSONDecodeError:
         data = []
-if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in data):
+if not any(e.get("identifier", {}).get("id") == "tyler.umber" for e in data):
     data.append({
-        "identifier": {"id": "tyler.hush"},
+        "identifier": {"id": "tyler.umber"},
         "version": "1.0.0",
         "location": {
             "$mid": 1,
-            "path": str(pathlib.Path.home() / ".vscode/extensions/tyler.hush-1.0.0"),
+            "path": str(pathlib.Path.home() / ".vscode/extensions/tyler.umber-1.0.0"),
             "scheme": "file",
         },
-        "relativeLocation": "tyler.hush-1.0.0",
+        "relativeLocation": "tyler.umber-1.0.0",
         "metadata": {
             "installedTimestamp": int(time.time() * 1000),
             "pinned": True,
@@ -159,14 +159,14 @@ if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in data):
         },
     })
     p.write_text(json.dumps(data))
-    print("    .. registered tyler.hush in extensions.json")
+    print("    .. registered tyler.umber in extensions.json")
 else:
-    print("    .. tyler.hush already registered in extensions.json")
+    print("    .. tyler.umber already registered in extensions.json")
 PYEOF
-    ok "linked to $VSCODE_EXT_DIR/tyler.hush-1.0.0"
+    ok "linked to $VSCODE_EXT_DIR/tyler.umber-1.0.0"
     note "Restart VSCode, then Ctrl+K Ctrl+T → Umber."
 else
-    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/tyler.hush-1.0.0"
+    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/tyler.umber-1.0.0"
 fi
 
 # ---------------------------------------------------------------------------
@@ -177,7 +177,7 @@ ok "kbuildsycoca6 refreshed"
 # ---------------------------------------------------------------------------
 step "Applying Global Theme"
 # Run from /tmp to avoid kpackagetool6 resolving the source dir as a package path.
-( cd /tmp && plasma-apply-lookandfeel -a com.tyler.hush ) || {
+( cd /tmp && plasma-apply-lookandfeel -a com.tyler.umber ) || {
     echo "WARNING: plasma-apply-lookandfeel failed — try logging out / back in." >&2
 }
 # Force-rewrite [WM] inline values by toggling colorscheme.
@@ -266,7 +266,7 @@ These can't be automated by this script (sudo, browser UI, or out-of-process act
         --group Greeter --group Wallpaper --group org.kde.image --group General \\
         --key Image "/usr/share/sddm/themes/umber/\$SDDM_BG"
   The Umber-styled lock UI (charcoal floor + 0.55 scrim mirroring SDDM) is
-  bundled in com.tyler.hush/contents/lockscreen/ and resolved automatically
+  bundled in com.tyler.umber/contents/lockscreen/ and resolved automatically
   by kscreenlocker_greet from the active LookAndFeelPackage in kdeglobals.
   Test it with: loginctl lock-session   (Ctrl+Alt+L on most setups).
 
