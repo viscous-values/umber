@@ -1,0 +1,45 @@
+# Umber palette — single source of truth.
+#
+# scripts/render_palette.py reads this file and writes the per-consumer
+# palette files (Plasma .colors, Konsole .colorscheme, VSCode theme JSON,
+# Firefox/Chromium manifests, SDDM theme.conf, splash + lockscreen QML)
+# from templates under scripts/templates/. To change a color:
+#
+#   1. Edit the value here
+#   2. Run:  python scripts/render_palette.py render
+#   3. Commit both palette.toml and the regenerated consumer files
+#
+# 16-color palette in 4 tiers. Tier names are component roles, independent
+# of the project name:
+#   hearth — surfaces (deepest bg → border tier)
+#   glow   — warm foregrounds (muted → brightest)
+#   mist   — cool accents (currently 3 — teal, blue, soft blue)
+#   spark  — vivid semantic accents
+#
+# WCAG AA contrast notes:
+#   glow.0 on hearth.1 ≈ 3.8:1 — intentional for hints/disabled, not body text
+#   spark.red on hearth.0 ≈ 4.5:1 — at AA threshold; fine for icons + text
+
+[hearth]
+"0" = "#242424"   # deepest bg     — editor, modals, splash
+"1" = "#2B2B2B"   # panel bg       — sidebar, header, tabs, lockscreen floor
+"2" = "#333333"   # raised surface — hover, status bar, peek title
+"3" = "#444444"   # border         — divider, focus, button alt
+
+[glow]
+"0" = "#A89986"   # muted / disabled / hint
+"1" = "#D4BC91"   # primary fg     — body text
+"2" = "#E1CDA5"   # emphasized fg  — active text, selection alt
+"3" = "#E1E1E1"   # brightest fg   — cursor, highlights
+
+[mist]
+"0" = "#7AA8AC"   # cool teal     — regex, brackets[6]
+"1" = "#88A6C5"   # primary blue  — focus, function names, links
+"2" = "#A8BDD6"   # softer blue   — comments, hints
+
+[spark]
+red    = "#E06C75"   # error / negative / delete
+orange = "#D19A66"   # numbers / constants / debug
+amber  = "#E5C07B"   # warning / neutral / pending
+green  = "#98C379"   # success / strings / added
+violet = "#C586B0"   # keyword / visited / control flow

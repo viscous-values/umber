@@ -1,0 +1,155 @@
+# Umber — KDE Plasma 6 color scheme
+# Palette: 16 colors in 4 tiers (Hearth, Glow, Mist, Spark). Source of truth: palette-preview.svg in the repo root.
+#   Hearth (surfaces):  {{ hearth.0 }} {{ hearth.1 }} {{ hearth.2 }} {{ hearth.3 }}
+#   Glow (warm fgs):    {{ glow.0 }} {{ glow.1 }} {{ glow.2 }} {{ glow.3 }}
+#   Mist (cool accents): {{ mist.0 }} {{ mist.1 }} {{ mist.2 }}
+#   Spark (vivid):       red {{ spark.red }}  orange {{ spark.orange }}  amber {{ spark.amber }}  green {{ spark.green }}  violet {{ spark.violet }}
+# Negative=spark.red, Neutral=spark.amber, Positive=spark.green, Visited=spark.violet (web-link convention).
+
+[ColorEffects:Disabled]
+Color=56,56,56
+ColorAmount=0
+ColorEffect=0
+ContrastAmount=0.65
+ContrastEffect=1
+IntensityAmount=0.1
+IntensityEffect=2
+
+[ColorEffects:Inactive]
+ChangeSelectionColor=true
+Color=112,111,110
+ColorAmount=0.025
+ColorEffect=2
+ContrastAmount=0.1
+ContrastEffect=2
+Enable=false
+IntensityAmount=0
+IntensityEffect=0
+
+[Colors:Button]
+BackgroundAlternate={{ hearth.3 | rgb }}
+BackgroundNormal={{ hearth.2 | rgb }}
+DecorationFocus={{ glow.3 | rgb }}
+DecorationHover={{ glow.3 | rgb }}
+ForegroundActive={{ glow.3 | rgb }}
+ForegroundInactive={{ glow.0 | rgb }}
+ForegroundLink={{ glow.2 | rgb }}
+ForegroundNegative={{ spark.red | rgb }}
+ForegroundNeutral={{ spark.amber | rgb }}
+ForegroundNormal={{ glow.1 | rgb }}
+ForegroundPositive={{ spark.green | rgb }}
+ForegroundVisited={{ spark.violet | rgb }}
+
+[Colors:Complementary]
+BackgroundAlternate={{ hearth.2 | rgb }}
+BackgroundNormal={{ hearth.0 | rgb }}
+DecorationFocus={{ glow.3 | rgb }}
+DecorationHover={{ glow.3 | rgb }}
+ForegroundActive={{ glow.3 | rgb }}
+ForegroundInactive={{ glow.0 | rgb }}
+ForegroundLink={{ glow.2 | rgb }}
+ForegroundNegative={{ spark.red | rgb }}
+ForegroundNeutral={{ spark.amber | rgb }}
+ForegroundNormal={{ glow.1 | rgb }}
+ForegroundPositive={{ spark.green | rgb }}
+ForegroundVisited={{ spark.violet | rgb }}
+
+[Colors:Header]
+BackgroundAlternate={{ hearth.1 | rgb }}
+BackgroundNormal={{ hearth.2 | rgb }}
+DecorationFocus={{ glow.3 | rgb }}
+DecorationHover={{ glow.3 | rgb }}
+ForegroundActive={{ glow.3 | rgb }}
+ForegroundInactive={{ glow.0 | rgb }}
+ForegroundLink={{ glow.2 | rgb }}
+ForegroundNegative={{ spark.red | rgb }}
+ForegroundNeutral={{ spark.amber | rgb }}
+ForegroundNormal={{ glow.1 | rgb }}
+ForegroundPositive={{ spark.green | rgb }}
+ForegroundVisited={{ spark.violet | rgb }}
+
+[Colors:Header][Inactive]
+BackgroundAlternate={{ hearth.2 | rgb }}
+BackgroundNormal={{ hearth.1 | rgb }}
+DecorationFocus={{ glow.3 | rgb }}
+DecorationHover={{ glow.3 | rgb }}
+ForegroundActive={{ glow.3 | rgb }}
+ForegroundInactive={{ glow.0 | rgb }}
+ForegroundLink={{ glow.2 | rgb }}
+ForegroundNegative={{ spark.red | rgb }}
+ForegroundNeutral={{ spark.amber | rgb }}
+ForegroundNormal={{ glow.1 | rgb }}
+ForegroundPositive={{ spark.green | rgb }}
+ForegroundVisited={{ spark.violet | rgb }}
+
+[Colors:Selection]
+BackgroundAlternate={{ spark.amber | rgb }}
+BackgroundNormal={{ glow.1 | rgb }}
+DecorationFocus={{ hearth.1 | rgb }}
+DecorationHover={{ hearth.1 | rgb }}
+ForegroundActive={{ hearth.0 | rgb }}
+ForegroundInactive={{ hearth.3 | rgb }}
+ForegroundLink=139,90,0
+ForegroundNegative=160,44,50
+ForegroundNeutral=139,90,0
+ForegroundNormal={{ hearth.1 | rgb }}
+ForegroundPositive=45,80,22
+ForegroundVisited=92,66,37
+
+[Colors:Tooltip]
+BackgroundAlternate={{ hearth.2 | rgb }}
+BackgroundNormal={{ hearth.3 | rgb }}
+DecorationFocus={{ glow.3 | rgb }}
+DecorationHover={{ glow.3 | rgb }}
+ForegroundActive={{ glow.3 | rgb }}
+ForegroundInactive={{ glow.0 | rgb }}
+ForegroundLink={{ glow.2 | rgb }}
+ForegroundNegative={{ spark.red | rgb }}
+ForegroundNeutral={{ spark.amber | rgb }}
+ForegroundNormal={{ glow.1 | rgb }}
+ForegroundPositive={{ spark.green | rgb }}
+ForegroundVisited={{ spark.violet | rgb }}
+
+[Colors:View]
+BackgroundAlternate={{ hearth.1 | rgb }}
+BackgroundNormal={{ hearth.0 | rgb }}
+DecorationFocus={{ glow.3 | rgb }}
+DecorationHover={{ glow.3 | rgb }}
+ForegroundActive={{ glow.3 | rgb }}
+ForegroundInactive={{ glow.0 | rgb }}
+ForegroundLink={{ glow.2 | rgb }}
+ForegroundNegative={{ spark.red | rgb }}
+ForegroundNeutral={{ spark.amber | rgb }}
+ForegroundNormal={{ glow.1 | rgb }}
+ForegroundPositive={{ spark.green | rgb }}
+ForegroundVisited={{ spark.violet | rgb }}
+
+[Colors:Window]
+BackgroundAlternate={{ hearth.2 | rgb }}
+BackgroundNormal={{ hearth.1 | rgb }}
+DecorationFocus={{ glow.3 | rgb }}
+DecorationHover={{ glow.3 | rgb }}
+ForegroundActive={{ glow.3 | rgb }}
+ForegroundInactive={{ glow.0 | rgb }}
+ForegroundLink={{ glow.2 | rgb }}
+ForegroundNegative={{ spark.red | rgb }}
+ForegroundNeutral={{ spark.amber | rgb }}
+ForegroundNormal={{ glow.1 | rgb }}
+ForegroundPositive={{ spark.green | rgb }}
+ForegroundVisited={{ spark.violet | rgb }}
+
+[General]
+ColorScheme=Umber
+Name=Umber
+shadeSortColumn=true
+
+[KDE]
+contrast=4
+
+[WM]
+activeBackground={{ hearth.2 | rgb }}
+activeBlend={{ glow.3 | rgb }}
+activeForeground={{ glow.1 | rgb }}
+inactiveBackground={{ hearth.1 | rgb }}
+inactiveBlend={{ glow.0 | rgb }}
+inactiveForeground={{ glow.0 | rgb }}

@@ -18,28 +18,43 @@ Recolor strategy:
 import os
 import shutil
 import struct
+import tomllib
 from pathlib import Path
 
+REPO = Path(__file__).resolve().parent.parent
 SRC = Path(os.environ.get("UMBER_CURSOR_SRC", Path.home() / ".icons" / "Nordic-cursors"))
 DST = Path(os.environ.get("UMBER_CURSOR_DST", Path.home() / ".local" / "share" / "icons" / "Umber-cursor"))
 
 IMG_TYPE = 0xfffd0002
 
+
+def _hex_rgb(h):
+    h = h.lstrip("#")
+    return (int(h[:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
+
+with open(REPO / "palette.toml", "rb") as _f:
+    _PALETTE = tomllib.load(_f)
+_HEARTH = _PALETTE["hearth"]
+_GLOW   = _PALETTE["glow"]
+_MIST   = _PALETTE["mist"]
+_SPARK  = _PALETTE["spark"]
+
 # Endpoints for luminance remap (low-saturation pixels).
-UMBER_DARK  = (0x24, 0x24, 0x24)   # hearth.deep — body
-UMBER_LIGHT = (0xE1, 0xCD, 0xA5)   # glow.peach  — border / highlight
+UMBER_DARK  = _hex_rgb(_HEARTH["0"])   # body
+UMBER_LIGHT = _hex_rgb(_GLOW["2"])     # border / highlight
 
 # Hue buckets for saturated pixels. Hues in [0, 360).
 SATURATED_TARGETS = [
     # (low_h, high_h, umber_rgb)
-    ((345, 360), (0x88, 0xA6, 0xC5)),    # wraparound red→ unused but reserved
-    ((0,   25),  (0xE0, 0x6C, 0x75)),    # red          -> spark.red
-    ((25,  50),  (0xD1, 0x9A, 0x66)),    # orange       -> spark.orange
-    ((50,  75),  (0xE5, 0xC0, 0x7B)),    # yellow/amber -> spark.amber
-    ((75, 165),  (0x98, 0xC3, 0x79)),    # green        -> spark.green
-    ((165, 200), (0xE5, 0xC0, 0x7B)),    # nord teal/cyan -> Umber spark.amber (accent slot)
-    ((200, 260), (0x88, 0xA6, 0xC5)),    # blue         -> mist.blue
-    ((260, 345), (0xC5, 0x86, 0xB0)),    # purple       -> spark.violet
+    ((345, 360), _hex_rgb(_MIST["1"])),     # wraparound red→ unused but reserved
+    ((0,   25),  _hex_rgb(_SPARK["red"])),
+    ((25,  50),  _hex_rgb(_SPARK["orange"])),
+    ((50,  75),  _hex_rgb(_SPARK["amber"])),
+    ((75, 165),  _hex_rgb(_SPARK["green"])),
+    ((165, 200), _hex_rgb(_SPARK["amber"])),  # nord teal/cyan -> Umber spark.amber (accent slot)
+    ((200, 260), _hex_rgb(_MIST["1"])),       # blue -> mist.blue
+    ((260, 345), _hex_rgb(_SPARK["violet"])),
 ]
 SAT_THRESHOLD = 0.18  # saturation below this is treated as monochrome
 

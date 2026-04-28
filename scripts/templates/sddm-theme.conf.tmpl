@@ -1,0 +1,93 @@
+[General]
+
+## [Background]
+
+BackgroundColor="{{ hearth.1 }}"
+## Solid background color. Charcoal matches the Plasma window background.
+
+Background=
+## Left empty so no image is loaded. Set to a filename in this directory to use an image instead.
+
+ScaleImageCropped=true
+## Only relevant if Background is set.
+
+
+
+## [Design Customizations]
+
+MainColor="{{ glow.1 }}"
+## Foreground color for unfocused elements. Muted navajowhite.
+
+AccentColor="{{ glow.3 }}"
+## Color for focused/hovered/pressed elements. Soft off-white.
+
+RoundCorners=20
+## Radius of input fields and login button.
+
+ScreenPadding=0
+
+Font="Noto Sans"
+
+FontSize=
+
+FormPosition=center
+## Where the login form sits. "center", "left", or "right".
+
+HaveFormBackground=false
+## When true, the form sits on a darker pane. With the solid charcoal bg we leave this off.
+
+PartialBlur=false
+## Only meaningful with a background image — softens the form pane (HaveFormBackground).
+
+BackgroundBlur=28
+## Gaussian-blur radius applied to a background image so text stays legible. 0 disables.
+
+BackgroundDimOpacity=0.55
+## Scrim opacity over the (blurred) background image. 0 disables.
+
+BackgroundImageAlignment=center
+
+
+
+## [Locale Settings]
+
+Locale=
+
+HourFormat="HH:mm"
+
+DateFormat="dddd, d of MMMM"
+
+
+
+## [Interface Behavior]
+
+ForceRightToLeft=false
+
+ForceLastUser=true
+
+ForcePasswordFocus=true
+
+ForceHideCompletePassword=false
+
+ForceHideVirtualKeyboardButton="true"
+## Hides the "Virtual Keyboard" button by default. Set to "false" on touch devices.
+
+
+
+## [Translations]
+
+HeaderText=
+## Empty by default — clock + date are the focal element. Set to e.g. "Welcome!" if you want a greeting above the clock.
+
+TranslateUsernamePlaceholder=""
+TranslatePasswordPlaceholder=""
+TranslateShowPassword=""
+TranslateLogin=""
+TranslateLoginFailedWarning=""
+TranslateCapslockWarning=""
+TranslateSession=""
+TranslateSuspend=""
+TranslateHibernate=""
+TranslateReboot=""
+TranslateShutdown=""
+TranslateVirtualKeyboardButton=""
