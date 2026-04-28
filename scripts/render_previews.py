@@ -209,7 +209,7 @@ def draw_window(img, x, y, w, h, font_title, font_body):
     draw.rounded_rectangle([cx, cy, cx + block_w, cy + block_h],
                            radius=4, fill=HEARTH["base"])
     code_lines = [
-        ("def ", SPARK["violet"]), ("hush", SPARK["amber"]),
+        ("def ", SPARK["violet"]), ("umber", SPARK["amber"]),
         ("(palette):", GLOW["dim"]),
     ]
     code_y = cy + 12

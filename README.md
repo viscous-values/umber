@@ -25,10 +25,10 @@ Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, p
 |------|------------|------------------|
 | `com.tyler.hush/` | Plasma 6 Look-and-Feel package + `Umber.colors` color scheme | `~/.local/share/plasma/look-and-feel/com.tyler.hush/` and `~/.local/share/color-schemes/Umber.colors` |
 | `konsole/Umber.colorscheme` | Konsole 16-ANSI palette | `~/.local/share/konsole/Umber.colorscheme` (referenced by a Konsole profile) |
-| `hush-sddm/` | SDDM greeter theme — Qt6 port of sddm-sugar-dark with solid charcoal background | `/usr/share/sddm/themes/hush/` (system-wide; needs sudo) |
-| `hush-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/tyler.hush-1.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
-| `hush-firefox/` | Firefox WebExtension theme (manifest v2) | loaded via `about:debugging` (temporary) or signed for permanent install |
-| `hush-chromium/` | Chromium / Chrome theme extension (manifest v3) | loaded unpacked via `chrome://extensions/` |
+| `umber-sddm/` | SDDM greeter theme — Qt6 port of sddm-sugar-dark with solid charcoal background | `/usr/share/sddm/themes/umber/` (system-wide; needs sudo) |
+| `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/tyler.hush-1.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
+| `umber-firefox/` | Firefox WebExtension theme (manifest v2) | loaded via `about:debugging` (temporary) or signed for permanent install |
+| `umber-chromium/` | Chromium / Chrome theme extension (manifest v3) | loaded unpacked via `chrome://extensions/` |
 | `palette-preview.svg` | Canonical visual reference for the 16-color spec | — |
 | `preview.svg` | Small thumbnail for store listings | — |
 
@@ -92,15 +92,15 @@ cp konsole/Umber.colorscheme ~/.local/share/konsole/Umber.colorscheme
 ### SDDM (system-wide login)
 ```fish
 # Test first (windowed):
-sddm-greeter-qt6 --test-mode --theme $PWD/hush-sddm
+sddm-greeter-qt6 --test-mode --theme $PWD/umber-sddm
 # Install + activate:
-sudo cp -r hush-sddm /usr/share/sddm/themes/hush
-sudo sed -i 's/^Current=.*/Current=hush/' /etc/sddm.conf.d/kde_settings.conf
+sudo cp -r umber-sddm /usr/share/sddm/themes/umber
+sudo sed -i 's/^Current=.*/Current=umber/' /etc/sddm.conf.d/kde_settings.conf
 ```
 
 ### VSCode / code-oss
 ```fish
-ln -sfn $PWD/hush-vscode ~/.vscode/extensions/tyler.hush-1.0.0
+ln -sfn $PWD/umber-vscode ~/.vscode/extensions/tyler.hush-1.0.0
 # (or ~/.vscode-oss/extensions/ for code-oss)
 # Microsoft VSCode caches its extension list and won't auto-pick up a symlink
 # until you also register it in extensions.json — easiest fix is to add a stub
@@ -131,7 +131,7 @@ if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in d):
 #
 # Quick dev path:
 #   1. Visit about:debugging#/runtime/this-firefox
-#   2. "Load Temporary Add-on…" → pick hush-firefox/manifest.json
+#   2. "Load Temporary Add-on…" → pick umber-firefox/manifest.json
 ```
 
 ### Chromium / Chrome
@@ -139,7 +139,7 @@ if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in d):
 # Persistent, no signing required — browser allows unpacked themes.
 #   1. Visit chrome://extensions/
 #   2. Toggle "Developer mode" (top right)
-#   3. "Load unpacked" → pick the hush-chromium/ folder
+#   3. "Load unpacked" → pick the umber-chromium/ folder
 ```
 
 ## Known gotchas
@@ -151,7 +151,7 @@ if not any(e.get("identifier", {}).get("id") == "tyler.hush" for e in d):
 
 ## Origin & credits
 
-- **Sugar Dark** by [Marian Arlt](https://github.com/MarianArlt/sddm-sugar-dark) (2018) — base for the SDDM theme and the warm-on-dark direction. Umber muted the palette (`#FFDEAD` navajowhite → `#D4BC91`; pure white `#FFFFFF` → `#E1E1E1`; View bg lifted `#1F1F1F` → `#242424`) and ported the QML to Qt6/Plasma 6. Upstream QML in `hush-sddm/` retains its GPL headers, and `hush-sddm/AUTHORS` + `CREDITS` + `COPYING` are preserved verbatim.
+- **Sugar Dark** by [Marian Arlt](https://github.com/MarianArlt/sddm-sugar-dark) (2018) — base for the SDDM theme and the warm-on-dark direction. Umber muted the palette (`#FFDEAD` navajowhite → `#D4BC91`; pure white `#FFFFFF` → `#E1E1E1`; View bg lifted `#1F1F1F` → `#242424`) and ported the QML to Qt6/Plasma 6. Upstream QML in `umber-sddm/` retains its GPL headers, and `umber-sddm/AUTHORS` + `CREDITS` + `COPYING` are preserved verbatim.
 - **Atom One Dark** — the Spark accent hexes (`#E06C75` red, `#D19A66` orange, `#E5C07B` amber, `#98C379` green) come from the One Dark palette, with `#C586B0` violet damped from One Dark's magenta for less ringing in long sessions.
 - **Nord** ([arcticicestudio/nord](https://www.nordtheme.com/)) — Mist tones (`#7AA8AC`, `#88A6C5`, `#A8BDD6`) lean on Nord's `nord8/9/10` for the cool counterweight.
 - **Nordic-cursors** by [EliverLara](https://github.com/EliverLara/Nordic-cursors) — pixel-source for `cursors/Umber-cursor/`. The recolor in `scripts/recolor_nordic_inplace.py` walks every xcursor binary and remaps Nord palette → Umber palette while preserving anti-aliased edges.

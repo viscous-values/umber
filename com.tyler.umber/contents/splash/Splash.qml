@@ -103,7 +103,7 @@ Rectangle {
             id: mark
             anchors.horizontalCenter: parent.horizontalCenter
             y: track.y + 38
-            text: "hush"
+            text: "umber"
             font.family: "Noto Sans"
             font.pointSize: 24
             font.letterSpacing: 8

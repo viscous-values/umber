@@ -9,7 +9,7 @@
   <rect width="1280" height="1080" fill="#2B2B2B"/>
 
   <!-- ============ TITLE ============ -->
-  <text x="48" y="58" font-size="32" fill="#D4BC91" font-weight="300" letter-spacing="6">hush</text>
+  <text x="48" y="58" font-size="32" fill="#D4BC91" font-weight="300" letter-spacing="6">umber</text>
   <text x="48" y="86" font-size="13" fill="#A89986">palette in context — Hearth · Glow · Mist · Spark</text>
   <line x1="48" y1="100" x2="1232" y2="100" stroke="#444444" stroke-width="1"/>
 
@@ -133,19 +133,19 @@
     <g class="mono" font-size="12">
       <!-- prompt line 1 -->
       <text x="16" y="58">
-        <tspan fill="#88A6C5">~/hush</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
+        <tspan fill="#88A6C5">~/umber</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
       </text>
       <text x="16" y="76">
         <tspan fill="#D4BC91">❯ </tspan><tspan fill="#E1CDA5">ls -la</tspan>
       </text>
       <text x="16" y="94" fill="#A89986">drwxr-xr-x  4 user user   100 Jan  1 12:00 <tspan fill="#88A6C5">com.tyler.hush</tspan></text>
-      <text x="16" y="110" fill="#A89986">drwxr-xr-x  3 user user    80 Jan  1 12:00 <tspan fill="#88A6C5">hush-sddm</tspan></text>
+      <text x="16" y="110" fill="#A89986">drwxr-xr-x  3 user user    80 Jan  1 12:00 <tspan fill="#88A6C5">umber-sddm</tspan></text>
       <text x="16" y="126" fill="#A89986">-rw-r--r--  1 user user  2195 Jan  1 12:00 <tspan fill="#D4BC91">preview.svg</tspan></text>
       <text x="16" y="142" fill="#A89986">-rw-r--r--  1 user user  4830 Jan  1 12:00 <tspan fill="#D4BC91">palette-preview.svg</tspan></text>
 
       <!-- prompt line 2 -->
       <text x="16" y="172">
-        <tspan fill="#88A6C5">~/hush</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
+        <tspan fill="#88A6C5">~/umber</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
       </text>
       <text x="16" y="190">
         <tspan fill="#D4BC91">❯ </tspan><tspan fill="#E1CDA5">git status</tspan>
@@ -156,7 +156,7 @@
 
       <!-- prompt line 3 -->
       <text x="16" y="268">
-        <tspan fill="#88A6C5">~/hush</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
+        <tspan fill="#88A6C5">~/umber</tspan><tspan fill="#A89986"> on </tspan><tspan fill="#C586B0"> master</tspan>
       </text>
       <text x="16" y="286">
         <tspan fill="#D4BC91">❯ </tspan><tspan fill="#E1CDA5">npm test</tspan>

@@ -130,7 +130,7 @@ note "Konsole: open Settings → Edit Current Profile → Appearance → choose 
 step "VSCode (Microsoft) extension link + cache stub"
 if [[ -d "$VSCODE_EXT_DIR" ]] || [[ -d "$HOME/.vscode" ]]; then
     mkdir -p "$VSCODE_EXT_DIR"
-    ln -sfn "$REPO_ROOT/hush-vscode" "$VSCODE_EXT_DIR/tyler.hush-1.0.0"
+    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/tyler.hush-1.0.0"
     python3 - <<'PYEOF'
 import json, time, pathlib
 p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
@@ -166,7 +166,7 @@ PYEOF
     ok "linked to $VSCODE_EXT_DIR/tyler.hush-1.0.0"
     note "Restart VSCode, then Ctrl+K Ctrl+T → Umber."
 else
-    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/hush-vscode ~/.vscode-oss/extensions/tyler.hush-1.0.0"
+    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/tyler.hush-1.0.0"
 fi
 
 # ---------------------------------------------------------------------------
@@ -206,7 +206,7 @@ ok "Global Theme applied"
 # QDir::entryList(Files|NoDotAndDotDot, LocaleAware) — no extension filter,
 # alphabetical merge, last value wins. Any stray file (kde_settings.conf.bak,
 # editor swap files, distro leftovers) that defines [Theme]/Current= and
-# sorts after kde_settings.conf will silently override Current=hush. Renaming
+# sorts after kde_settings.conf will silently override Current=umber. Renaming
 # inside conf.d cannot fix this; the file must be moved out of the directory.
 # This scan is read-only (the dir is world-readable) and builds a tailored
 # remediation block printed in the manual-steps section below.
@@ -248,23 +248,23 @@ $SDDM_SHADOW_BLOCK
 These can't be automated by this script (sudo, browser UI, or out-of-process action):
 
 \033[1;36mSDDM (login screen)\033[0m — needs sudo:
-    sudo mkdir -p /usr/share/sddm/themes/hush
-    sudo cp -r "$REPO_ROOT/hush-sddm/." /usr/share/sddm/themes/hush/
-    sudo sed -i 's/^Current=.*/Current=hush/' /etc/sddm.conf.d/kde_settings.conf
+    sudo mkdir -p /usr/share/sddm/themes/umber
+    sudo cp -r "$REPO_ROOT/umber-sddm/." /usr/share/sddm/themes/umber/
+    sudo sed -i 's/^Current=.*/Current=umber/' /etc/sddm.conf.d/kde_settings.conf
   Note: the trailing /. on the source copies contents, so re-running this
-  updates an existing install in place (instead of nesting hush-sddm/ inside).
+  updates an existing install in place (instead of nesting umber-sddm/ inside).
   Any KCM-set background (theme.conf.user, wallpaper png in the theme dir)
   is preserved — only files shipped by Umber are overwritten.
   Heads-up: SDDM reads /etc/sddm.conf.d/ with no extension filter (alphabetical,
   last wins). Don't leave .bak / .orig / editor-swap files in that directory —
-  they will silently override Current=hush. The script scans for these above.
-  Test windowed first: sddm-greeter-qt6 --test-mode --theme "$REPO_ROOT/hush-sddm"
+  they will silently override Current=umber. The script scans for these above.
+  Test windowed first: sddm-greeter-qt6 --test-mode --theme "$REPO_ROOT/umber-sddm"
 
 \033[1;36mLock screen\033[0m — optional, makes kscreenlocker reuse SDDM's wallpaper:
-    SDDM_BG="\$(awk -F= '/^background=/{print \$2}' /usr/share/sddm/themes/hush/theme.conf.user 2>/dev/null)"
+    SDDM_BG="\$(awk -F= '/^background=/{print \$2}' /usr/share/sddm/themes/umber/theme.conf.user 2>/dev/null)"
     [[ -n "\$SDDM_BG" ]] && kwriteconfig6 --file kscreenlockerrc \\
         --group Greeter --group Wallpaper --group org.kde.image --group General \\
-        --key Image "/usr/share/sddm/themes/hush/\$SDDM_BG"
+        --key Image "/usr/share/sddm/themes/umber/\$SDDM_BG"
   The Umber-styled lock UI (charcoal floor + 0.55 scrim mirroring SDDM) is
   bundled in com.tyler.hush/contents/lockscreen/ and resolved automatically
   by kscreenlocker_greet from the active LookAndFeelPackage in kdeglobals.
@@ -272,13 +272,13 @@ These can't be automated by this script (sudo, browser UI, or out-of-process act
 
 \033[1;36mFirefox theme\033[0m — load via about:debugging:
     1. Visit about:debugging#/runtime/this-firefox
-    2. "Load Temporary Add-on…" → pick $REPO_ROOT/hush-firefox/manifest.json
+    2. "Load Temporary Add-on…" → pick $REPO_ROOT/umber-firefox/manifest.json
   (Stable Firefox unloads unsigned extensions on restart. Sign on AMO or use
    Developer Edition with xpinstall.signatures.required=false for persistence.)
 
 \033[1;36mChromium / Chrome theme\033[0m — load unpacked:
     1. Visit chrome://extensions/
     2. Toggle "Developer mode"
-    3. "Load unpacked" → pick $REPO_ROOT/hush-chromium/
+    3. "Load unpacked" → pick $REPO_ROOT/umber-chromium/
 
 EOF
