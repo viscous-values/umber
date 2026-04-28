@@ -3,17 +3,21 @@
 # Idempotent: safe to re-run. Manual steps that need sudo or out-of-process
 # action (SDDM, Firefox, Chromium) are printed at the end, not auto-executed.
 #
-# Usage: ./install.sh [--yes]
-#   --yes  skip the overwrite confirmation (for non-interactive use)
+# Usage: ./install.sh [--yes] [--migrate]
+#   --yes      skip the overwrite confirmation (for non-interactive use)
+#   --migrate  clean up artifacts from the legacy "Hush" install before
+#              installing Umber (refuses to install otherwise if found)
 
 set -euo pipefail
 
 ASSUME_YES=0
+MIGRATE=0
 for arg in "$@"; do
     case "$arg" in
         -y|--yes) ASSUME_YES=1 ;;
+        --migrate) MIGRATE=1 ;;
         -h|--help)
-            sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         *) echo "Unknown argument: $arg" >&2; exit 2 ;;
@@ -70,6 +74,109 @@ if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
         y|Y|yes|YES) ;;
         *) echo "Aborted."; exit 0 ;;
     esac
+fi
+
+# ---------------------------------------------------------------------------
+# Hush → Umber migration. Detects artifacts left from the prior project name
+# and either cleans them up (--migrate) or refuses to install with a manual
+# cleanup recipe — prevents the dual-install footgun where both themes end up
+# half-applied across kdeglobals / plasmarc / extensions.json.
+hush_artifacts=()
+[[ -d "$LNF_DIR/com.tyler.hush" ]]       && hush_artifacts+=("$LNF_DIR/com.tyler.hush")
+[[ -f "$SCHEMES_DIR/Hush.colors" ]]      && hush_artifacts+=("$SCHEMES_DIR/Hush.colors")
+[[ -d "$ICONS_DIR/Hush-cursor" ]]        && hush_artifacts+=("$ICONS_DIR/Hush-cursor")
+[[ -f "$KONSOLE_DIR/Hush.colorscheme" ]] && hush_artifacts+=("$KONSOLE_DIR/Hush.colorscheme")
+[[ -e "$VSCODE_EXT_DIR/tyler.hush-1.0.0" ]] && hush_artifacts+=("$VSCODE_EXT_DIR/tyler.hush-1.0.0")
+
+if (( ${#hush_artifacts[@]} > 0 )); then
+    if (( MIGRATE == 1 )); then
+        step "Migrating from Hush"
+        for p in "${hush_artifacts[@]}"; do
+            # tyler.hush-1.0.0 is a symlink — unlink, do NOT rm -rf the target.
+            if [[ -L "$p" ]]; then
+                unlink "$p"
+                ok "unlinked $p"
+            else
+                rm -rf "$p"
+                ok "removed $p"
+            fi
+        done
+        for cfg in "$HOME/.config/kdedefaults/kdeglobals" "$HOME/.config/kdeglobals"; do
+            [[ -f "$cfg" ]] || continue
+            if grep -q '^ColorScheme=Hush$' "$cfg" 2>/dev/null; then
+                sed -i 's/^ColorScheme=Hush$/ColorScheme=Umber/' "$cfg"
+                ok "rewrote ColorScheme= in $cfg"
+            fi
+            if grep -q '^LookAndFeelPackage=com\.tyler\.hush$' "$cfg" 2>/dev/null; then
+                sed -i 's|^LookAndFeelPackage=com\.tyler\.hush$|LookAndFeelPackage=com.tyler.umber|' "$cfg"
+                ok "rewrote LookAndFeelPackage= in $cfg"
+            fi
+        done
+        if [[ -f "$HOME/.config/plasmarc" ]] && grep -q '^name=com\.tyler\.hush$' "$HOME/.config/plasmarc" 2>/dev/null; then
+            sed -i 's|^name=com\.tyler\.hush$|name=com.tyler.umber|' "$HOME/.config/plasmarc"
+            ok "rewrote name= in plasmarc"
+        fi
+        if [[ -f "$HOME/.config/kcminputrc" ]] && grep -q '^cursorTheme=Hush-cursor$' "$HOME/.config/kcminputrc" 2>/dev/null; then
+            sed -i 's/^cursorTheme=Hush-cursor$/cursorTheme=Umber-cursor/' "$HOME/.config/kcminputrc"
+            ok "rewrote cursorTheme= in kcminputrc"
+        fi
+        if [[ -f "$VSCODE_EXT_DIR/extensions.json" ]]; then
+            python3 - <<'PYEOF'
+import json, pathlib
+p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
+try:
+    data = json.loads(p.read_text() or "[]")
+except (FileNotFoundError, json.JSONDecodeError):
+    data = []
+before = len(data)
+data = [e for e in data if e.get("identifier", {}).get("id") != "tyler.hush"]
+if len(data) != before:
+    p.write_text(json.dumps(data))
+    print("    .. removed tyler.hush entry from extensions.json")
+PYEOF
+        fi
+        # SDDM is system-owned. Surface the sudo command instead of invoking it
+        # — keeps the install non-interactive-sudo and matches how the rest of
+        # the script handles SDDM (manual section at the end).
+        if [[ -f /etc/sddm.conf.d/kde_settings.conf ]] && grep -q '^Current=hush$' /etc/sddm.conf.d/kde_settings.conf 2>/dev/null; then
+            note "SDDM theme is still set to 'hush' — run:"
+            note "    sudo sed -i 's/^Current=hush\$/Current=umber/' /etc/sddm.conf.d/kde_settings.conf"
+        fi
+        if [[ -d /usr/share/sddm/themes/hush ]]; then
+            note "Old SDDM theme dir /usr/share/sddm/themes/hush still present — remove with:"
+            note "    sudo rm -rf /usr/share/sddm/themes/hush"
+        fi
+        note "Firefox: remove the old hush@tyler temporary add-on from about:debugging before loading Umber."
+        ok "Hush migration complete"
+    else
+        step "Existing Hush install detected"
+        for p in "${hush_artifacts[@]}"; do note "$p"; done
+        cat <<EOF
+
+The previous "Hush" install must be cleaned up before installing Umber.
+Re-run with --migrate to do this automatically:
+
+    ./install.sh --migrate
+
+Or remove the artifacts manually:
+
+EOF
+        for p in "${hush_artifacts[@]}"; do echo "    rm -rf $p"; done
+        cat <<EOF
+
+Plus rewrite these config keys if present:
+    ~/.config/kdedefaults/kdeglobals    ColorScheme=Hush             → Umber
+                                         LookAndFeelPackage=com.tyler.hush → com.tyler.umber
+    ~/.config/plasmarc                  name=com.tyler.hush          → com.tyler.umber
+    ~/.config/kcminputrc                cursorTheme=Hush-cursor      → Umber-cursor
+    /etc/sddm.conf.d/kde_settings.conf  Current=hush                 → umber  (needs sudo)
+    ~/.vscode/extensions/extensions.json   remove tyler.hush entry
+
+Refusing to install on top of existing Hush state to avoid the dual-install
+footgun (both themes half-applied across config files).
+EOF
+        exit 1
+    fi
 fi
 
 # ---------------------------------------------------------------------------
