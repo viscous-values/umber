@@ -9,11 +9,11 @@
 #   2. Run:  python scripts/render_palette.py render
 #   3. Commit both palette.toml and the regenerated consumer files
 #
-# 16-color palette in 4 tiers. Tier names are component roles, independent
+# 17-color palette in 4 tiers. Tier names are component roles, independent
 # of the project name:
-#   hearth — surfaces (deepest bg → border tier)
+#   hearth — surfaces (deepest bg → border tier; warm-tinted earth pigment)
 #   glow   — warm foregrounds (muted → brightest)
-#   mist   — cool accents (currently 3 — teal, blue, soft blue)
+#   mist   — cool accents (deep teal → soft blue)
 #   spark  — vivid semantic accents
 #
 # WCAG AA contrast notes:
@@ -21,21 +21,22 @@
 #   spark.red on hearth.0 ≈ 4.5:1 — at AA threshold; fine for icons + text
 
 [hearth]
-"0" = "#242424"   # deepest bg     — editor, modals, splash
-"1" = "#2B2B2B"   # panel bg       — sidebar, header, tabs, lockscreen floor
-"2" = "#333333"   # raised surface — hover, status bar, peek title
-"3" = "#444444"   # border         — divider, focus, button alt
+"0" = "#26221E"   # deepest bg     — editor, modals, splash         (warm-tinted)
+"1" = "#2D2823"   # panel bg       — sidebar, header, lockscreen    (warm-tinted)
+"2" = "#363029"   # raised surface — hover, status bar, peek title  (warm-tinted)
+"3" = "#48413A"   # border         — divider, focus, button alt     (warm-tinted)
 
 [glow]
 "0" = "#A89986"   # muted / disabled / hint
 "1" = "#D4BC91"   # primary fg     — body text
 "2" = "#E1CDA5"   # emphasized fg  — active text, selection alt
-"3" = "#E1E1E1"   # brightest fg   — cursor, highlights
+"3" = "#F0E5D0"   # brightest fg   — cursor, highlights              (warm cream, was #E1E1E1)
 
 [mist]
-"0" = "#7AA8AC"   # cool teal     — regex, brackets[6]
-"1" = "#88A6C5"   # primary blue  — focus, function names, links
-"2" = "#A8BDD6"   # softer blue   — comments, hints
+"0" = "#4F7A7E"   # deep teal      — reserved for syntax headroom    (NEW)
+"1" = "#7AA8AC"   # cool teal      — regex, brackets[6]
+"2" = "#88A6C5"   # primary blue   — focus, function names, links
+"3" = "#A8BDD6"   # softer blue    — comments, hints
 
 [spark]
 red    = "#E06C75"   # error / negative / delete

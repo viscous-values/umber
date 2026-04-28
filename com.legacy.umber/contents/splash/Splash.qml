@@ -5,7 +5,7 @@ import QtQuick 2.15
 // beneath in muted glow. No spinner, no progress bar — just a slow draw.
 Rectangle {
     id: root
-    color: "#242424"
+    color: "#26221E"
 
     property int stage
 
@@ -20,8 +20,8 @@ Rectangle {
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#242424" }
-            GradientStop { position: 1.0; color: "#2B2B2B" }
+            GradientStop { position: 0.0; color: "#26221E" }
+            GradientStop { position: 1.0; color: "#2D2823" }
         }
     }
 
@@ -40,7 +40,7 @@ Rectangle {
             y: 70
             width: parent.width
             height: 1
-            color: "#333333"
+            color: "#363029"
         }
 
         // The drawn portion — a horizontal gradient that fades in/out at the
@@ -118,7 +118,7 @@ Rectangle {
             y: mark.y + mark.height + 14
             width: 18
             height: 1
-            color: "#444444"
+            color: "#48413A"
         }
     }
 

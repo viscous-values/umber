@@ -15,6 +15,7 @@
     "mist0":   "{{ mist.0 }}",
     "mist1":   "{{ mist.1 }}",
     "mist2":   "{{ mist.2 }}",
+    "mist3":   "{{ mist.3 }}",
     "spark.red":    "{{ spark.red }}",
     "spark.orange": "{{ spark.orange }}",
     "spark.amber":  "{{ spark.amber }}",
@@ -23,7 +24,7 @@
   },
 
   "colors": {
-    "focusBorder": "{{ mist.1 }}",
+    "focusBorder": "{{ mist.2 }}",
     "foreground": "{{ glow.1 }}",
     "errorForeground": "{{ spark.red }}",
     "descriptionForeground": "{{ glow.0 }}",
@@ -36,8 +37,8 @@
     "editor.selectionBackground": "{{ glow.1 | rgba 2E }}",
     "editor.selectionHighlightBackground": "{{ glow.1 | rgba 20 }}",
     "editor.inactiveSelectionBackground": "{{ glow.1 | rgba 18 }}",
-    "editor.wordHighlightBackground": "{{ mist.1 | rgba 22 }}",
-    "editor.wordHighlightStrongBackground": "{{ mist.1 | rgba 40 }}",
+    "editor.wordHighlightBackground": "{{ mist.2 | rgba 22 }}",
+    "editor.wordHighlightStrongBackground": "{{ mist.2 | rgba 40 }}",
     "editor.findMatchBackground": "{{ spark.amber | rgba 66 }}",
     "editor.findMatchHighlightBackground": "{{ spark.amber | rgba 33 }}",
     "editor.findRangeHighlightBackground": "{{ spark.amber | rgba 22 }}",
@@ -48,32 +49,32 @@
     "editorIndentGuide.activeBackground1": "{{ glow.0 }}",
     "editorRuler.foreground": "{{ hearth.2 }}",
     "editorBracketMatch.background": "{{ hearth.3 }}",
-    "editorBracketMatch.border": "{{ mist.1 }}",
+    "editorBracketMatch.border": "{{ mist.2 }}",
     "editorLineNumber.foreground": "{{ glow.0 }}",
     "editorLineNumber.activeForeground": "{{ glow.1 }}",
     "editorOverviewRuler.border": "{{ hearth.1 }}",
     "editorOverviewRuler.findMatchForeground": "{{ spark.amber }}",
     "editorOverviewRuler.errorForeground": "{{ spark.red }}",
     "editorOverviewRuler.warningForeground": "{{ spark.amber }}",
-    "editorOverviewRuler.infoForeground": "{{ mist.1 }}",
+    "editorOverviewRuler.infoForeground": "{{ mist.2 }}",
     "editorOverviewRuler.modifiedForeground": "{{ spark.amber }}",
     "editorOverviewRuler.addedForeground": "{{ spark.green }}",
     "editorOverviewRuler.deletedForeground": "{{ spark.red }}",
 
     "editorError.foreground": "{{ spark.red }}",
     "editorWarning.foreground": "{{ spark.amber }}",
-    "editorInfo.foreground": "{{ mist.1 }}",
-    "editorHint.foreground": "{{ mist.2 }}",
+    "editorInfo.foreground": "{{ mist.2 }}",
+    "editorHint.foreground": "{{ mist.3 }}",
     "editorGutter.modifiedBackground": "{{ spark.amber }}",
     "editorGutter.addedBackground": "{{ spark.green }}",
     "editorGutter.deletedBackground": "{{ spark.red }}",
 
     "editorBracketHighlight.foreground1": "{{ glow.1 }}",
-    "editorBracketHighlight.foreground2": "{{ mist.1 }}",
+    "editorBracketHighlight.foreground2": "{{ mist.2 }}",
     "editorBracketHighlight.foreground3": "{{ spark.violet }}",
     "editorBracketHighlight.foreground4": "{{ spark.green }}",
     "editorBracketHighlight.foreground5": "{{ spark.amber }}",
-    "editorBracketHighlight.foreground6": "{{ mist.0 }}",
+    "editorBracketHighlight.foreground6": "{{ mist.1 }}",
 
     "diffEditor.insertedTextBackground": "{{ spark.green | rgba 22 }}",
     "diffEditor.removedTextBackground": "{{ spark.red | rgba 22 }}",
@@ -85,13 +86,13 @@
     "editorWidget.border": "{{ hearth.3 }}",
     "editorSuggestWidget.background": "{{ hearth.1 }}",
     "editorSuggestWidget.foreground": "{{ glow.1 }}",
-    "editorSuggestWidget.highlightForeground": "{{ mist.1 }}",
+    "editorSuggestWidget.highlightForeground": "{{ mist.2 }}",
     "editorSuggestWidget.selectedBackground": "{{ glow.1 | rgba 22 }}",
     "editorSuggestWidget.border": "{{ hearth.3 }}",
     "editorHoverWidget.background": "{{ hearth.1 }}",
     "editorHoverWidget.border": "{{ hearth.3 }}",
 
-    "peekView.border": "{{ mist.1 }}",
+    "peekView.border": "{{ mist.2 }}",
     "peekViewEditor.background": "{{ hearth.0 }}",
     "peekViewEditor.matchHighlightBackground": "{{ spark.amber | rgba 33 }}",
     "peekViewResult.background": "{{ hearth.1 }}",
@@ -105,7 +106,7 @@
     "activityBar.foreground": "{{ glow.1 }}",
     "activityBar.inactiveForeground": "{{ glow.0 }}",
     "activityBar.border": "{{ hearth.1 }}",
-    "activityBarBadge.background": "{{ mist.1 }}",
+    "activityBarBadge.background": "{{ mist.2 }}",
     "activityBarBadge.foreground": "{{ hearth.0 }}",
     "activityBar.activeBorder": "{{ glow.1 }}",
 
@@ -125,10 +126,10 @@
     "list.hoverForeground": "{{ glow.1 }}",
     "list.focusBackground": "{{ hearth.3 }}",
     "list.focusForeground": "{{ glow.2 }}",
-    "list.highlightForeground": "{{ mist.1 }}",
+    "list.highlightForeground": "{{ mist.2 }}",
     "list.errorForeground": "{{ spark.red }}",
     "list.warningForeground": "{{ spark.amber }}",
-    "list.dropBackground": "{{ mist.1 | rgba 33 }}",
+    "list.dropBackground": "{{ mist.2 | rgba 33 }}",
 
     "tree.indentGuidesStroke": "{{ hearth.3 }}",
     "tree.inactiveIndentGuidesStroke": "{{ hearth.2 }}",
@@ -142,7 +143,7 @@
     "statusBarItem.activeBackground": "{{ hearth.3 }}",
     "statusBarItem.hoverBackground": "{{ hearth.3 }}",
     "statusBarItem.prominentBackground": "{{ hearth.3 }}",
-    "statusBarItem.remoteBackground": "{{ mist.1 }}",
+    "statusBarItem.remoteBackground": "{{ mist.2 }}",
     "statusBarItem.remoteForeground": "{{ hearth.0 }}",
     "statusBarItem.errorBackground": "{{ spark.red }}",
     "statusBarItem.errorForeground": "{{ hearth.0 }}",
@@ -186,9 +187,9 @@
     "panelTitle.activeForeground": "{{ glow.2 }}",
     "panelTitle.inactiveForeground": "{{ glow.0 }}",
 
-    "button.background": "{{ mist.1 }}",
+    "button.background": "{{ mist.2 }}",
     "button.foreground": "{{ hearth.0 }}",
-    "button.hoverBackground": "{{ mist.2 }}",
+    "button.hoverBackground": "{{ mist.3 }}",
     "button.secondaryBackground": "{{ hearth.3 }}",
     "button.secondaryForeground": "{{ glow.1 }}",
     "button.secondaryHoverBackground": "#555555",
@@ -201,22 +202,22 @@
     "input.foreground": "{{ glow.1 }}",
     "input.border": "{{ hearth.3 }}",
     "input.placeholderForeground": "{{ glow.0 }}",
-    "inputOption.activeBackground": "{{ mist.1 | rgba 33 }}",
-    "inputOption.activeBorder": "{{ mist.1 }}",
+    "inputOption.activeBackground": "{{ mist.2 | rgba 33 }}",
+    "inputOption.activeBorder": "{{ mist.2 }}",
     "inputOption.activeForeground": "{{ glow.2 }}",
     "inputValidation.errorBackground": "{{ spark.red | rgba 22 }}",
     "inputValidation.errorBorder": "{{ spark.red }}",
     "inputValidation.warningBackground": "{{ spark.amber | rgba 22 }}",
     "inputValidation.warningBorder": "{{ spark.amber }}",
-    "inputValidation.infoBackground": "{{ mist.1 | rgba 22 }}",
-    "inputValidation.infoBorder": "{{ mist.1 }}",
+    "inputValidation.infoBackground": "{{ mist.2 | rgba 22 }}",
+    "inputValidation.infoBorder": "{{ mist.2 }}",
 
     "dropdown.background": "{{ hearth.1 }}",
     "dropdown.foreground": "{{ glow.1 }}",
     "dropdown.border": "{{ hearth.3 }}",
     "dropdown.listBackground": "{{ hearth.1 }}",
 
-    "badge.background": "{{ mist.1 }}",
+    "badge.background": "{{ mist.2 }}",
     "badge.foreground": "{{ hearth.0 }}",
 
     "scrollbar.shadow": "#00000080",
@@ -224,7 +225,7 @@
     "scrollbarSlider.hoverBackground": "#55555588",
     "scrollbarSlider.activeBackground": "{{ glow.0 | rgba AA }}",
 
-    "progressBar.background": "{{ mist.1 }}",
+    "progressBar.background": "{{ mist.2 }}",
 
     "notificationCenter.border": "{{ hearth.3 }}",
     "notificationCenterHeader.background": "{{ hearth.2 }}",
@@ -234,14 +235,14 @@
     "notifications.border": "{{ hearth.3 }}",
     "notificationsErrorIcon.foreground": "{{ spark.red }}",
     "notificationsWarningIcon.foreground": "{{ spark.amber }}",
-    "notificationsInfoIcon.foreground": "{{ mist.1 }}",
+    "notificationsInfoIcon.foreground": "{{ mist.2 }}",
 
     "gitDecoration.modifiedResourceForeground": "{{ spark.amber }}",
     "gitDecoration.deletedResourceForeground": "{{ spark.red }}",
     "gitDecoration.untrackedResourceForeground": "{{ spark.green }}",
     "gitDecoration.ignoredResourceForeground": "{{ glow.0 }}",
     "gitDecoration.conflictingResourceForeground": "{{ spark.red }}",
-    "gitDecoration.submoduleResourceForeground": "{{ mist.1 }}",
+    "gitDecoration.submoduleResourceForeground": "{{ mist.2 }}",
     "gitDecoration.stageModifiedResourceForeground": "{{ spark.amber }}",
     "gitDecoration.stageDeletedResourceForeground": "{{ spark.red }}",
 
@@ -253,15 +254,15 @@
     "terminal.ansiRed":           "{{ spark.red }}",
     "terminal.ansiGreen":         "{{ spark.green }}",
     "terminal.ansiYellow":        "{{ spark.amber }}",
-    "terminal.ansiBlue":          "{{ mist.1 }}",
+    "terminal.ansiBlue":          "{{ mist.2 }}",
     "terminal.ansiMagenta":       "{{ spark.violet }}",
-    "terminal.ansiCyan":          "{{ mist.0 }}",
+    "terminal.ansiCyan":          "{{ mist.1 }}",
     "terminal.ansiWhite":         "{{ glow.1 }}",
     "terminal.ansiBrightBlack":   "{{ glow.0 }}",
     "terminal.ansiBrightRed":     "#EB8590",
     "terminal.ansiBrightGreen":   "#B5D690",
     "terminal.ansiBrightYellow":  "#F0CF8E",
-    "terminal.ansiBrightBlue":    "{{ mist.2 }}",
+    "terminal.ansiBrightBlue":    "{{ mist.3 }}",
     "terminal.ansiBrightMagenta": "#D5A0C2",
     "terminal.ansiBrightCyan":    "#9CC4C7",
     "terminal.ansiBrightWhite":   "{{ glow.3 }}",
@@ -270,11 +271,11 @@
     "debugIcon.breakpointForeground": "{{ spark.red }}",
     "debugConsole.errorForeground": "{{ spark.red }}",
     "debugConsole.warningForeground": "{{ spark.amber }}",
-    "debugConsole.infoForeground": "{{ mist.1 }}",
+    "debugConsole.infoForeground": "{{ mist.2 }}",
     "debugConsole.sourceForeground": "{{ glow.0 }}",
 
-    "merge.currentHeaderBackground": "{{ mist.1 | rgba 66 }}",
-    "merge.currentContentBackground": "{{ mist.1 | rgba 22 }}",
+    "merge.currentHeaderBackground": "{{ mist.2 | rgba 66 }}",
+    "merge.currentContentBackground": "{{ mist.2 | rgba 22 }}",
     "merge.incomingHeaderBackground": "{{ spark.green | rgba 66 }}",
     "merge.incomingContentBackground": "{{ spark.green | rgba 22 }}",
     "merge.commonHeaderBackground": "{{ glow.0 | rgba 66 }}",
@@ -289,7 +290,7 @@
         "punctuation.definition.comment",
         "string.comment"
       ],
-      "settings": { "foreground": "{{ mist.2 }}", "fontStyle": "italic" }
+      "settings": { "foreground": "{{ mist.3 }}", "fontStyle": "italic" }
     },
     {
       "name": "Strings",
@@ -388,7 +389,7 @@
         "meta.function-call entity.name.function",
         "meta.method.declaration entity.name.function"
       ],
-      "settings": { "foreground": "{{ mist.1 }}" }
+      "settings": { "foreground": "{{ mist.2 }}" }
     },
     {
       "name": "Function parameters",
@@ -415,7 +416,7 @@
         "string.quoted.double.json support.type.property-name.json",
         "entity.name.tag.yaml"
       ],
-      "settings": { "foreground": "{{ mist.1 }}" }
+      "settings": { "foreground": "{{ mist.2 }}" }
     },
     {
       "name": "Variables",
@@ -462,7 +463,7 @@
         "constant.other.character-class.regexp",
         "constant.character.escape.regexp"
       ],
-      "settings": { "foreground": "{{ mist.0 }}" }
+      "settings": { "foreground": "{{ mist.1 }}" }
     },
     {
       "name": "HTML/JSX tags",
@@ -495,7 +496,7 @@
       "scope": [
         "support.type.property-name.css"
       ],
-      "settings": { "foreground": "{{ mist.1 }}" }
+      "settings": { "foreground": "{{ mist.2 }}" }
     },
     {
       "name": "CSS values",
@@ -538,7 +539,7 @@
         "string.other.link.title.markdown",
         "constant.other.reference.link.markdown"
       ],
-      "settings": { "foreground": "{{ mist.1 }}", "fontStyle": "underline" }
+      "settings": { "foreground": "{{ mist.2 }}", "fontStyle": "underline" }
     },
     {
       "name": "Markdown inline code",
@@ -561,7 +562,7 @@
       "scope": [
         "markup.quote"
       ],
-      "settings": { "foreground": "{{ mist.2 }}", "fontStyle": "italic" }
+      "settings": { "foreground": "{{ mist.3 }}", "fontStyle": "italic" }
     },
     {
       "name": "Diff inserted",
@@ -612,9 +613,9 @@
     "struct":    "{{ spark.amber }}",
     "typeParameter": { "foreground": "{{ spark.amber }}", "italic": true },
 
-    "namespace": "{{ mist.1 }}",
-    "function":  "{{ mist.1 }}",
-    "method":    "{{ mist.1 }}",
+    "namespace": "{{ mist.2 }}",
+    "function":  "{{ mist.2 }}",
+    "method":    "{{ mist.2 }}",
     "macro":     "{{ spark.violet }}",
 
     "property":   "{{ glow.1 }}",
@@ -624,10 +625,10 @@
 
     "keyword":  "{{ spark.violet }}",
     "operator": "{{ glow.0 }}",
-    "comment":  { "foreground": "{{ mist.2 }}", "italic": true },
+    "comment":  { "foreground": "{{ mist.3 }}", "italic": true },
     "string":   "{{ spark.green }}",
     "number":   "{{ spark.orange }}",
-    "regexp":   "{{ mist.0 }}",
+    "regexp":   "{{ mist.1 }}",
 
     "*.declaration":  { "bold": true },
     "*.deprecated":   { "strikethrough": true },
