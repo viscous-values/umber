@@ -58,7 +58,7 @@ ok "all required commands present"
 # ---------------------------------------------------------------------------
 # Overwrite confirmation.
 existing=()
-[[ -d "$LNF_DIR/com.legacy.hush" ]]   && existing+=("$LNF_DIR/com.legacy.hush")
+[[ -d "$LNF_DIR/com.legacy.umber" ]]   && existing+=("$LNF_DIR/com.legacy.umber")
 [[ -d "$ICONS_DIR/Umber-cursor" ]]    && existing+=("$ICONS_DIR/Umber-cursor")
 [[ -f "$SCHEMES_DIR/Umber.colors" ]]  && existing+=("$SCHEMES_DIR/Umber.colors")
 if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
@@ -109,15 +109,15 @@ ok "installed to $ICONS_DIR/Umber-cursor"
 # ---------------------------------------------------------------------------
 step "Umber color scheme"
 mkdir -p "$SCHEMES_DIR"
-cp "$REPO_ROOT/com.legacy.hush/contents/colors/Umber.colors" "$SCHEMES_DIR/Umber.colors"
+cp "$REPO_ROOT/com.legacy.umber/contents/colors/Umber.colors" "$SCHEMES_DIR/Umber.colors"
 ok "installed to $SCHEMES_DIR/Umber.colors"
 
 # ---------------------------------------------------------------------------
 step "Plasma Look-and-Feel package"
 mkdir -p "$LNF_DIR"
-rm -rf "$LNF_DIR/com.legacy.hush"
-cp -a "$REPO_ROOT/com.legacy.hush" "$LNF_DIR/com.legacy.hush"
-ok "installed to $LNF_DIR/com.legacy.hush"
+rm -rf "$LNF_DIR/com.legacy.umber"
+cp -a "$REPO_ROOT/com.legacy.umber" "$LNF_DIR/com.legacy.umber"
+ok "installed to $LNF_DIR/com.legacy.umber"
 
 # ---------------------------------------------------------------------------
 step "Konsole color scheme"
@@ -130,7 +130,7 @@ note "Konsole: open Settings → Edit Current Profile → Appearance → choose 
 step "VSCode (Microsoft) extension link + cache stub"
 if [[ -d "$VSCODE_EXT_DIR" ]] || [[ -d "$HOME/.vscode" ]]; then
     mkdir -p "$VSCODE_EXT_DIR"
-    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/legacy.hush-1.0.0"
+    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/legacy.umber-1.0.0"
     python3 - <<'PYEOF'
 import json, time, pathlib
 p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
@@ -142,16 +142,16 @@ else:
         data = json.loads(p.read_text() or "[]")
     except json.JSONDecodeError:
         data = []
-if not any(e.get("identifier", {}).get("id") == "legacy.hush" for e in data):
+if not any(e.get("identifier", {}).get("id") == "legacy.umber" for e in data):
     data.append({
-        "identifier": {"id": "legacy.hush"},
+        "identifier": {"id": "legacy.umber"},
         "version": "1.0.0",
         "location": {
             "$mid": 1,
-            "path": str(pathlib.Path.home() / ".vscode/extensions/legacy.hush-1.0.0"),
+            "path": str(pathlib.Path.home() / ".vscode/extensions/legacy.umber-1.0.0"),
             "scheme": "file",
         },
-        "relativeLocation": "legacy.hush-1.0.0",
+        "relativeLocation": "legacy.umber-1.0.0",
         "metadata": {
             "installedTimestamp": int(time.time() * 1000),
             "pinned": True,
@@ -159,14 +159,14 @@ if not any(e.get("identifier", {}).get("id") == "legacy.hush" for e in data):
         },
     })
     p.write_text(json.dumps(data))
-    print("    .. registered legacy.hush in extensions.json")
+    print("    .. registered legacy.umber in extensions.json")
 else:
-    print("    .. legacy.hush already registered in extensions.json")
+    print("    .. legacy.umber already registered in extensions.json")
 PYEOF
-    ok "linked to $VSCODE_EXT_DIR/legacy.hush-1.0.0"
+    ok "linked to $VSCODE_EXT_DIR/legacy.umber-1.0.0"
     note "Restart VSCode, then Ctrl+K Ctrl+T → Umber."
 else
-    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/legacy.hush-1.0.0"
+    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/legacy.umber-1.0.0"
 fi
 
 # ---------------------------------------------------------------------------
@@ -177,7 +177,7 @@ ok "kbuildsycoca6 refreshed"
 # ---------------------------------------------------------------------------
 step "Applying Global Theme"
 # Run from /tmp to avoid kpackagetool6 resolving the source dir as a package path.
-( cd /tmp && plasma-apply-lookandfeel -a com.legacy.hush ) || {
+( cd /tmp && plasma-apply-lookandfeel -a com.legacy.umber ) || {
     echo "WARNING: plasma-apply-lookandfeel failed — try logging out / back in." >&2
 }
 # Force-rewrite [WM] inline values by toggling colorscheme.
@@ -266,7 +266,7 @@ These can't be automated by this script (sudo, browser UI, or out-of-process act
         --group Greeter --group Wallpaper --group org.kde.image --group General \\
         --key Image "/usr/share/sddm/themes/umber/\$SDDM_BG"
   The Umber-styled lock UI (charcoal floor + 0.55 scrim mirroring SDDM) is
-  bundled in com.legacy.hush/contents/lockscreen/ and resolved automatically
+  bundled in com.legacy.umber/contents/lockscreen/ and resolved automatically
   by kscreenlocker_greet from the active LookAndFeelPackage in kdeglobals.
   Test it with: loginctl lock-session   (Ctrl+Alt+L on most setups).
 

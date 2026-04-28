@@ -9,7 +9,7 @@
         "Category": "Plasma Look And Feel",
         "Description": "Quiet warm peach foreground on neutral charcoal — palette adapted from MarianArlt's Sugar Dark, muted for long sessions.",
         "EnabledByDefault": true,
-        "Id": "com.legacy.hush",
+        "Id": "com.legacy.umber",
         "License": "GPL-3.0-or-later",
         "Name": "Umber",
         "ServiceTypes": [
