@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Umber",
+  "version": "1.0.0",
+  "description": "A quiet warm-on-charcoal Chromium/Chrome theme — Umber palette.",
+  "author": "Tyler",
+  "homepage_url": "https://github.com/tyler872010/umber",
+
+  "theme": {
+    "colors": {
+      "frame":                          [{{ hearth.0 | rgb_sp }}],
+      "frame_inactive":                 [{{ hearth.1 | rgb_sp }}],
+      "frame_incognito":                [{{ hearth.0 | rgb_sp }}],
+      "frame_incognito_inactive":       [{{ hearth.1 | rgb_sp }}],
+
+      "toolbar":                        [{{ hearth.1 | rgb_sp }}],
+      "toolbar_text":                   [{{ glow.3 | rgb_sp }}],
+      "toolbar_button_icon":            [{{ glow.0 | rgb_sp }}],
+      "omnibox_background":             [{{ hearth.2 | rgb_sp }}],
+      "omnibox_text":                   [{{ glow.3 | rgb_sp }}],
+
+      "tab_text":                       [{{ glow.2 | rgb_sp }}],
+      "tab_background_text":            [{{ glow.0 | rgb_sp }}],
+      "tab_background_text_inactive":   [{{ glow.0 | rgb_sp }}],
+      "background_tab":                 [{{ hearth.1 | rgb_sp }}],
+      "background_tab_inactive":        [{{ hearth.1 | rgb_sp }}],
+
+      "bookmark_text":                  [{{ glow.2 | rgb_sp }}],
+      "ntp_background":                 [{{ hearth.0 | rgb_sp }}],
+      "ntp_text":                       [{{ glow.2 | rgb_sp }}],
+      "ntp_link":                       [{{ glow.1 | rgb_sp }}],
+      "ntp_header":                     [{{ glow.2 | rgb_sp }}],
+
+      "control_background":             [{{ hearth.2 | rgb_sp }}],
+      "button_background":              [{{ hearth.2 | rgb_sp }}]
+    },
+    "tints": {
+      "buttons":      [-1, -1, 0.78],
+      "frame":        [-1, -1, -1],
+      "background_tab": [-1, -1, -1]
+    },
+    "properties": {
+      "ntp_background_alignment": "center",
+      "ntp_logo_alternate":       1
+    }
+  }
+}

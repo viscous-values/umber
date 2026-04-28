@@ -1,0 +1,636 @@
+{
+  "name": "Umber",
+  "type": "dark",
+  "semanticHighlighting": true,
+
+  "_palette": {
+    "hearth0": "{{ hearth.0 }}",
+    "hearth1": "{{ hearth.1 }}",
+    "hearth2": "{{ hearth.2 }}",
+    "hearth3": "{{ hearth.3 }}",
+    "glow0":   "{{ glow.0 }}",
+    "glow1":   "{{ glow.1 }}",
+    "glow2":   "{{ glow.2 }}",
+    "glow3":   "{{ glow.3 }}",
+    "mist0":   "{{ mist.0 }}",
+    "mist1":   "{{ mist.1 }}",
+    "mist2":   "{{ mist.2 }}",
+    "spark.red":    "{{ spark.red }}",
+    "spark.orange": "{{ spark.orange }}",
+    "spark.amber":  "{{ spark.amber }}",
+    "spark.green":  "{{ spark.green }}",
+    "spark.violet": "{{ spark.violet }}"
+  },
+
+  "colors": {
+    "focusBorder": "{{ mist.1 }}",
+    "foreground": "{{ glow.1 }}",
+    "errorForeground": "{{ spark.red }}",
+    "descriptionForeground": "{{ glow.0 }}",
+    "icon.foreground": "{{ glow.1 }}",
+    "selection.background": "{{ glow.1 | rgba 33 }}",
+
+    "editor.background": "{{ hearth.0 }}",
+    "editor.foreground": "{{ glow.1 }}",
+    "editor.lineHighlightBackground": "{{ hearth.1 }}",
+    "editor.selectionBackground": "{{ glow.1 | rgba 2E }}",
+    "editor.selectionHighlightBackground": "{{ glow.1 | rgba 20 }}",
+    "editor.inactiveSelectionBackground": "{{ glow.1 | rgba 18 }}",
+    "editor.wordHighlightBackground": "{{ mist.1 | rgba 22 }}",
+    "editor.wordHighlightStrongBackground": "{{ mist.1 | rgba 40 }}",
+    "editor.findMatchBackground": "{{ spark.amber | rgba 66 }}",
+    "editor.findMatchHighlightBackground": "{{ spark.amber | rgba 33 }}",
+    "editor.findRangeHighlightBackground": "{{ spark.amber | rgba 22 }}",
+    "editorCursor.foreground": "{{ glow.3 }}",
+    "editorCursor.background": "{{ hearth.0 }}",
+    "editorWhitespace.foreground": "{{ hearth.3 }}",
+    "editorIndentGuide.background1": "{{ hearth.2 }}",
+    "editorIndentGuide.activeBackground1": "{{ glow.0 }}",
+    "editorRuler.foreground": "{{ hearth.2 }}",
+    "editorBracketMatch.background": "{{ hearth.3 }}",
+    "editorBracketMatch.border": "{{ mist.1 }}",
+    "editorLineNumber.foreground": "{{ glow.0 }}",
+    "editorLineNumber.activeForeground": "{{ glow.1 }}",
+    "editorOverviewRuler.border": "{{ hearth.1 }}",
+    "editorOverviewRuler.findMatchForeground": "{{ spark.amber }}",
+    "editorOverviewRuler.errorForeground": "{{ spark.red }}",
+    "editorOverviewRuler.warningForeground": "{{ spark.amber }}",
+    "editorOverviewRuler.infoForeground": "{{ mist.1 }}",
+    "editorOverviewRuler.modifiedForeground": "{{ spark.amber }}",
+    "editorOverviewRuler.addedForeground": "{{ spark.green }}",
+    "editorOverviewRuler.deletedForeground": "{{ spark.red }}",
+
+    "editorError.foreground": "{{ spark.red }}",
+    "editorWarning.foreground": "{{ spark.amber }}",
+    "editorInfo.foreground": "{{ mist.1 }}",
+    "editorHint.foreground": "{{ mist.2 }}",
+    "editorGutter.modifiedBackground": "{{ spark.amber }}",
+    "editorGutter.addedBackground": "{{ spark.green }}",
+    "editorGutter.deletedBackground": "{{ spark.red }}",
+
+    "editorBracketHighlight.foreground1": "{{ glow.1 }}",
+    "editorBracketHighlight.foreground2": "{{ mist.1 }}",
+    "editorBracketHighlight.foreground3": "{{ spark.violet }}",
+    "editorBracketHighlight.foreground4": "{{ spark.green }}",
+    "editorBracketHighlight.foreground5": "{{ spark.amber }}",
+    "editorBracketHighlight.foreground6": "{{ mist.0 }}",
+
+    "diffEditor.insertedTextBackground": "{{ spark.green | rgba 22 }}",
+    "diffEditor.removedTextBackground": "{{ spark.red | rgba 22 }}",
+    "diffEditor.insertedLineBackground": "{{ spark.green | rgba 1A }}",
+    "diffEditor.removedLineBackground": "{{ spark.red | rgba 1A }}",
+
+    "editorWidget.background": "{{ hearth.1 }}",
+    "editorWidget.foreground": "{{ glow.1 }}",
+    "editorWidget.border": "{{ hearth.3 }}",
+    "editorSuggestWidget.background": "{{ hearth.1 }}",
+    "editorSuggestWidget.foreground": "{{ glow.1 }}",
+    "editorSuggestWidget.highlightForeground": "{{ mist.1 }}",
+    "editorSuggestWidget.selectedBackground": "{{ glow.1 | rgba 22 }}",
+    "editorSuggestWidget.border": "{{ hearth.3 }}",
+    "editorHoverWidget.background": "{{ hearth.1 }}",
+    "editorHoverWidget.border": "{{ hearth.3 }}",
+
+    "peekView.border": "{{ mist.1 }}",
+    "peekViewEditor.background": "{{ hearth.0 }}",
+    "peekViewEditor.matchHighlightBackground": "{{ spark.amber | rgba 33 }}",
+    "peekViewResult.background": "{{ hearth.1 }}",
+    "peekViewResult.matchHighlightBackground": "{{ spark.amber | rgba 33 }}",
+    "peekViewResult.selectionBackground": "{{ glow.1 | rgba 33 }}",
+    "peekViewTitle.background": "{{ hearth.2 }}",
+    "peekViewTitleLabel.foreground": "{{ glow.1 }}",
+    "peekViewTitleDescription.foreground": "{{ glow.0 }}",
+
+    "activityBar.background": "{{ hearth.1 }}",
+    "activityBar.foreground": "{{ glow.1 }}",
+    "activityBar.inactiveForeground": "{{ glow.0 }}",
+    "activityBar.border": "{{ hearth.1 }}",
+    "activityBarBadge.background": "{{ mist.1 }}",
+    "activityBarBadge.foreground": "{{ hearth.0 }}",
+    "activityBar.activeBorder": "{{ glow.1 }}",
+
+    "sideBar.background": "{{ hearth.1 }}",
+    "sideBar.foreground": "{{ glow.1 }}",
+    "sideBar.border": "{{ hearth.1 }}",
+    "sideBarTitle.foreground": "{{ glow.2 }}",
+    "sideBarSectionHeader.background": "{{ hearth.2 }}",
+    "sideBarSectionHeader.foreground": "{{ glow.1 }}",
+    "sideBarSectionHeader.border": "{{ hearth.1 }}",
+
+    "list.activeSelectionBackground": "{{ glow.1 }}",
+    "list.activeSelectionForeground": "{{ hearth.0 }}",
+    "list.inactiveSelectionBackground": "{{ hearth.3 }}",
+    "list.inactiveSelectionForeground": "{{ glow.2 }}",
+    "list.hoverBackground": "{{ hearth.2 }}",
+    "list.hoverForeground": "{{ glow.1 }}",
+    "list.focusBackground": "{{ hearth.3 }}",
+    "list.focusForeground": "{{ glow.2 }}",
+    "list.highlightForeground": "{{ mist.1 }}",
+    "list.errorForeground": "{{ spark.red }}",
+    "list.warningForeground": "{{ spark.amber }}",
+    "list.dropBackground": "{{ mist.1 | rgba 33 }}",
+
+    "tree.indentGuidesStroke": "{{ hearth.3 }}",
+    "tree.inactiveIndentGuidesStroke": "{{ hearth.2 }}",
+
+    "statusBar.background": "{{ hearth.2 }}",
+    "statusBar.foreground": "{{ glow.1 }}",
+    "statusBar.border": "{{ hearth.1 }}",
+    "statusBar.debuggingBackground": "{{ spark.orange }}",
+    "statusBar.debuggingForeground": "{{ hearth.0 }}",
+    "statusBar.noFolderBackground": "{{ hearth.1 }}",
+    "statusBarItem.activeBackground": "{{ hearth.3 }}",
+    "statusBarItem.hoverBackground": "{{ hearth.3 }}",
+    "statusBarItem.prominentBackground": "{{ hearth.3 }}",
+    "statusBarItem.remoteBackground": "{{ mist.1 }}",
+    "statusBarItem.remoteForeground": "{{ hearth.0 }}",
+    "statusBarItem.errorBackground": "{{ spark.red }}",
+    "statusBarItem.errorForeground": "{{ hearth.0 }}",
+    "statusBarItem.warningBackground": "{{ spark.amber }}",
+    "statusBarItem.warningForeground": "{{ hearth.0 }}",
+
+    "titleBar.activeBackground": "{{ hearth.2 }}",
+    "titleBar.activeForeground": "{{ glow.1 }}",
+    "titleBar.inactiveBackground": "{{ hearth.1 }}",
+    "titleBar.inactiveForeground": "{{ glow.0 }}",
+    "titleBar.border": "{{ hearth.1 }}",
+
+    "menubar.selectionBackground": "{{ hearth.3 }}",
+    "menubar.selectionForeground": "{{ glow.2 }}",
+    "menu.background": "{{ hearth.1 }}",
+    "menu.foreground": "{{ glow.1 }}",
+    "menu.selectionBackground": "{{ glow.1 }}",
+    "menu.selectionForeground": "{{ hearth.0 }}",
+    "menu.separatorBackground": "{{ hearth.3 }}",
+
+    "editorGroupHeader.tabsBackground": "{{ hearth.1 }}",
+    "editorGroupHeader.tabsBorder": "{{ hearth.1 }}",
+    "editorGroup.border": "{{ hearth.1 }}",
+    "tab.activeBackground": "{{ hearth.0 }}",
+    "tab.activeForeground": "{{ glow.2 }}",
+    "tab.activeBorderTop": "{{ glow.1 }}",
+    "tab.inactiveBackground": "{{ hearth.1 }}",
+    "tab.inactiveForeground": "{{ glow.0 }}",
+    "tab.hoverBackground": "{{ hearth.2 }}",
+    "tab.border": "{{ hearth.1 }}",
+    "tab.unfocusedActiveBorderTop": "{{ glow.0 }}",
+
+    "breadcrumb.foreground": "{{ glow.0 }}",
+    "breadcrumb.focusForeground": "{{ glow.1 }}",
+    "breadcrumb.activeSelectionForeground": "{{ glow.2 }}",
+    "breadcrumb.background": "{{ hearth.0 }}",
+
+    "panel.background": "{{ hearth.0 }}",
+    "panel.border": "{{ hearth.1 }}",
+    "panelTitle.activeBorder": "{{ glow.1 }}",
+    "panelTitle.activeForeground": "{{ glow.2 }}",
+    "panelTitle.inactiveForeground": "{{ glow.0 }}",
+
+    "button.background": "{{ mist.1 }}",
+    "button.foreground": "{{ hearth.0 }}",
+    "button.hoverBackground": "{{ mist.2 }}",
+    "button.secondaryBackground": "{{ hearth.3 }}",
+    "button.secondaryForeground": "{{ glow.1 }}",
+    "button.secondaryHoverBackground": "#555555",
+
+    "checkbox.background": "{{ hearth.0 }}",
+    "checkbox.foreground": "{{ glow.1 }}",
+    "checkbox.border": "{{ hearth.3 }}",
+
+    "input.background": "{{ hearth.0 }}",
+    "input.foreground": "{{ glow.1 }}",
+    "input.border": "{{ hearth.3 }}",
+    "input.placeholderForeground": "{{ glow.0 }}",
+    "inputOption.activeBackground": "{{ mist.1 | rgba 33 }}",
+    "inputOption.activeBorder": "{{ mist.1 }}",
+    "inputOption.activeForeground": "{{ glow.2 }}",
+    "inputValidation.errorBackground": "{{ spark.red | rgba 22 }}",
+    "inputValidation.errorBorder": "{{ spark.red }}",
+    "inputValidation.warningBackground": "{{ spark.amber | rgba 22 }}",
+    "inputValidation.warningBorder": "{{ spark.amber }}",
+    "inputValidation.infoBackground": "{{ mist.1 | rgba 22 }}",
+    "inputValidation.infoBorder": "{{ mist.1 }}",
+
+    "dropdown.background": "{{ hearth.1 }}",
+    "dropdown.foreground": "{{ glow.1 }}",
+    "dropdown.border": "{{ hearth.3 }}",
+    "dropdown.listBackground": "{{ hearth.1 }}",
+
+    "badge.background": "{{ mist.1 }}",
+    "badge.foreground": "{{ hearth.0 }}",
+
+    "scrollbar.shadow": "#00000080",
+    "scrollbarSlider.background": "{{ hearth.3 | rgba 66 }}",
+    "scrollbarSlider.hoverBackground": "#55555588",
+    "scrollbarSlider.activeBackground": "{{ glow.0 | rgba AA }}",
+
+    "progressBar.background": "{{ mist.1 }}",
+
+    "notificationCenter.border": "{{ hearth.3 }}",
+    "notificationCenterHeader.background": "{{ hearth.2 }}",
+    "notificationCenterHeader.foreground": "{{ glow.1 }}",
+    "notifications.background": "{{ hearth.1 }}",
+    "notifications.foreground": "{{ glow.1 }}",
+    "notifications.border": "{{ hearth.3 }}",
+    "notificationsErrorIcon.foreground": "{{ spark.red }}",
+    "notificationsWarningIcon.foreground": "{{ spark.amber }}",
+    "notificationsInfoIcon.foreground": "{{ mist.1 }}",
+
+    "gitDecoration.modifiedResourceForeground": "{{ spark.amber }}",
+    "gitDecoration.deletedResourceForeground": "{{ spark.red }}",
+    "gitDecoration.untrackedResourceForeground": "{{ spark.green }}",
+    "gitDecoration.ignoredResourceForeground": "{{ glow.0 }}",
+    "gitDecoration.conflictingResourceForeground": "{{ spark.red }}",
+    "gitDecoration.submoduleResourceForeground": "{{ mist.1 }}",
+    "gitDecoration.stageModifiedResourceForeground": "{{ spark.amber }}",
+    "gitDecoration.stageDeletedResourceForeground": "{{ spark.red }}",
+
+    "terminal.background": "{{ hearth.0 }}",
+    "terminal.foreground": "{{ glow.1 }}",
+    "terminal.selectionBackground": "{{ glow.1 | rgba 33 }}",
+    "terminalCursor.foreground": "{{ glow.3 }}",
+    "terminal.ansiBlack":         "{{ hearth.1 }}",
+    "terminal.ansiRed":           "{{ spark.red }}",
+    "terminal.ansiGreen":         "{{ spark.green }}",
+    "terminal.ansiYellow":        "{{ spark.amber }}",
+    "terminal.ansiBlue":          "{{ mist.1 }}",
+    "terminal.ansiMagenta":       "{{ spark.violet }}",
+    "terminal.ansiCyan":          "{{ mist.0 }}",
+    "terminal.ansiWhite":         "{{ glow.1 }}",
+    "terminal.ansiBrightBlack":   "{{ glow.0 }}",
+    "terminal.ansiBrightRed":     "#EB8590",
+    "terminal.ansiBrightGreen":   "#B5D690",
+    "terminal.ansiBrightYellow":  "#F0CF8E",
+    "terminal.ansiBrightBlue":    "{{ mist.2 }}",
+    "terminal.ansiBrightMagenta": "#D5A0C2",
+    "terminal.ansiBrightCyan":    "#9CC4C7",
+    "terminal.ansiBrightWhite":   "{{ glow.3 }}",
+
+    "debugToolBar.background": "{{ hearth.2 }}",
+    "debugIcon.breakpointForeground": "{{ spark.red }}",
+    "debugConsole.errorForeground": "{{ spark.red }}",
+    "debugConsole.warningForeground": "{{ spark.amber }}",
+    "debugConsole.infoForeground": "{{ mist.1 }}",
+    "debugConsole.sourceForeground": "{{ glow.0 }}",
+
+    "merge.currentHeaderBackground": "{{ mist.1 | rgba 66 }}",
+    "merge.currentContentBackground": "{{ mist.1 | rgba 22 }}",
+    "merge.incomingHeaderBackground": "{{ spark.green | rgba 66 }}",
+    "merge.incomingContentBackground": "{{ spark.green | rgba 22 }}",
+    "merge.commonHeaderBackground": "{{ glow.0 | rgba 66 }}",
+    "merge.commonContentBackground": "{{ glow.0 | rgba 22 }}"
+  },
+
+  "tokenColors": [
+    {
+      "name": "Comments",
+      "scope": [
+        "comment",
+        "punctuation.definition.comment",
+        "string.comment"
+      ],
+      "settings": { "foreground": "{{ mist.2 }}", "fontStyle": "italic" }
+    },
+    {
+      "name": "Strings",
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template",
+        "punctuation.definition.string"
+      ],
+      "settings": { "foreground": "{{ spark.green }}" }
+    },
+    {
+      "name": "String escape sequences",
+      "scope": [
+        "constant.character.escape",
+        "constant.other.placeholder"
+      ],
+      "settings": { "foreground": "{{ spark.orange }}" }
+    },
+    {
+      "name": "Numbers, booleans, null",
+      "scope": [
+        "constant.numeric",
+        "constant.language",
+        "constant.language.boolean",
+        "constant.language.null",
+        "constant.language.undefined"
+      ],
+      "settings": { "foreground": "{{ spark.orange }}" }
+    },
+    {
+      "name": "Constants",
+      "scope": [
+        "variable.other.constant",
+        "variable.other.enummember",
+        "constant.other"
+      ],
+      "settings": { "foreground": "{{ spark.orange }}" }
+    },
+    {
+      "name": "Keywords (control flow, async/await, return)",
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "keyword.operator.expression",
+        "keyword.operator.new",
+        "keyword.operator.delete",
+        "keyword.operator.logical",
+        "keyword.operator.ternary"
+      ],
+      "settings": { "foreground": "{{ spark.violet }}" }
+    },
+    {
+      "name": "Storage (const, let, function, class, async)",
+      "scope": [
+        "storage",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "settings": { "foreground": "{{ spark.violet }}" }
+    },
+    {
+      "name": "Operators",
+      "scope": [
+        "keyword.operator",
+        "keyword.operator.assignment",
+        "keyword.operator.arithmetic",
+        "keyword.operator.comparison"
+      ],
+      "settings": { "foreground": "{{ glow.0 }}" }
+    },
+    {
+      "name": "Types",
+      "scope": [
+        "support.type",
+        "entity.name.type",
+        "entity.other.inherited-class",
+        "meta.type.annotation entity.name.type"
+      ],
+      "settings": { "foreground": "{{ spark.amber }}" }
+    },
+    {
+      "name": "Classes",
+      "scope": [
+        "entity.name.class",
+        "entity.name.namespace",
+        "support.class"
+      ],
+      "settings": { "foreground": "{{ spark.amber }}" }
+    },
+    {
+      "name": "Functions and methods",
+      "scope": [
+        "entity.name.function",
+        "support.function",
+        "meta.function-call entity.name.function",
+        "meta.method.declaration entity.name.function"
+      ],
+      "settings": { "foreground": "{{ mist.1 }}" }
+    },
+    {
+      "name": "Function parameters",
+      "scope": [
+        "variable.parameter",
+        "meta.parameter"
+      ],
+      "settings": { "foreground": "{{ glow.1 }}", "fontStyle": "italic" }
+    },
+    {
+      "name": "Properties",
+      "scope": [
+        "variable.other.property",
+        "variable.other.object.property",
+        "support.variable.property",
+        "meta.property-name"
+      ],
+      "settings": { "foreground": "{{ glow.1 }}" }
+    },
+    {
+      "name": "Object keys (JSON, YAML)",
+      "scope": [
+        "support.type.property-name",
+        "string.quoted.double.json support.type.property-name.json",
+        "entity.name.tag.yaml"
+      ],
+      "settings": { "foreground": "{{ mist.1 }}" }
+    },
+    {
+      "name": "Variables",
+      "scope": [
+        "variable",
+        "variable.other",
+        "variable.other.readwrite"
+      ],
+      "settings": { "foreground": "{{ glow.1 }}" }
+    },
+    {
+      "name": "Built-in / language variables (this, self, super)",
+      "scope": [
+        "variable.language",
+        "variable.language.this",
+        "variable.language.self",
+        "variable.language.super"
+      ],
+      "settings": { "foreground": "{{ spark.violet }}", "fontStyle": "italic" }
+    },
+    {
+      "name": "Decorators",
+      "scope": [
+        "meta.decorator",
+        "punctuation.decorator",
+        "tag.decorator"
+      ],
+      "settings": { "foreground": "{{ spark.amber }}" }
+    },
+    {
+      "name": "Punctuation",
+      "scope": [
+        "punctuation",
+        "meta.brace",
+        "punctuation.separator",
+        "punctuation.terminator"
+      ],
+      "settings": { "foreground": "{{ glow.0 }}" }
+    },
+    {
+      "name": "Regex",
+      "scope": [
+        "string.regexp",
+        "constant.other.character-class.regexp",
+        "constant.character.escape.regexp"
+      ],
+      "settings": { "foreground": "{{ mist.0 }}" }
+    },
+    {
+      "name": "HTML/JSX tags",
+      "scope": [
+        "entity.name.tag",
+        "punctuation.definition.tag",
+        "meta.tag",
+        "meta.tag.attributes"
+      ],
+      "settings": { "foreground": "{{ spark.red }}" }
+    },
+    {
+      "name": "HTML/JSX attributes",
+      "scope": [
+        "entity.other.attribute-name"
+      ],
+      "settings": { "foreground": "{{ spark.amber }}", "fontStyle": "italic" }
+    },
+    {
+      "name": "CSS selectors",
+      "scope": [
+        "entity.name.tag.css",
+        "entity.other.attribute-name.class.css",
+        "entity.other.attribute-name.id.css"
+      ],
+      "settings": { "foreground": "{{ spark.red }}" }
+    },
+    {
+      "name": "CSS properties",
+      "scope": [
+        "support.type.property-name.css"
+      ],
+      "settings": { "foreground": "{{ mist.1 }}" }
+    },
+    {
+      "name": "CSS values",
+      "scope": [
+        "support.constant.property-value.css",
+        "constant.numeric.css",
+        "support.constant.color"
+      ],
+      "settings": { "foreground": "{{ spark.orange }}" }
+    },
+    {
+      "name": "Markdown headings",
+      "scope": [
+        "markup.heading",
+        "entity.name.section.markdown",
+        "punctuation.definition.heading.markdown"
+      ],
+      "settings": { "foreground": "{{ spark.violet }}", "fontStyle": "bold" }
+    },
+    {
+      "name": "Markdown bold",
+      "scope": [
+        "markup.bold",
+        "punctuation.definition.bold.markdown"
+      ],
+      "settings": { "foreground": "{{ glow.2 }}", "fontStyle": "bold" }
+    },
+    {
+      "name": "Markdown italic",
+      "scope": [
+        "markup.italic",
+        "punctuation.definition.italic.markdown"
+      ],
+      "settings": { "foreground": "{{ glow.2 }}", "fontStyle": "italic" }
+    },
+    {
+      "name": "Markdown links",
+      "scope": [
+        "markup.underline.link",
+        "string.other.link.title.markdown",
+        "constant.other.reference.link.markdown"
+      ],
+      "settings": { "foreground": "{{ mist.1 }}", "fontStyle": "underline" }
+    },
+    {
+      "name": "Markdown inline code",
+      "scope": [
+        "markup.inline.raw",
+        "markup.fenced_code"
+      ],
+      "settings": { "foreground": "{{ spark.green }}" }
+    },
+    {
+      "name": "Markdown lists",
+      "scope": [
+        "markup.list",
+        "punctuation.definition.list.begin"
+      ],
+      "settings": { "foreground": "{{ spark.orange }}" }
+    },
+    {
+      "name": "Markdown quotes",
+      "scope": [
+        "markup.quote"
+      ],
+      "settings": { "foreground": "{{ mist.2 }}", "fontStyle": "italic" }
+    },
+    {
+      "name": "Diff inserted",
+      "scope": [
+        "markup.inserted",
+        "punctuation.definition.inserted"
+      ],
+      "settings": { "foreground": "{{ spark.green }}" }
+    },
+    {
+      "name": "Diff removed",
+      "scope": [
+        "markup.deleted",
+        "punctuation.definition.deleted"
+      ],
+      "settings": { "foreground": "{{ spark.red }}" }
+    },
+    {
+      "name": "Diff changed",
+      "scope": [
+        "markup.changed",
+        "punctuation.definition.changed"
+      ],
+      "settings": { "foreground": "{{ spark.amber }}" }
+    },
+    {
+      "name": "Invalid / illegal",
+      "scope": [
+        "invalid",
+        "invalid.illegal"
+      ],
+      "settings": { "foreground": "{{ spark.red }}", "fontStyle": "underline" }
+    },
+    {
+      "name": "Deprecated",
+      "scope": [
+        "invalid.deprecated"
+      ],
+      "settings": { "foreground": "{{ glow.0 }}", "fontStyle": "strikethrough" }
+    }
+  ],
+
+  "semanticTokenColors": {
+    "type":      "{{ spark.amber }}",
+    "class":     "{{ spark.amber }}",
+    "interface": "{{ spark.amber }}",
+    "enum":      "{{ spark.amber }}",
+    "struct":    "{{ spark.amber }}",
+    "typeParameter": { "foreground": "{{ spark.amber }}", "italic": true },
+
+    "namespace": "{{ mist.1 }}",
+    "function":  "{{ mist.1 }}",
+    "method":    "{{ mist.1 }}",
+    "macro":     "{{ spark.violet }}",
+
+    "property":   "{{ glow.1 }}",
+    "variable":   "{{ glow.1 }}",
+    "parameter":  { "foreground": "{{ glow.1 }}", "italic": true },
+    "enumMember": "{{ spark.orange }}",
+
+    "keyword":  "{{ spark.violet }}",
+    "operator": "{{ glow.0 }}",
+    "comment":  { "foreground": "{{ mist.2 }}", "italic": true },
+    "string":   "{{ spark.green }}",
+    "number":   "{{ spark.orange }}",
+    "regexp":   "{{ mist.0 }}",
+
+    "*.declaration":  { "bold": true },
+    "*.deprecated":   { "strikethrough": true },
+    "*.readonly":     "{{ spark.orange }}"
+  }
+}

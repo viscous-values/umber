@@ -59,6 +59,15 @@ require_bin git                       "git"
 require_bin python3                   "python"
 ok "all required commands present"
 
+# Warn (don't fail) if consumer files don't match palette.toml + templates.
+# Catches a forgotten `python scripts/render_palette.py render` after editing
+# palette.toml; the install proceeds with whatever is on disk.
+if python3 "$REPO_ROOT/scripts/render_palette.py" check >/dev/null 2>&1; then
+    ok "palette consumer files in sync with palette.toml"
+else
+    note "palette consumer files differ from palette.toml — run: python scripts/render_palette.py render"
+fi
+
 # ---------------------------------------------------------------------------
 # Overwrite confirmation.
 existing=()
