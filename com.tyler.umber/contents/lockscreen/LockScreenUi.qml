@@ -206,7 +206,7 @@ Item {
         Rectangle {
             id: umberFloor
             anchors.fill: parent
-            color: "#2B2B2B"
+            color: "#2D2823"
             z: -2
         }
 

@@ -15,24 +15,24 @@ WallpaperFlipType=NoFlip
 WallpaperOpacity=1
 
 [Background]
-Color=36,36,36
+Color=38,34,30
 [BackgroundFaint]
-Color=36,36,36
+Color=38,34,30
 [BackgroundIntense]
-Color=36,36,36
+Color=38,34,30
 
 [Foreground]
 Color=212,188,145
 [ForegroundFaint]
 Color=168,153,134
 [ForegroundIntense]
-Color=225,225,225
+Color=240,229,208
 
 # 0 — black / dim background tone (intense = warm glow0 for parity with VSCode)
 [Color0]
-Color=43,43,43
+Color=45,40,35
 [Color0Faint]
-Color=43,43,43
+Color=45,40,35
 [Color0Intense]
 Color=168,153,134
 
@@ -90,4 +90,4 @@ Color=212,188,145
 [Color7Faint]
 Color=168,153,134
 [Color7Intense]
-Color=225,225,225
+Color=240,229,208
