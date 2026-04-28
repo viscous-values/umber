@@ -12,33 +12,48 @@ can see the palette at a glance.
 
 import argparse
 import random
+import tomllib
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-# Palette
+REPO = Path(__file__).resolve().parent.parent
+
+
+def _hex_rgb(h):
+    h = h.lstrip("#")
+    return (int(h[:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
+
+with open(REPO / "palette.toml", "rb") as _f:
+    _PALETTE = tomllib.load(_f)
+
+# Semantic name aliases used by the rendering code below. Keys map to the
+# canonical palette.toml indices; rename a key here without touching any
+# downstream draw calls if the role-to-tier mapping shifts.
 HEARTH = {
-    "deep":  (0x24, 0x24, 0x24),
-    "base":  (0x2B, 0x2B, 0x2B),
-    "elev":  (0x33, 0x33, 0x33),
-    "high":  (0x44, 0x44, 0x44),
+    "deep":  _hex_rgb(_PALETTE["hearth"]["0"]),
+    "base":  _hex_rgb(_PALETTE["hearth"]["1"]),
+    "elev":  _hex_rgb(_PALETTE["hearth"]["2"]),
+    "high":  _hex_rgb(_PALETTE["hearth"]["3"]),
 }
 GLOW = {
-    "dim":   (0xA8, 0x99, 0x86),
-    "warm":  (0xD4, 0xBC, 0x91),
-    "peach": (0xE1, 0xCD, 0xA5),
-    "near":  (0xE1, 0xE1, 0xE1),
+    "dim":   _hex_rgb(_PALETTE["glow"]["0"]),
+    "warm":  _hex_rgb(_PALETTE["glow"]["1"]),
+    "peach": _hex_rgb(_PALETTE["glow"]["2"]),
+    "near":  _hex_rgb(_PALETTE["glow"]["3"]),
 }
 MIST = {
-    "teal":  (0x7A, 0xA8, 0xAC),
-    "blue":  (0x88, 0xA6, 0xC5),
-    "sky":   (0xA8, 0xBD, 0xD6),
+    "deep":  _hex_rgb(_PALETTE["mist"]["0"]),  # NEW deep teal
+    "teal":  _hex_rgb(_PALETTE["mist"]["1"]),
+    "blue":  _hex_rgb(_PALETTE["mist"]["2"]),
+    "sky":   _hex_rgb(_PALETTE["mist"]["3"]),
 }
 SPARK = {
-    "red":    (0xE0, 0x6C, 0x75),
-    "orange": (0xD1, 0x9A, 0x66),
-    "amber":  (0xE5, 0xC0, 0x7B),
-    "green":  (0x98, 0xC3, 0x79),
-    "violet": (0xC5, 0x86, 0xB0),
+    "red":    _hex_rgb(_PALETTE["spark"]["red"]),
+    "orange": _hex_rgb(_PALETTE["spark"]["orange"]),
+    "amber":  _hex_rgb(_PALETTE["spark"]["amber"]),
+    "green":  _hex_rgb(_PALETTE["spark"]["green"]),
+    "violet": _hex_rgb(_PALETTE["spark"]["violet"]),
 }
 
 # Wallpaper-ish backdrop (matches render_wallpaper.py rules in spirit).
