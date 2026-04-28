@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "description": "A quiet warm-on-charcoal Firefox theme — Umber palette.",
   "author": "viscous-values",
-  "license": "GPL-3.0-or-later",
   "homepage_url": "https://github.com/viscous-values/umber",
 
   "browser_specific_settings": {
