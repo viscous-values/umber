@@ -1,4 +1,4 @@
-"""Render the Hush wallpaper: charcoal-to-faint-peach horizon gradient with
+"""Render the Umber wallpaper: charcoal-to-faint-peach horizon gradient with
 subtle grain. Output is committed to the LnF package; only the author re-runs
 this on palette changes."""
 

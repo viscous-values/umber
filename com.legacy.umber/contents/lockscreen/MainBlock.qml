@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2016 David Edmundson <davidedmundson@kde.org>
 // SPDX-License-Identifier: LGPL-2.0-or-later
 //
-// Hush: verbatim copy of Plasma 6 stock MainBlock.qml. The Hush color scheme
+// Umber: verbatim copy of Plasma 6 stock MainBlock.qml. The Umber color scheme
 // already retints the password field and unlock button via Kirigami.Theme;
 // no fork needed.
 

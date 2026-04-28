@@ -1,6 +1,6 @@
 //
 // Originally adapted from MarianArlt's Sugar Dark.
-// Hush rewrites the icon-rendering path to use Image + ColorOverlay so the SVGs
+// Umber rewrites the icon-rendering path to use Image + ColorOverlay so the SVGs
 // reliably tint to the palette color (Button.icon.color is unreliable on SVGZ
 // without fill="currentColor").
 //
