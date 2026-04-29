@@ -24,6 +24,7 @@ Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, p
 | Path | What it is | Where it deploys |
 |------|------------|------------------|
 | `com.tyler.umber/` | Plasma 6 Look-and-Feel package + `Umber.colors` color scheme | `~/.local/share/plasma/look-and-feel/com.tyler.umber/` and `~/.local/share/color-schemes/Umber.colors` |
+| `umber-shell/` | Plasma 6 Shell package — overrides only `contents/lockscreen/` to match the SDDM layout (charcoal floor + 0.55 scrim); falls back to `org.kde.plasma.desktop` for everything else | `~/.local/share/plasma/shells/com.tyler.umber-shell/`, activated via `kscreenlockerrc [Greeter]/Theme=com.tyler.umber-shell` |
 | `konsole/Umber.colorscheme` | Konsole 16-ANSI palette | `~/.local/share/konsole/Umber.colorscheme` (referenced by a Konsole profile) |
 | `umber-sddm/` | SDDM greeter theme — Qt6 port of sddm-sugar-dark with solid charcoal background | `/usr/share/sddm/themes/umber/` (system-wide; needs sudo) |
 | `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/tyler.umber-1.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
@@ -60,6 +61,7 @@ This installs the Newaita icons (if missing), the Umber cursor, color scheme, Lo
 | Cursor (Umber-cursor) | yes | needs cursor installed first; `install.sh` handles |
 | Icons (Newaita-reborn-light-brown-dark) | yes | needs icons installed first; `install.sh` handles |
 | Splash screen | yes | the `Splash.qml` in this LnF |
+| Lockscreen UI | yes | shipped via the `umber-shell` Plasma/Shell package; `install.sh` flips `kscreenlockerrc [Greeter]/Theme` |
 | Wallpaper | yes | bundled in `contents/wallpapers/Umber/` |
 | Plasma widget style | no (uses Breeze) | no custom Plasma Style ships in v1 |
 | Aurorae window decoration | no (uses Breeze) | colorscheme drives titlebar palette |
@@ -81,6 +83,13 @@ cd /tmp; plasma-apply-lookandfeel -a com.tyler.umber
 # Force-reapply the colorscheme (toggle through BreezeLight to make Plasma rewrite [WM] inline values)
 plasma-apply-colorscheme BreezeLight
 plasma-apply-colorscheme Umber
+```
+
+### Lockscreen (Plasma 6 shell package)
+```fish
+cp -r umber-shell ~/.local/share/plasma/shells/com.tyler.umber-shell
+kwriteconfig6 --file kscreenlockerrc --group Greeter --key Theme com.tyler.umber-shell
+# Test it: loginctl lock-session   (Ctrl+Alt+L on most setups)
 ```
 
 ### Konsole

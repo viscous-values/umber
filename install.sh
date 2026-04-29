@@ -30,6 +30,7 @@ cd "$REPO_ROOT"
 ICONS_DIR="$HOME/.local/share/icons"
 SCHEMES_DIR="$HOME/.local/share/color-schemes"
 LNF_DIR="$HOME/.local/share/plasma/look-and-feel"
+SHELLS_DIR="$HOME/.local/share/plasma/shells"
 KONSOLE_DIR="$HOME/.local/share/konsole"
 VSCODE_EXT_DIR="$HOME/.vscode/extensions"
 
@@ -54,6 +55,7 @@ require_bin() {
 step "Preflight"
 require_bin plasma-apply-lookandfeel  "plasma-workspace"
 require_bin plasma-apply-colorscheme  "plasma-workspace"
+require_bin kwriteconfig6             "kconfig"
 require_bin kbuildsycoca6             "kservice"
 require_bin git                       "git"
 require_bin python3                   "python"
@@ -71,9 +73,10 @@ fi
 # ---------------------------------------------------------------------------
 # Overwrite confirmation.
 existing=()
-[[ -d "$LNF_DIR/com.tyler.umber" ]]   && existing+=("$LNF_DIR/com.tyler.umber")
-[[ -d "$ICONS_DIR/Umber-cursor" ]]    && existing+=("$ICONS_DIR/Umber-cursor")
-[[ -f "$SCHEMES_DIR/Umber.colors" ]]  && existing+=("$SCHEMES_DIR/Umber.colors")
+[[ -d "$LNF_DIR/com.tyler.umber" ]]              && existing+=("$LNF_DIR/com.tyler.umber")
+[[ -d "$SHELLS_DIR/com.tyler.umber-shell" ]]     && existing+=("$SHELLS_DIR/com.tyler.umber-shell")
+[[ -d "$ICONS_DIR/Umber-cursor" ]]               && existing+=("$ICONS_DIR/Umber-cursor")
+[[ -f "$SCHEMES_DIR/Umber.colors" ]]             && existing+=("$SCHEMES_DIR/Umber.colors")
 if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
     step "Existing Umber install detected"
     for p in "${existing[@]}"; do note "will overwrite: $p"; done
@@ -236,6 +239,20 @@ cp -a "$REPO_ROOT/com.tyler.umber" "$LNF_DIR/com.tyler.umber"
 ok "installed to $LNF_DIR/com.tyler.umber"
 
 # ---------------------------------------------------------------------------
+# Plasma 6's kscreenlocker reads its QML from a Plasma/Shell package selected
+# by [Greeter]/Theme in kscreenlockerrc — independent of the LookAndFeel
+# package. com.tyler.umber-shell ships only contents/lockscreen/ and falls
+# back to org.kde.plasma.desktop for everything else, so flipping it on
+# affects the lock greeter only (panels/applets/etc. are untouched).
+step "Plasma Shell package (lockscreen override)"
+mkdir -p "$SHELLS_DIR"
+rm -rf "$SHELLS_DIR/com.tyler.umber-shell"
+cp -a "$REPO_ROOT/umber-shell" "$SHELLS_DIR/com.tyler.umber-shell"
+ok "installed to $SHELLS_DIR/com.tyler.umber-shell"
+kwriteconfig6 --file kscreenlockerrc --group Greeter --key Theme com.tyler.umber-shell
+ok "kscreenlockerrc [Greeter]/Theme = com.tyler.umber-shell"
+
+# ---------------------------------------------------------------------------
 step "Konsole color scheme"
 mkdir -p "$KONSOLE_DIR"
 cp "$REPO_ROOT/konsole/Umber.colorscheme" "$KONSOLE_DIR/Umber.colorscheme"
@@ -312,7 +329,7 @@ else
 fi
 plasma-apply-cursortheme Umber-cursor >/dev/null 2>&1 || true
 # kscreenlocker_greet resolves its QML from contents/lockscreen/ inside the
-# active LookAndFeelPackage (set in kdeglobals by plasma-apply-lookandfeel).
+# Plasma/Shell package named by kscreenlockerrc [Greeter]/Theme (set above).
 # Each lock spawns a fresh greeter process, so the Umber lockscreen picks up
 # the next time the screen locks (no daemon restart needed).
 ok "Global Theme applied"
@@ -382,8 +399,8 @@ These can't be automated by this script (sudo, browser UI, or out-of-process act
         --group Greeter --group Wallpaper --group org.kde.image --group General \\
         --key Image "/usr/share/sddm/themes/umber/\$SDDM_BG"
   The Umber-styled lock UI (charcoal floor + 0.55 scrim mirroring SDDM) is
-  bundled in com.tyler.umber/contents/lockscreen/ and resolved automatically
-  by kscreenlocker_greet from the active LookAndFeelPackage in kdeglobals.
+  bundled as a Plasma/Shell package at umber-shell/ and activated by setting
+  kscreenlockerrc [Greeter]/Theme = com.tyler.umber-shell (done above).
   Test it with: loginctl lock-session   (Ctrl+Alt+L on most setups).
 
 \033[1;36mFirefox theme\033[0m — load via about:debugging:

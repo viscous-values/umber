@@ -33,7 +33,7 @@ OUTPUTS = {
     "chromium-manifest.json.tmpl": "umber-chromium/manifest.json",
     "sddm-theme.conf.tmpl":        "umber-sddm/theme.conf",
     "Splash.qml.tmpl":             "com.tyler.umber/contents/splash/Splash.qml",
-    "LockScreenUi.qml.tmpl":       "com.tyler.umber/contents/lockscreen/LockScreenUi.qml",
+    "LockScreenUi.qml.tmpl":       "umber-shell/contents/lockscreen/LockScreenUi.qml",
 }
 
 
