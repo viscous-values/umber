@@ -1,0 +1,75 @@
+{
+  "manifest_version": 2,
+  "name": "Umber Ash",
+  "version": "1.0.0",
+  "description": "Umber palette family — Umber Ash (Firefox theme).",
+  "author": "Tyler",
+  "homepage_url": "https://github.com/tyler872010/umber",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "umber-ash@tyler"
+    }
+  },
+
+  "theme": {
+    "colors": {
+      "frame":               "#242424",
+      "frame_inactive":      "#2B2B2B",
+
+      "toolbar":             "#2B2B2B",
+      "toolbar_top_separator":    "#333333",
+      "toolbar_bottom_separator": "#333333",
+      "toolbar_vertical_separator": "#333333",
+
+      "toolbar_field":            "#333333",
+      "toolbar_field_text":       "#EDE6D6",
+      "toolbar_field_border":     "#444444",
+      "toolbar_field_focus":      "#3A3A3A",
+      "toolbar_field_text_focus": "#DACEB0",
+      "toolbar_field_border_focus": "#D0BC95",
+      "toolbar_field_highlight":  "#D0BC95",
+      "toolbar_field_highlight_text": "#242424",
+
+      "tab_text":                "#DACEB0",
+      "tab_loading":             "#D0BC95",
+      "tab_line":                "#D0BC95",
+      "tab_selected":            "#333333",
+      "tab_background_text":     "#A6998A",
+      "tab_background_separator": "#333333",
+
+      "bookmark_text":           "#DACEB0",
+
+      "icons":                   "#A6998A",
+      "icons_attention":         "#E5C07B",
+
+      "popup":                   "#2B2B2B",
+      "popup_text":              "#EDE6D6",
+      "popup_border":            "#444444",
+      "popup_highlight":         "#333333",
+      "popup_highlight_text":    "#DACEB0",
+
+      "sidebar":                 "#2B2B2B",
+      "sidebar_text":            "#EDE6D6",
+      "sidebar_border":          "#333333",
+      "sidebar_highlight":       "#3A3A3A",
+      "sidebar_highlight_text":  "#DACEB0",
+
+      "button_background_hover":  "#333333",
+      "button_background_active": "#444444",
+
+      "ntp_background":          "#242424",
+      "ntp_text":                "#DACEB0",
+      "ntp_card_background":     "#2B2B2B",
+
+      "address_bar_box_text":    "#EDE6D6",
+      "address_bar_box_focus":   "#3A3A3A",
+
+      "tab_attention":           "#E5C07B"
+    },
+    "properties": {
+      "color_scheme":          "dark",
+      "content_color_scheme":  "system"
+    }
+  }
+}

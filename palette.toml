@@ -20,6 +20,10 @@
 #   glow.0 on hearth.1 ≈ 3.8:1 — intentional for hints/disabled, not body text
 #   spark.red on hearth.0 ≈ 4.5:1 — at AA threshold; fine for icons + text
 
+[meta]
+description = "Quiet warm peach foreground on neutral charcoal — palette adapted from MarianArlt's Sugar Dark, muted for long sessions."
+wallpaper_description = "Procedurally generated charcoal-to-faint-peach gradient — see scripts/render_wallpaper.py."
+
 [hearth]
 "0" = "#26221E"   # deepest bg     — editor, modals, splash         (warm-tinted)
 "1" = "#2D2823"   # panel bg       — sidebar, header, lockscreen    (warm-tinted)

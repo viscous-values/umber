@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <!-- background: charcoal -->
+  <rect width="640" height="400" fill="#2B2B2B"/>
+
+  <!-- clock + date, top center -->
+  <text x="320" y="120" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="56" font-weight="300" fill="#D4BC91" letter-spacing="-1">22:14</text>
+  <text x="320" y="148" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" fill="#A89986">Monday, 27 of April</text>
+
+  <!-- username field -->
+  <g transform="translate(195, 188)">
+    <rect width="250" height="38" rx="20" fill="none" stroke="#D4BC91" stroke-width="1"/>
+    <!-- user icon (simple silhouette) -->
+    <circle cx="22" cy="14" r="5" fill="#D4BC91"/>
+    <path d="M 12 28 Q 22 20 32 28" fill="none" stroke="#D4BC91" stroke-width="2" stroke-linecap="round"/>
+    <text x="135" y="24" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" fill="#D4BC91">tyler</text>
+  </g>
+
+  <!-- password field -->
+  <g transform="translate(195, 234)">
+    <rect width="250" height="38" rx="20" fill="none" stroke="#E1E1E1" stroke-width="2"/>
+    <text x="125" y="26" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="14" fill="#E1E1E1" letter-spacing="3">••••••••</text>
+  </g>
+
+  <!-- login button -->
+  <g transform="translate(195, 286)">
+    <rect width="250" height="38" rx="20" fill="#D4BC91"/>
+    <text x="125" y="24" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" font-weight="500" fill="#2B2B2B">Login</text>
+  </g>
+
+  <!-- session select, small -->
+  <text x="320" y="346" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="11" fill="#A89986">Session: Plasma (Wayland)</text>
+
+  <!-- power buttons row -->
+  <g transform="translate(232, 364)" fill="none" stroke="#A89986" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- suspend (moon) -->
+    <g transform="translate(0,0)">
+      <path d="M 11 4 a 7 7 0 1 0 6 11 a 5.5 5.5 0 0 1 -6 -11 z" fill="#A89986" stroke="none"/>
+    </g>
+    <!-- hibernate (snowflake-ish) -->
+    <g transform="translate(44,0)">
+      <line x1="11" y1="3" x2="11" y2="19"/>
+      <line x1="3" y1="11" x2="19" y2="11"/>
+      <line x1="5.5" y1="5.5" x2="16.5" y2="16.5"/>
+      <line x1="16.5" y1="5.5" x2="5.5" y2="16.5"/>
+    </g>
+    <!-- reboot (circular arrow) -->
+    <g transform="translate(88,0)">
+      <path d="M 4 11 a 7 7 0 1 1 2 5"/>
+      <polyline points="3,15 6,16 7,13"/>
+    </g>
+    <!-- shutdown (power) -->
+    <g transform="translate(132,0)">
+      <path d="M 6 6 a 7 7 0 1 0 10 0"/>
+      <line x1="11" y1="3" x2="11" y2="11"/>
+    </g>
+  </g>
+</svg>

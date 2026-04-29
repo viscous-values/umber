@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Wallpaper/Images",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Tyler"
+            }
+        ],
+        "Description": "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py.",
+        "Id": "Umber-Tide",
+        "License": "GPL-3.0-or-later",
+        "Name": "Umber Tide"
+    }
+}

@@ -1,0 +1,15 @@
+[SddmGreeterTheme]
+Name=Umber Ash
+Description=Warm cream foreground on neutral charcoal — Umber Ash, the warmest of the cool family.
+Author=Tyler (port); Marian Arlt (original Sugar Dark)
+Copyright=Copyright (C) 2018 Marian Arlt; 2026 port and adaptations by Tyler
+License=GPL-3.0-or-later
+Type=sddm-theme
+Version=1.0
+Website=https://github.com/tyler872010/umber
+Screenshot=preview.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Theme-Id=umber-ash
+QtVersion=6

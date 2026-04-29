@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Umber Ash",
+  "version": "1.0.0",
+  "description": "Umber palette family — Umber Ash (Chromium/Chrome theme).",
+  "author": "Tyler",
+  "homepage_url": "https://github.com/tyler872010/umber",
+
+  "theme": {
+    "colors": {
+      "frame":                          [36, 36, 36],
+      "frame_inactive":                 [43, 43, 43],
+      "frame_incognito":                [36, 36, 36],
+      "frame_incognito_inactive":       [43, 43, 43],
+
+      "toolbar":                        [43, 43, 43],
+      "toolbar_text":                   [237, 230, 214],
+      "toolbar_button_icon":            [166, 153, 138],
+      "omnibox_background":             [51, 51, 51],
+      "omnibox_text":                   [237, 230, 214],
+
+      "tab_text":                       [218, 206, 176],
+      "tab_background_text":            [166, 153, 138],
+      "tab_background_text_inactive":   [166, 153, 138],
+      "background_tab":                 [43, 43, 43],
+      "background_tab_inactive":        [43, 43, 43],
+
+      "bookmark_text":                  [218, 206, 176],
+      "ntp_background":                 [36, 36, 36],
+      "ntp_text":                       [218, 206, 176],
+      "ntp_link":                       [208, 188, 149],
+      "ntp_header":                     [218, 206, 176],
+
+      "control_background":             [51, 51, 51],
+      "button_background":              [51, 51, 51]
+    },
+    "tints": {
+      "buttons":      [-1, -1, 0.78],
+      "frame":        [-1, -1, -1],
+      "background_tab": [-1, -1, -1]
+    },
+    "properties": {
+      "ntp_background_alignment": "center",
+      "ntp_logo_alternate":       1
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Tyler"
+            }
+        ],
+        "Category": "Plasma Look And Feel",
+        "Description": "Warm cream foreground on neutral charcoal — Umber Ash, the warmest of the cool family.",
+        "EnabledByDefault": true,
+        "Id": "com.tyler.umber-ash",
+        "License": "GPL-3.0-or-later",
+        "Name": "Umber Ash",
+        "ServiceTypes": [
+            "Plasma/LookAndFeel"
+        ],
+        "Version": "1.0.0",
+        "Website": "https://github.com/tyler872010/umber"
+    },
+    "X-Plasma-APIVersion": "2",
+    "X-Plasma-MainScript": "defaults"
+}

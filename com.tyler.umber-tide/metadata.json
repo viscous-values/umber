@@ -1,0 +1,23 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Tyler"
+            }
+        ],
+        "Category": "Plasma Look And Feel",
+        "Description": "Cream-on-dusk — Umber Tide. Teal-cool charcoal hearths, cream glow drifting toward sand.",
+        "EnabledByDefault": true,
+        "Id": "com.tyler.umber-tide",
+        "License": "GPL-3.0-or-later",
+        "Name": "Umber Tide",
+        "ServiceTypes": [
+            "Plasma/LookAndFeel"
+        ],
+        "Version": "1.0.0",
+        "Website": "https://github.com/tyler872010/umber"
+    },
+    "X-Plasma-APIVersion": "2",
+    "X-Plasma-MainScript": "defaults"
+}

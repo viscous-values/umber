@@ -1,14 +1,14 @@
 {
   "manifest_version": 2,
-  "name": "Umber",
+  "name": "{{ var.name }}",
   "version": "1.0.0",
-  "description": "A quiet warm-on-charcoal Firefox theme — Umber palette.",
+  "description": "Umber palette family — {{ var.name }} (Firefox theme).",
   "author": "Tyler",
   "homepage_url": "https://github.com/tyler872010/umber",
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "umber@tyler"
+      "id": "{{ var.slug }}@tyler"
     }
   },
 

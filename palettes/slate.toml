@@ -4,6 +4,10 @@
 # Glow:   ~6% desaturated from canonical-cool Umber.
 # Mist + Spark: identical to canonical.
 
+[meta]
+description = "Cream-on-overcast — Umber Slate. Neutral-cool charcoal hearths, lightly desaturated cream glow."
+wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
+
 [hearth]
 "0" = "#232527"   # deepest bg     — slight cool wash
 "1" = "#2A2C2F"   # panel bg

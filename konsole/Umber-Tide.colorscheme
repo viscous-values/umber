@@ -1,0 +1,93 @@
+# Umber — Konsole 16-ANSI color scheme
+# Part of the Umber theme suite — https://github.com/tyler872010/umber
+# Copyright (C) 2026 Tyler — GPL-3.0-or-later
+# Spark accent hexes adapted from Atom One Dark.
+
+[General]
+Description=Umber Tide
+Opacity=1
+Wallpaper=
+Anchor=0.5,0.5
+Blur=false
+ColorRandomization=false
+FillStyle=Tile
+WallpaperFlipType=NoFlip
+WallpaperOpacity=1
+
+[Background]
+Color=32,38,41
+[BackgroundFaint]
+Color=32,38,41
+[BackgroundIntense]
+Color=32,38,41
+
+[Foreground]
+Color=205,188,154
+[ForegroundFaint]
+Color=160,154,147
+[ForegroundIntense]
+Color=234,229,217
+
+# 0 — black / dim background tone (intense = warm glow0 for parity with VSCode)
+[Color0]
+Color=39,45,49
+[Color0Faint]
+Color=39,45,49
+[Color0Intense]
+Color=160,154,147
+
+# 1 — red (spark.red)
+[Color1]
+Color=224,108,117
+[Color1Faint]
+Color=160,77,84
+[Color1Intense]
+Color=235,133,144
+
+# 2 — green (spark.green)
+[Color2]
+Color=152,195,121
+[Color2Faint]
+Color=109,140,86
+[Color2Intense]
+Color=181,214,144
+
+# 3 — yellow / amber (spark.amber)
+[Color3]
+Color=229,192,123
+[Color3Faint]
+Color=164,138,88
+[Color3Intense]
+Color=240,207,142
+
+# 4 — blue (mist1; intense = mist2)
+[Color4]
+Color=136,166,197
+[Color4Faint]
+Color=87,116,143
+[Color4Intense]
+Color=168,189,214
+
+# 5 — magenta (spark.violet)
+[Color5]
+Color=197,134,176
+[Color5Faint]
+Color=141,96,138
+[Color5Intense]
+Color=213,160,194
+
+# 6 — cyan / teal (mist0)
+[Color6]
+Color=122,168,172
+[Color6Faint]
+Color=80,128,131
+[Color6Intense]
+Color=156,196,199
+
+# 7 — default text (glow1)
+[Color7]
+Color=205,188,154
+[Color7Faint]
+Color=160,154,147
+[Color7Intense]
+Color=234,229,217

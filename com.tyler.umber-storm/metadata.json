@@ -1,0 +1,23 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Tyler"
+            }
+        ],
+        "Category": "Plasma Look And Feel",
+        "Description": "Cream-on-night-sea — Umber Storm. Slate-blue charcoal hearths, sand-cream glow.",
+        "EnabledByDefault": true,
+        "Id": "com.tyler.umber-storm",
+        "License": "GPL-3.0-or-later",
+        "Name": "Umber Storm",
+        "ServiceTypes": [
+            "Plasma/LookAndFeel"
+        ],
+        "Version": "1.0.0",
+        "Website": "https://github.com/tyler872010/umber"
+    },
+    "X-Plasma-APIVersion": "2",
+    "X-Plasma-MainScript": "defaults"
+}
