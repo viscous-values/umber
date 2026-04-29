@@ -3,26 +3,60 @@
 # Idempotent: safe to re-run. Manual steps that need sudo or out-of-process
 # action (SDDM, Firefox, Chromium) are printed at the end, not auto-executed.
 #
-# Usage: ./install.sh [--yes] [--migrate]
-#   --yes      skip the overwrite confirmation (for non-interactive use)
-#   --migrate  clean up artifacts from the legacy "Hush" install before
-#              installing Umber (refuses to install otherwise if found)
+# Usage: ./install.sh [--yes] [--migrate] [--variant NAME]
+#   --yes         skip the overwrite confirmation (for non-interactive use)
+#   --migrate     clean up artifacts from the legacy "Hush" install before
+#                 installing Umber (refuses to install otherwise if found)
+#   --variant N   install variant N instead of canonical Umber.
+#                 N ∈ {umber, ash, slate, tide, storm}. Default: umber.
+#                 Variants install side-by-side; canonical and any number
+#                 of variants can coexist on one machine.
 
 set -euo pipefail
 
 ASSUME_YES=0
 MIGRATE=0
-for arg in "$@"; do
-    case "$arg" in
-        -y|--yes) ASSUME_YES=1 ;;
-        --migrate) MIGRATE=1 ;;
+VARIANT="umber"
+while (( $# > 0 )); do
+    case "$1" in
+        -y|--yes)        ASSUME_YES=1 ;;
+        --migrate)       MIGRATE=1 ;;
+        --variant)       shift; VARIANT="${1:-}" ;;
+        --variant=*)     VARIANT="${1#--variant=}" ;;
         -h|--help)
-            sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
-        *) echo "Unknown argument: $arg" >&2; exit 2 ;;
+        *) echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
+    shift
 done
+
+case "$VARIANT" in
+    umber|ash|slate|tide|storm) ;;
+    *) echo "ERROR: unknown variant '$VARIANT' (must be one of: umber, ash, slate, tide, storm)" >&2; exit 2 ;;
+esac
+
+# ---------------------------------------------------------------------------
+# Variant-derived names. For canonical (umber) these collapse to today's
+# unsuffixed paths; for variants they pick up the slug everywhere.
+if [[ "$VARIANT" == "umber" ]]; then
+    SLUG="umber"
+    SCHEME="Umber"
+    NAME="Umber"
+else
+    SLUG="umber-$VARIANT"
+    SCHEME="Umber-${VARIANT^}"   # Title-case suffix: ash → Ash
+    NAME="Umber ${VARIANT^}"
+fi
+PKG_ID="com.tyler.$SLUG"
+SHELL_PKG_ID="$PKG_ID-shell"
+SHELL_DIR_NAME="${SLUG}-shell"   # source directory name in repo
+SDDM_DIR_NAME="${SLUG}-sddm"
+FF_DIR_NAME="${SLUG}-firefox"
+CR_DIR_NAME="${SLUG}-chromium"
+SCHEME_FILE="${SCHEME}.colors"
+KONSOLE_FILE="${SCHEME}.colorscheme"
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO_ROOT"
@@ -52,7 +86,7 @@ require_bin() {
         exit 1
     fi
 }
-step "Preflight"
+step "Preflight (variant: $NAME)"
 require_bin plasma-apply-lookandfeel  "plasma-workspace"
 require_bin plasma-apply-colorscheme  "plasma-workspace"
 require_bin kwriteconfig6             "kconfig"
@@ -61,24 +95,35 @@ require_bin git                       "git"
 require_bin python3                   "python"
 ok "all required commands present"
 
-# Warn (don't fail) if consumer files don't match palette.toml + templates.
-# Catches a forgotten `python scripts/render_palette.py render` after editing
-# palette.toml; the install proceeds with whatever is on disk.
+# Warn (don't fail) if any consumer file drifts from its template. Catches a
+# forgotten `python scripts/render_palette.py render` after editing a palette.
 if python3 "$REPO_ROOT/scripts/render_palette.py" check >/dev/null 2>&1; then
-    ok "palette consumer files in sync with palette.toml"
+    ok "palette consumer files in sync with palette TOMLs"
 else
-    note "palette consumer files differ from palette.toml — run: python scripts/render_palette.py render"
+    note "consumer files differ from palette TOMLs — run: python scripts/render_palette.py render [--palette palettes/<name>.toml]"
 fi
 
+# Sanity: the source dirs for THIS variant must exist in the repo.
+for src in "$REPO_ROOT/$PKG_ID" "$REPO_ROOT/$SHELL_DIR_NAME" \
+           "$REPO_ROOT/$SDDM_DIR_NAME" \
+           "$REPO_ROOT/$FF_DIR_NAME" "$REPO_ROOT/$CR_DIR_NAME"; do
+    if [[ ! -d "$src" ]]; then
+        err "missing variant source directory: $src"
+        printf "       Run: python scripts/render_palette.py render --palette palettes/%s.toml\n" "$VARIANT" >&2
+        exit 1
+    fi
+done
+
 # ---------------------------------------------------------------------------
-# Overwrite confirmation.
+# Overwrite confirmation — scoped to THIS variant's paths so installing
+# (e.g.) ash never warns about canonical Umber being present.
 existing=()
-[[ -d "$LNF_DIR/com.tyler.umber" ]]              && existing+=("$LNF_DIR/com.tyler.umber")
-[[ -d "$SHELLS_DIR/com.tyler.umber-shell" ]]     && existing+=("$SHELLS_DIR/com.tyler.umber-shell")
-[[ -d "$ICONS_DIR/Umber-cursor" ]]               && existing+=("$ICONS_DIR/Umber-cursor")
-[[ -f "$SCHEMES_DIR/Umber.colors" ]]             && existing+=("$SCHEMES_DIR/Umber.colors")
+[[ -d "$LNF_DIR/$PKG_ID" ]]                 && existing+=("$LNF_DIR/$PKG_ID")
+[[ -d "$SHELLS_DIR/$SHELL_PKG_ID" ]]        && existing+=("$SHELLS_DIR/$SHELL_PKG_ID")
+[[ -d "$ICONS_DIR/Umber-cursor" ]]          && existing+=("$ICONS_DIR/Umber-cursor")
+[[ -f "$SCHEMES_DIR/$SCHEME_FILE" ]]        && existing+=("$SCHEMES_DIR/$SCHEME_FILE")
 if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
-    step "Existing Umber install detected"
+    step "Existing $NAME install detected"
     for p in "${existing[@]}"; do note "will overwrite: $p"; done
     printf "    Continue? [y/N] "
     read -r reply
@@ -89,10 +134,10 @@ if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
 fi
 
 # ---------------------------------------------------------------------------
-# Hush → Umber migration. Detects artifacts left from the prior project name
-# and either cleans them up (--migrate) or refuses to install with a manual
-# cleanup recipe — prevents the dual-install footgun where both themes end up
-# half-applied across kdeglobals / plasmarc / extensions.json.
+# Hush → Umber migration. Variant-agnostic: cleans up artifacts from the
+# legacy "Hush" project name on the system regardless of which Umber variant
+# is being installed now. Only rewrites configs to canonical "Umber" — the
+# variant-specific apply step at the end retargets to $NAME if needed.
 hush_artifacts=()
 [[ -d "$LNF_DIR/com.tyler.hush" ]]       && hush_artifacts+=("$LNF_DIR/com.tyler.hush")
 [[ -f "$SCHEMES_DIR/Hush.colors" ]]      && hush_artifacts+=("$SCHEMES_DIR/Hush.colors")
@@ -104,7 +149,6 @@ if (( ${#hush_artifacts[@]} > 0 )); then
     if (( MIGRATE == 1 )); then
         step "Migrating from Hush"
         for p in "${hush_artifacts[@]}"; do
-            # tyler.hush-1.0.0 is a symlink — unlink, do NOT rm -rf the target.
             if [[ -L "$p" ]]; then
                 unlink "$p"
                 ok "unlinked $p"
@@ -147,9 +191,6 @@ if len(data) != before:
     print("    .. removed tyler.hush entry from extensions.json")
 PYEOF
         fi
-        # SDDM is system-owned. Surface the sudo command instead of invoking it
-        # — keeps the install non-interactive-sudo and matches how the rest of
-        # the script handles SDDM (manual section at the end).
         if [[ -f /etc/sddm.conf.d/kde_settings.conf ]] && grep -q '^Current=hush$' /etc/sddm.conf.d/kde_settings.conf 2>/dev/null; then
             note "SDDM theme is still set to 'hush' — run:"
             note "    sudo sed -i 's/^Current=hush\$/Current=umber/' /etc/sddm.conf.d/kde_settings.conf"
@@ -226,40 +267,42 @@ cp -a "$REPO_ROOT/cursors/Umber-cursor" "$ICONS_DIR/Umber-cursor"
 ok "installed to $ICONS_DIR/Umber-cursor"
 
 # ---------------------------------------------------------------------------
-step "Umber color scheme"
+step "$NAME color scheme"
 mkdir -p "$SCHEMES_DIR"
-cp "$REPO_ROOT/com.tyler.umber/contents/colors/Umber.colors" "$SCHEMES_DIR/Umber.colors"
-ok "installed to $SCHEMES_DIR/Umber.colors"
+cp "$REPO_ROOT/$PKG_ID/contents/colors/$SCHEME_FILE" "$SCHEMES_DIR/$SCHEME_FILE"
+ok "installed to $SCHEMES_DIR/$SCHEME_FILE"
 
 # ---------------------------------------------------------------------------
-step "Plasma Look-and-Feel package"
+step "Plasma Look-and-Feel package ($PKG_ID)"
 mkdir -p "$LNF_DIR"
-rm -rf "$LNF_DIR/com.tyler.umber"
-cp -a "$REPO_ROOT/com.tyler.umber" "$LNF_DIR/com.tyler.umber"
-ok "installed to $LNF_DIR/com.tyler.umber"
+rm -rf "$LNF_DIR/$PKG_ID"
+cp -a "$REPO_ROOT/$PKG_ID" "$LNF_DIR/$PKG_ID"
+ok "installed to $LNF_DIR/$PKG_ID"
 
 # ---------------------------------------------------------------------------
 # Plasma 6's kscreenlocker reads its QML from a Plasma/Shell package selected
 # by [Greeter]/Theme in kscreenlockerrc — independent of the LookAndFeel
-# package. com.tyler.umber-shell ships only contents/lockscreen/ and falls
-# back to org.kde.plasma.desktop for everything else, so flipping it on
-# affects the lock greeter only (panels/applets/etc. are untouched).
-step "Plasma Shell package (lockscreen override)"
+# package. The shell package ships only contents/lockscreen/ and falls back
+# to org.kde.plasma.desktop for everything else.
+step "Plasma Shell package ($SHELL_PKG_ID)"
 mkdir -p "$SHELLS_DIR"
-rm -rf "$SHELLS_DIR/com.tyler.umber-shell"
-cp -a "$REPO_ROOT/umber-shell" "$SHELLS_DIR/com.tyler.umber-shell"
-ok "installed to $SHELLS_DIR/com.tyler.umber-shell"
-kwriteconfig6 --file kscreenlockerrc --group Greeter --key Theme com.tyler.umber-shell
-ok "kscreenlockerrc [Greeter]/Theme = com.tyler.umber-shell"
+rm -rf "$SHELLS_DIR/$SHELL_PKG_ID"
+cp -a "$REPO_ROOT/$SHELL_DIR_NAME" "$SHELLS_DIR/$SHELL_PKG_ID"
+ok "installed to $SHELLS_DIR/$SHELL_PKG_ID"
+kwriteconfig6 --file kscreenlockerrc --group Greeter --key Theme "$SHELL_PKG_ID"
+ok "kscreenlockerrc [Greeter]/Theme = $SHELL_PKG_ID"
 
 # ---------------------------------------------------------------------------
 step "Konsole color scheme"
 mkdir -p "$KONSOLE_DIR"
-cp "$REPO_ROOT/konsole/Umber.colorscheme" "$KONSOLE_DIR/Umber.colorscheme"
-ok "installed to $KONSOLE_DIR/Umber.colorscheme"
-note "Konsole: open Settings → Edit Current Profile → Appearance → choose Umber."
+cp "$REPO_ROOT/konsole/$KONSOLE_FILE" "$KONSOLE_DIR/$KONSOLE_FILE"
+ok "installed to $KONSOLE_DIR/$KONSOLE_FILE"
+note "Konsole: open Settings → Edit Current Profile → Appearance → choose $NAME."
 
 # ---------------------------------------------------------------------------
+# VSCode extension is shared across all variants — a single extension dir
+# (umber-vscode/) registers all five themes via package.json contributes.
+# Theme picker shows: Umber, Umber Ash, Umber Slate, Umber Tide, Umber Storm.
 step "VSCode (Microsoft) extension link + cache stub"
 if [[ -d "$VSCODE_EXT_DIR" ]] || [[ -d "$HOME/.vscode" ]]; then
     mkdir -p "$VSCODE_EXT_DIR"
@@ -297,7 +340,7 @@ else:
     print("    .. tyler.umber already registered in extensions.json")
 PYEOF
     ok "linked to $VSCODE_EXT_DIR/tyler.umber-1.0.0"
-    note "Restart VSCode, then Ctrl+K Ctrl+T → Umber."
+    note "Restart VSCode, then Ctrl+K Ctrl+T → $NAME (or any sibling variant)."
 else
     note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/tyler.umber-1.0.0"
 fi
@@ -308,16 +351,12 @@ kbuildsycoca6 --noincremental >/dev/null 2>&1 || true
 ok "kbuildsycoca6 refreshed"
 
 # ---------------------------------------------------------------------------
-step "Applying Global Theme"
-# Run from /tmp to avoid kpackagetool6 resolving the source dir as a package path.
-( cd /tmp && plasma-apply-lookandfeel -a com.tyler.umber ) || {
+step "Applying Global Theme ($NAME)"
+( cd /tmp && plasma-apply-lookandfeel -a "$PKG_ID" ) || {
     echo "WARNING: plasma-apply-lookandfeel failed — try logging out / back in." >&2
 }
-# Force-rewrite [WM] inline values by toggling colorscheme.
 plasma-apply-colorscheme BreezeLight >/dev/null 2>&1 || true
-plasma-apply-colorscheme Umber >/dev/null 2>&1 || true
-# plasma-apply-lookandfeel honors [General].ColorScheme but skips [Icons].Theme
-# and is unreliable for cursor — apply both explicitly.
+plasma-apply-colorscheme "$SCHEME" >/dev/null 2>&1 || true
 changeicons=""
 for p in /usr/lib/plasma-changeicons /usr/libexec/plasma-changeicons; do
     [[ -x "$p" ]] && { changeicons="$p"; break; }
@@ -328,21 +367,9 @@ else
     note "plasma-changeicons helper not found — pick icons manually in System Settings."
 fi
 plasma-apply-cursortheme Umber-cursor >/dev/null 2>&1 || true
-# kscreenlocker_greet resolves its QML from contents/lockscreen/ inside the
-# Plasma/Shell package named by kscreenlockerrc [Greeter]/Theme (set above).
-# Each lock spawns a fresh greeter process, so the Umber lockscreen picks up
-# the next time the screen locks (no daemon restart needed).
-ok "Global Theme applied"
+ok "Global Theme applied ($NAME)"
 
 # ---------------------------------------------------------------------------
-# SDDM conf.d shadow scan: SDDM's ConfigReader walks /etc/sddm.conf.d/ with
-# QDir::entryList(Files|NoDotAndDotDot, LocaleAware) — no extension filter,
-# alphabetical merge, last value wins. Any stray file (kde_settings.conf.bak,
-# editor swap files, distro leftovers) that defines [Theme]/Current= and
-# sorts after kde_settings.conf will silently override Current=umber. Renaming
-# inside conf.d cannot fix this; the file must be moved out of the directory.
-# This scan is read-only (the dir is world-readable) and builds a tailored
-# remediation block printed in the manual-steps section below.
 step "Scanning /etc/sddm.conf.d/ for shadow files"
 SDDM_CONF_D="/etc/sddm.conf.d"
 SDDM_SHADOW_BLOCK=""
@@ -351,9 +378,7 @@ if [[ -d "$SDDM_CONF_D" ]]; then
     while IFS= read -r f; do
         [[ -f "$f" ]] || continue
         bn="$(basename "$f")"
-        # kde_settings.conf is the canonical file install.sh & the KCM write to.
         [[ "$bn" == "kde_settings.conf" ]] && continue
-        # Only flag files that try to set a non-empty theme.
         if grep -qE '^[[:space:]]*Current=[^[:space:]]' "$f" 2>/dev/null; then
             shadow_files+=("$f")
         fi
@@ -376,42 +401,39 @@ fi
 # ---------------------------------------------------------------------------
 cat <<EOF
 $SDDM_SHADOW_BLOCK
-\033[1;33m==> MANUAL STEPS REMAINING\033[0m
+\033[1;33m==> MANUAL STEPS REMAINING ($NAME)\033[0m
 
 These can't be automated by this script (sudo, browser UI, or out-of-process action):
 
 \033[1;36mSDDM (login screen)\033[0m — needs sudo:
-    sudo mkdir -p /usr/share/sddm/themes/umber
-    sudo cp -r "$REPO_ROOT/umber-sddm/." /usr/share/sddm/themes/umber/
-    sudo sed -i 's/^Current=.*/Current=umber/' /etc/sddm.conf.d/kde_settings.conf
-  Note: the trailing /. on the source copies contents, so re-running this
-  updates an existing install in place (instead of nesting umber-sddm/ inside).
-  Any KCM-set background (theme.conf.user, wallpaper png in the theme dir)
-  is preserved — only files shipped by Umber are overwritten.
+    sudo mkdir -p /usr/share/sddm/themes/$SLUG
+    sudo cp -r "$REPO_ROOT/$SDDM_DIR_NAME/." /usr/share/sddm/themes/$SLUG/
+    sudo sed -i 's/^Current=.*/Current=$SLUG/' /etc/sddm.conf.d/kde_settings.conf
+  Note: trailing /. on the source copies contents in place, so re-running this
+  updates an existing install (instead of nesting $SDDM_DIR_NAME/ inside).
   Heads-up: SDDM reads /etc/sddm.conf.d/ with no extension filter (alphabetical,
   last wins). Don't leave .bak / .orig / editor-swap files in that directory —
-  they will silently override Current=umber. The script scans for these above.
-  Test windowed first: sddm-greeter-qt6 --test-mode --theme "$REPO_ROOT/umber-sddm"
+  they will silently override Current=$SLUG. The script scans for these above.
+  Test windowed first: sddm-greeter-qt6 --test-mode --theme "$REPO_ROOT/$SDDM_DIR_NAME"
 
 \033[1;36mLock screen\033[0m — optional, makes kscreenlocker reuse SDDM's wallpaper:
-    SDDM_BG="\$(awk -F= '/^background=/{print \$2}' /usr/share/sddm/themes/umber/theme.conf.user 2>/dev/null)"
+    SDDM_BG="\$(awk -F= '/^background=/{print \$2}' /usr/share/sddm/themes/$SLUG/theme.conf.user 2>/dev/null)"
     [[ -n "\$SDDM_BG" ]] && kwriteconfig6 --file kscreenlockerrc \\
         --group Greeter --group Wallpaper --group org.kde.image --group General \\
-        --key Image "/usr/share/sddm/themes/umber/\$SDDM_BG"
-  The Umber-styled lock UI (charcoal floor + 0.55 scrim mirroring SDDM) is
-  bundled as a Plasma/Shell package at umber-shell/ and activated by setting
-  kscreenlockerrc [Greeter]/Theme = com.tyler.umber-shell (done above).
-  Test it with: loginctl lock-session   (Ctrl+Alt+L on most setups).
+        --key Image "/usr/share/sddm/themes/$SLUG/\$SDDM_BG"
+  The $NAME-styled lock UI is bundled as a Plasma/Shell package at
+  $SHELL_DIR_NAME/ and activated by setting kscreenlockerrc [Greeter]/Theme =
+  $SHELL_PKG_ID (done above). Test with: loginctl lock-session.
 
 \033[1;36mFirefox theme\033[0m — load via about:debugging:
     1. Visit about:debugging#/runtime/this-firefox
-    2. "Load Temporary Add-on…" → pick $REPO_ROOT/umber-firefox/manifest.json
+    2. "Load Temporary Add-on…" → pick $REPO_ROOT/$FF_DIR_NAME/manifest.json
   (Stable Firefox unloads unsigned extensions on restart. Sign on AMO or use
    Developer Edition with xpinstall.signatures.required=false for persistence.)
 
 \033[1;36mChromium / Chrome theme\033[0m — load unpacked:
     1. Visit chrome://extensions/
     2. Toggle "Developer mode"
-    3. "Load unpacked" → pick $REPO_ROOT/umber-chromium/
+    3. "Load unpacked" → pick $REPO_ROOT/$CR_DIR_NAME/
 
 EOF

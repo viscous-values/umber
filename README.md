@@ -1,6 +1,6 @@
 # Umber
 
-A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Originally adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark), then muted for long-session comfort and built out into a full Nord-style palette.
+A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Five palettes share Mist + Spark accents: **Umber** (warm canonical), **Ash** (warmest of the cool family — neutral charcoal hearths), **Slate** (overcast), **Tide** (dusk), **Storm** (night sea). Originally adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark), muted for long-session comfort and built out into a full Nord-style palette.
 
 ![Palette preview](palette-preview.svg)
 
@@ -8,16 +8,41 @@ A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Originally ad
 
 ## Palette
 
-16 colors in 4 tiers. Source of truth: [`palette-preview.svg`](palette-preview.svg).
+17 colors in 4 tiers. Canonical Umber values (variants share Mist + Spark; Hearth + Glow shift cool, see [Variants](#variants) below). Source of truth: [`palette.toml`](palette.toml) + the templated outputs under `scripts/templates/`.
 
 | Tier | Purpose | Colors |
 |------|---------|--------|
-| **Hearth** | dark surfaces (deepest → elevated) | `#242424` `#2B2B2B` `#333333` `#444444` |
-| **Glow**   | warm foregrounds (dim → bright)    | `#A89986` `#D4BC91` `#E1CDA5` `#E1E1E1` |
-| **Mist**   | cool accents (counterweight)       | `#7AA8AC` `#88A6C5` `#A8BDD6` |
-| **Spark**  | vivid syntax / status hues          | red `#E06C75` · orange `#D19A66` · amber `#E5C07B` · green `#98C379` · violet `#C586B0` |
+| **Hearth** | dark surfaces (deepest → border) | `#26221E` `#2D2823` `#363029` `#48413A` |
+| **Glow**   | warm foregrounds (dim → bright)  | `#A89986` `#D4BC91` `#E1CDA5` `#F0E5D0` |
+| **Mist**   | cool accents (counterweight)     | `#4F7A7E` `#7AA8AC` `#88A6C5` `#A8BDD6` |
+| **Spark**  | vivid syntax / status hues       | red `#E06C75` · orange `#D19A66` · amber `#E5C07B` · green `#98C379` · violet `#C586B0` |
 
 Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, positive = `spark.green`, visited link = `spark.violet`.
+
+## Variants
+
+The Umber family is a cool-temperature ramp anchored on the warm canonical. Mist + Spark are identical across all five; **Hearth shifts cool** and **Glow desaturates progressively** to suppress peach selection bands on cool grounds.
+
+| Variant | Mood | Hearth character | Glow desat |
+|---|---|---|---|
+| **Umber** (canonical) | fireside | warm-tinted brown-charcoal (R−B ≈ 5–8) | reference |
+| **Ash** | warmest cool | neutral charcoal, R=G=B (`#242424` / `#2B2B2B` / `#333333` / `#444444`) | slight cool-shift on cream |
+| **Slate** | overcast | neutral-cool, B > R by ~4–6 | ~6% from Ash |
+| **Tide** | dusk | teal-cool, G ≈ B > R, B−R ~8–10 | ~12% |
+| **Storm** | night sea | slate-blue, B > G > R, B−R ~12–16 | ~20% |
+
+Each variant ships a complete theme suite (LookAndFeel package, Plasma Shell lockscreen, Konsole, VSCode, Firefox, Chromium, SDDM). Mockups live in [`mockups/`](mockups) — open `mockups/{ash,slate,tide,storm}-{desktop,filemanager,textsample,ui-catalog,swatches}.{jpg,png}` to compare.
+
+Install any variant alongside canonical:
+
+```fish
+./install.sh --variant ash      # neutral charcoal, slight-cool cream
+./install.sh --variant slate    # overcast
+./install.sh --variant tide     # teal dusk
+./install.sh --variant storm    # slate-blue night sea
+```
+
+Variants and canonical coexist on the same machine — switch between them in System Settings → Global Theme.
 
 ## Components
 
@@ -47,10 +72,14 @@ External dependency (auto-installed by `install.sh`):
 Run the one-shot installer from the repo root:
 
 ```fish
-./install.sh
+./install.sh                     # canonical warm Umber
+./install.sh --variant ash       # any variant; see Variants section above
+./install.sh --migrate           # one-time: clean up legacy "Hush" install
 ```
 
 This installs the Newaita icons (if missing), the Umber cursor, color scheme, Look-and-Feel package, Konsole scheme, and VSCode extension link, then applies the Global Theme. Components that need sudo or browser UI (SDDM, Firefox, Chromium) are listed at the end of the script's output for you to run manually.
+
+The `--variant` flag is fully orthogonal — each variant installs into its own per-variant directories (`com.tyler.umber-ash/`, `umber-ash-shell/`, `umber-ash-sddm/`, etc.) so canonical and any number of variants can coexist on a single machine.
 
 ### What the Global Theme covers
 
