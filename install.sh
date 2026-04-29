@@ -1,30 +1,40 @@
 #!/bin/bash
 # Umber — one-shot installer for the full theme suite on KDE Plasma 6.
-# Idempotent: safe to re-run. Manual steps that need sudo or out-of-process
-# action (SDDM, Firefox, Chromium) are printed at the end, not auto-executed.
+# Idempotent: safe to re-run. Steps that need root (SDDM theme install,
+# /etc/sddm.conf.d/ shadow-file cleanup, /etc/sddm.conf.d/kde_settings.conf
+# Current= rewrite, removal of legacy /usr/share/sddm/themes/hush) are
+# bundled into a single sudo prompt near the end of the run; the script
+# prints the exact commands first and releases the sudo cache (sudo -k)
+# as soon as those commands finish.
 #
-# Usage: ./install.sh [--yes] [--migrate] [--variant NAME]
-#   --yes         skip the overwrite confirmation (for non-interactive use)
+# Usage: ./install.sh [--yes] [--migrate] [--variant NAME] [--no-sudo]
+#   --yes         skip the overwrite confirmation (for non-interactive use);
+#                 also auto-accepts the sudo offer (sudo itself may still
+#                 prompt for the password if no ticket is cached).
 #   --migrate     clean up artifacts from the legacy "Hush" install before
 #                 installing Umber (refuses to install otherwise if found)
 #   --variant N   install variant N instead of canonical Umber.
 #                 N ∈ {umber, ash, slate, tide, storm}. Default: umber.
 #                 Variants install side-by-side; canonical and any number
 #                 of variants can coexist on one machine.
+#   --no-sudo     never offer sudo elevation; print all root-needing steps
+#                 as manual instructions at the end (legacy behavior).
 
 set -euo pipefail
 
 ASSUME_YES=0
 MIGRATE=0
 VARIANT="umber"
+NO_SUDO=0
 while (( $# > 0 )); do
     case "$1" in
         -y|--yes)        ASSUME_YES=1 ;;
         --migrate)       MIGRATE=1 ;;
         --variant)       shift; VARIANT="${1:-}" ;;
         --variant=*)     VARIANT="${1#--variant=}" ;;
+        --no-sudo)       NO_SUDO=1 ;;
         -h|--help)
-            sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         *) echo "Unknown argument: $1" >&2; exit 2 ;;
@@ -75,6 +85,119 @@ step() { printf "\n\033[1;33m==>\033[0m %s\n" "$1"; }
 ok()   { printf "    \033[0;32mok\033[0m %s\n" "$1"; }
 note() { printf "    \033[0;36m..\033[0m %s\n" "$1"; }
 err()  { printf "\033[1;31mERROR:\033[0m %s\n" "$1" >&2; }
+
+# ---------------------------------------------------------------------------
+# Elevated-step orchestration. Every root-needing operation sets a HAS_*
+# flag during preflight/scan, then run_pending_elevated() prints the full
+# command list, prompts once, acquires sudo, runs everything inline, and
+# releases the cache (sudo -k). Result flags (DID_*) drive the post-run
+# manual-steps printout — anything that ran is omitted from the tail.
+HAS_HUSH_SDDM_REWRITE=0
+HAS_HUSH_SDDM_DIR_REMOVE=0
+HAS_SHADOW_MOVES=0
+HAS_SDDM_INSTALL=0
+DID_SDDM_INSTALL=0
+DID_SHADOW_MOVES=0
+SHADOW_FILES=()
+SDDM_THEME_TARGET=""   # filled in after variant resolution
+SDDM_KDE_CONF="/etc/sddm.conf.d/kde_settings.conf"
+
+build_elevated_label_list() {
+    local labels=()
+    local f
+    if (( HAS_HUSH_SDDM_REWRITE )); then
+        labels+=("sed -i 's/^Current=hush\$/Current=umber/' $SDDM_KDE_CONF")
+    fi
+    if (( HAS_HUSH_SDDM_DIR_REMOVE )); then
+        labels+=("rm -rf /usr/share/sddm/themes/hush")
+    fi
+    if (( HAS_SHADOW_MOVES )); then
+        for f in "${SHADOW_FILES[@]}"; do
+            labels+=("mv \"$f\" \"/etc/$(basename "$f")\"")
+        done
+    fi
+    if (( HAS_SDDM_INSTALL )); then
+        labels+=("mkdir -p $SDDM_THEME_TARGET")
+        labels+=("cp -r \"$REPO_ROOT/$SDDM_DIR_NAME/.\" $SDDM_THEME_TARGET/")
+        labels+=("sed -i 's/^Current=.*/Current=$SLUG/' $SDDM_KDE_CONF")
+    fi
+    printf '%s\n' "${labels[@]}"
+}
+
+run_pending_elevated() {
+    local total=$(( HAS_HUSH_SDDM_REWRITE + HAS_HUSH_SDDM_DIR_REMOVE \
+                    + HAS_SHADOW_MOVES + HAS_SDDM_INSTALL ))
+    if (( total == 0 )); then
+        return 0
+    fi
+    step "Elevated steps (sudo)"
+    printf "    The following commands need root:\n\n"
+    while IFS= read -r label; do
+        printf "      $ %s\n" "$label"
+    done < <(build_elevated_label_list)
+    printf "\n"
+
+    if (( NO_SUDO == 1 )); then
+        note "--no-sudo set; skipping. Manual steps printed below."
+        return 1
+    fi
+    if (( ASSUME_YES == 0 )); then
+        printf "    Run these with sudo? [y/N] "
+        read -r reply
+        case "$reply" in
+            y|Y|yes|YES) ;;
+            *) note "Declined. Manual steps printed below."; return 1 ;;
+        esac
+    fi
+    if ! sudo -v; then
+        err "sudo authentication failed; commands above were NOT run."
+        return 1
+    fi
+
+    local rc=0 f
+    if (( HAS_HUSH_SDDM_REWRITE )); then
+        if sudo sed -i 's/^Current=hush$/Current=umber/' "$SDDM_KDE_CONF"; then
+            ok "rewrote Current=hush -> Current=umber in $SDDM_KDE_CONF"
+        else
+            err "failed: sed Current=hush -> umber in $SDDM_KDE_CONF"; rc=1
+        fi
+    fi
+    if (( HAS_HUSH_SDDM_DIR_REMOVE )); then
+        if sudo rm -rf /usr/share/sddm/themes/hush; then
+            ok "removed legacy /usr/share/sddm/themes/hush"
+        else
+            err "failed: rm -rf /usr/share/sddm/themes/hush"; rc=1
+        fi
+    fi
+    if (( HAS_SHADOW_MOVES )); then
+        for f in "${SHADOW_FILES[@]}"; do
+            if sudo mv "$f" "/etc/$(basename "$f")"; then
+                ok "moved $f -> /etc/$(basename "$f")"
+            else
+                err "failed: mv $f"; rc=1
+            fi
+        done
+        DID_SHADOW_MOVES=1
+    fi
+    if (( HAS_SDDM_INSTALL )); then
+        if sudo mkdir -p "$SDDM_THEME_TARGET" \
+            && sudo cp -r "$REPO_ROOT/$SDDM_DIR_NAME/." "$SDDM_THEME_TARGET/" \
+            && sudo sed -i "s/^Current=.*/Current=$SLUG/" "$SDDM_KDE_CONF"; then
+            ok "SDDM theme installed at $SDDM_THEME_TARGET; Current=$SLUG"
+            DID_SDDM_INSTALL=1
+        else
+            err "SDDM theme install failed; rerun manually if needed"; rc=1
+        fi
+    fi
+
+    sudo -k 2>/dev/null || true
+    if (( rc == 0 )); then
+        ok "all elevated steps complete; sudo cache released"
+    else
+        note "some elevated steps failed; sudo cache released"
+    fi
+    return $rc
+}
 
 # ---------------------------------------------------------------------------
 # Preflight: required binaries.
@@ -191,16 +314,17 @@ if len(data) != before:
     print("    .. removed tyler.hush entry from extensions.json")
 PYEOF
         fi
-        if [[ -f /etc/sddm.conf.d/kde_settings.conf ]] && grep -q '^Current=hush$' /etc/sddm.conf.d/kde_settings.conf 2>/dev/null; then
-            note "SDDM theme is still set to 'hush' — run:"
-            note "    sudo sed -i 's/^Current=hush\$/Current=umber/' /etc/sddm.conf.d/kde_settings.conf"
+        # SDDM-side leftovers need root; queue for the consolidated sudo block.
+        if [[ -f "$SDDM_KDE_CONF" ]] && grep -q '^Current=hush$' "$SDDM_KDE_CONF" 2>/dev/null; then
+            HAS_HUSH_SDDM_REWRITE=1
+            note "queued: rewrite Current=hush -> Current=umber in $SDDM_KDE_CONF"
         fi
         if [[ -d /usr/share/sddm/themes/hush ]]; then
-            note "Old SDDM theme dir /usr/share/sddm/themes/hush still present — remove with:"
-            note "    sudo rm -rf /usr/share/sddm/themes/hush"
+            HAS_HUSH_SDDM_DIR_REMOVE=1
+            note "queued: remove legacy /usr/share/sddm/themes/hush"
         fi
         note "Firefox: remove the old hush@tyler temporary add-on from about:debugging before loading Umber."
-        ok "Hush migration complete"
+        ok "Hush user-space migration complete (any queued root steps run later)"
     else
         step "Existing Hush install detected"
         for p in "${hush_artifacts[@]}"; do note "$p"; done
@@ -372,55 +496,66 @@ ok "Global Theme applied ($NAME)"
 # ---------------------------------------------------------------------------
 step "Scanning /etc/sddm.conf.d/ for shadow files"
 SDDM_CONF_D="/etc/sddm.conf.d"
-SDDM_SHADOW_BLOCK=""
+SDDM_THEME_TARGET="/usr/share/sddm/themes/$SLUG"
 if [[ -d "$SDDM_CONF_D" ]]; then
-    shadow_files=()
     while IFS= read -r f; do
         [[ -f "$f" ]] || continue
         bn="$(basename "$f")"
         [[ "$bn" == "kde_settings.conf" ]] && continue
         if grep -qE '^[[:space:]]*Current=[^[:space:]]' "$f" 2>/dev/null; then
-            shadow_files+=("$f")
+            SHADOW_FILES+=("$f")
         fi
     done < <(find "$SDDM_CONF_D" -maxdepth 1 -type f 2>/dev/null | LC_ALL=C sort)
-    if (( ${#shadow_files[@]} > 0 )); then
-        for f in "${shadow_files[@]}"; do
+    if (( ${#SHADOW_FILES[@]} > 0 )); then
+        HAS_SHADOW_MOVES=1
+        for f in "${SHADOW_FILES[@]}"; do
             err "shadow file: $f sets Current= and will override kde_settings.conf"
-        done
-        SDDM_SHADOW_BLOCK=$'\n\033[1;31m==> SDDM SHADOW FILES DETECTED\033[0m\nSDDM reads every file in /etc/sddm.conf.d/ (no extension filter, alphabetical,\nlast wins). The files below set [Theme]/Current= and will silently override\n/etc/sddm.conf.d/kde_settings.conf. Move them out of the directory to fix\n(content is preserved):\n'
-        for f in "${shadow_files[@]}"; do
-            SDDM_SHADOW_BLOCK+="    sudo mv \"$f\" \"/etc/$(basename "$f")\""$'\n'
         done
     else
         ok "no shadow files in $SDDM_CONF_D"
     fi
+    HAS_SDDM_INSTALL=1
 else
-    note "$SDDM_CONF_D not present — SDDM may not be installed"
+    note "$SDDM_CONF_D not present — SDDM may not be installed; skipping SDDM steps"
 fi
 
 # ---------------------------------------------------------------------------
-cat <<EOF
-$SDDM_SHADOW_BLOCK
-\033[1;33m==> MANUAL STEPS REMAINING ($NAME)\033[0m
+# Run all queued elevated work in a single sudo prompt; sudo -k afterward.
+run_pending_elevated || true
 
-These can't be automated by this script (sudo, browser UI, or out-of-process action):
+# ---------------------------------------------------------------------------
+# Print only the manual steps that did NOT auto-run.
+printf "\n\033[1;33m==> MANUAL STEPS REMAINING (%s)\033[0m\n\n" "$NAME"
 
-\033[1;36mSDDM (login screen)\033[0m — needs sudo:
-    sudo mkdir -p /usr/share/sddm/themes/$SLUG
-    sudo cp -r "$REPO_ROOT/$SDDM_DIR_NAME/." /usr/share/sddm/themes/$SLUG/
-    sudo sed -i 's/^Current=.*/Current=$SLUG/' /etc/sddm.conf.d/kde_settings.conf
-  Note: trailing /. on the source copies contents in place, so re-running this
-  updates an existing install (instead of nesting $SDDM_DIR_NAME/ inside).
-  Heads-up: SDDM reads /etc/sddm.conf.d/ with no extension filter (alphabetical,
+if (( HAS_SDDM_INSTALL == 1 )) && (( DID_SDDM_INSTALL == 0 )); then
+    cat <<EOF
+\033[1;36mSDDM (login screen)\033[0m — root steps not run (declined, --no-sudo, or auth failed):
+    sudo mkdir -p $SDDM_THEME_TARGET
+    sudo cp -r "$REPO_ROOT/$SDDM_DIR_NAME/." $SDDM_THEME_TARGET/
+    sudo sed -i 's/^Current=.*/Current=$SLUG/' $SDDM_KDE_CONF
+  Trailing /. copies contents in place so re-running updates instead of nesting.
+  Heads-up: SDDM reads $SDDM_CONF_D with no extension filter (alphabetical,
   last wins). Don't leave .bak / .orig / editor-swap files in that directory —
-  they will silently override Current=$SLUG. The script scans for these above.
+  they silently override Current=$SLUG. The script scans for these above.
   Test windowed first: sddm-greeter-qt6 --test-mode --theme "$REPO_ROOT/$SDDM_DIR_NAME"
 
+EOF
+fi
+
+if (( HAS_SHADOW_MOVES == 1 )) && (( DID_SHADOW_MOVES == 0 )); then
+    printf "\033[1;36mSDDM shadow files\033[0m — root steps not run; move out of conf.d (content preserved):\n"
+    for f in "${SHADOW_FILES[@]}"; do
+        printf "    sudo mv \"%s\" \"/etc/%s\"\n" "$f" "$(basename "$f")"
+    done
+    printf "\n"
+fi
+
+cat <<EOF
 \033[1;36mLock screen\033[0m — optional, makes kscreenlocker reuse SDDM's wallpaper:
-    SDDM_BG="\$(awk -F= '/^background=/{print \$2}' /usr/share/sddm/themes/$SLUG/theme.conf.user 2>/dev/null)"
+    SDDM_BG="\$(awk -F= '/^background=/{print \$2}' $SDDM_THEME_TARGET/theme.conf.user 2>/dev/null)"
     [[ -n "\$SDDM_BG" ]] && kwriteconfig6 --file kscreenlockerrc \\
         --group Greeter --group Wallpaper --group org.kde.image --group General \\
-        --key Image "/usr/share/sddm/themes/$SLUG/\$SDDM_BG"
+        --key Image "$SDDM_THEME_TARGET/\$SDDM_BG"
   The $NAME-styled lock UI is bundled as a Plasma/Shell package at
   $SHELL_DIR_NAME/ and activated by setting kscreenlockerrc [Greeter]/Theme =
   $SHELL_PKG_ID (done above). Test with: loginctl lock-session.

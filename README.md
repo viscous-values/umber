@@ -75,9 +75,10 @@ Run the one-shot installer from the repo root:
 ./install.sh                     # canonical warm Umber
 ./install.sh --variant ash       # any variant; see Variants section above
 ./install.sh --migrate           # one-time: clean up legacy "Hush" install
+./install.sh --no-sudo           # skip the SDDM sudo prompt; print manual steps
 ```
 
-This installs the Newaita icons (if missing), the Umber cursor, color scheme, Look-and-Feel package, Konsole scheme, and VSCode extension link, then applies the Global Theme. Components that need sudo or browser UI (SDDM, Firefox, Chromium) are listed at the end of the script's output for you to run manually.
+User-space steps (Newaita icons, Umber cursor, color scheme, LookAndFeel package, lockscreen Shell package, Konsole scheme, VSCode extension link) run unprivileged, then the Global Theme is applied. Root-needing steps (SDDM theme install, `/etc/sddm.conf.d/` shadow-file cleanup, `Current=` rewrite) are gathered into a single sudo prompt near the end: the script prints the exact commands, asks once, runs them while the sudo cache is held, then releases it (`sudo -k`). Decline at the prompt — or pass `--no-sudo` — to print the manual steps instead. Browser themes (Firefox / Chromium) always need browser UI and stay in the manual-steps tail.
 
 The `--variant` flag is fully orthogonal — each variant installs into its own per-variant directories (`com.tyler.umber-ash/`, `umber-ash-shell/`, `umber-ash-sddm/`, etc.) so canonical and any number of variants can coexist on a single machine.
 
