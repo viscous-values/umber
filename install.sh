@@ -3,38 +3,49 @@
 # Idempotent: safe to re-run. Steps that need root (SDDM theme install,
 # /etc/sddm.conf.d/ shadow-file cleanup, /etc/sddm.conf.d/kde_settings.conf
 # Current= rewrite, removal of legacy /usr/share/sddm/themes/hush) are
-# bundled into a single sudo prompt near the end of the run; the script
-# prints the exact commands first and releases the sudo cache (sudo -k)
-# as soon as those commands finish.
+# bundled into a single sudo prompt that fires AFTER the user-space file
+# installs but BEFORE the live Plasma reload — so if plasma-apply-lookandfeel
+# wedges the running session, all persistent state is already on disk and a
+# logout/login finishes the job. The script prints the exact commands first
+# and releases the sudo cache (sudo -k) as soon as those commands finish.
 #
-# Usage: ./install.sh [--yes] [--migrate] [--variant NAME] [--no-sudo]
-#   --yes         skip the overwrite confirmation (for non-interactive use);
-#                 also auto-accepts the sudo offer (sudo itself may still
-#                 prompt for the password if no ticket is cached).
-#   --migrate     clean up artifacts from the legacy "Hush" install before
-#                 installing Umber (refuses to install otherwise if found)
-#   --variant N   install variant N instead of canonical Umber.
-#                 N ∈ {umber, ash, slate, tide, storm}. Default: umber.
-#                 Variants install side-by-side; canonical and any number
-#                 of variants can coexist on one machine.
-#   --no-sudo     never offer sudo elevation; print all root-needing steps
-#                 as manual instructions at the end (legacy behavior).
+# Usage: ./install.sh [--yes] [--migrate] [--variant N] [--all-variants] [--no-sudo]
+#   --yes           skip the overwrite confirmation (for non-interactive use);
+#                   also auto-accepts the sudo offer (sudo itself may still
+#                   prompt for the password if no ticket is cached).
+#   --migrate       clean up artifacts from the legacy "Hush" install before
+#                   installing Umber (refuses to install otherwise if found)
+#   --variant N     install variant N. N ∈ {umber, ash, slate, tide, storm}.
+#                   Default: umber. With --all-variants this names the ACTIVE
+#                   variant (the one applied to the live session and set as
+#                   SDDM Current=); otherwise it's the only variant installed.
+#                   Variants install side-by-side; canonical and any number of
+#                   variants can coexist on a single machine.
+#   --all-variants  install canonical + every variant (umber, ash, slate, tide,
+#                   storm) in one run. Live Plasma apply runs once at the end
+#                   for the active variant (canonical Umber unless --variant
+#                   is also given). One sudo prompt, one apply.
+#   --no-sudo       never offer sudo elevation; print all root-needing steps
+#                   as manual instructions at the end (legacy behavior).
 
 set -euo pipefail
 
 ASSUME_YES=0
 MIGRATE=0
 VARIANT="umber"
+ALL_VARIANTS=0
 NO_SUDO=0
+VARIANT_EXPLICIT=0   # tracks whether user passed --variant (for --all-variants combo)
 while (( $# > 0 )); do
     case "$1" in
-        -y|--yes)        ASSUME_YES=1 ;;
-        --migrate)       MIGRATE=1 ;;
-        --variant)       shift; VARIANT="${1:-}" ;;
-        --variant=*)     VARIANT="${1#--variant=}" ;;
-        --no-sudo)       NO_SUDO=1 ;;
+        -y|--yes)         ASSUME_YES=1 ;;
+        --migrate)        MIGRATE=1 ;;
+        --variant)        shift; VARIANT="${1:-}"; VARIANT_EXPLICIT=1 ;;
+        --variant=*)      VARIANT="${1#--variant=}"; VARIANT_EXPLICIT=1 ;;
+        --all-variants)   ALL_VARIANTS=1 ;;
+        --no-sudo)        NO_SUDO=1 ;;
         -h|--help)
-            sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         *) echo "Unknown argument: $1" >&2; exit 2 ;;
@@ -48,25 +59,57 @@ case "$VARIANT" in
 esac
 
 # ---------------------------------------------------------------------------
-# Variant-derived names. For canonical (umber) these collapse to today's
-# unsuffixed paths; for variants they pick up the slug everywhere.
-if [[ "$VARIANT" == "umber" ]]; then
-    SLUG="umber"
-    SCHEME="Umber"
-    NAME="Umber"
+# Variant set + active variant. Without --all-variants exactly one variant
+# installs and is also the active one. With --all-variants all five install
+# and ACTIVE_VARIANT (live-applied + SDDM Current=) defaults to canonical
+# Umber; pass --variant N alongside --all-variants to override.
+if (( ALL_VARIANTS == 1 )); then
+    VARIANTS_TO_INSTALL=(umber ash slate tide storm)
+    if (( VARIANT_EXPLICIT == 1 )); then
+        ACTIVE_VARIANT="$VARIANT"
+    else
+        ACTIVE_VARIANT="umber"
+    fi
 else
-    SLUG="umber-$VARIANT"
-    SCHEME="Umber-${VARIANT^}"   # Title-case suffix: ash → Ash
-    NAME="Umber ${VARIANT^}"
+    VARIANTS_TO_INSTALL=("$VARIANT")
+    ACTIVE_VARIANT="$VARIANT"
 fi
-PKG_ID="com.tyler.$SLUG"
-SHELL_PKG_ID="$PKG_ID-shell"
-SHELL_DIR_NAME="${SLUG}-shell"   # source directory name in repo
-SDDM_DIR_NAME="${SLUG}-sddm"
-FF_DIR_NAME="${SLUG}-firefox"
-CR_DIR_NAME="${SLUG}-chromium"
-SCHEME_FILE="${SCHEME}.colors"
-KONSOLE_FILE="${SCHEME}.colorscheme"
+
+# ---------------------------------------------------------------------------
+# Variant-derived names. Sets SLUG/SCHEME/NAME/PKG_ID/SHELL_PKG_ID/etc as
+# globals based on the variant passed in. Canonical (umber) collapses to
+# unsuffixed paths; everything else picks up the umber-<v> / Umber-<V> slug.
+# Per-variant installs re-call this inside their loop; everything else uses
+# whatever variant was set last (typically ACTIVE_VARIANT).
+set_variant_names() {
+    local v="$1"
+    if [[ "$v" == "umber" ]]; then
+        SLUG="umber"
+        SCHEME="Umber"
+        NAME="Umber"
+    else
+        SLUG="umber-$v"
+        SCHEME="Umber-${v^}"   # Title-case suffix: ash → Ash
+        NAME="Umber ${v^}"
+    fi
+    PKG_ID="com.tyler.$SLUG"
+    SHELL_PKG_ID="$PKG_ID-shell"
+    SHELL_DIR_NAME="${SLUG}-shell"     # source dir in repo
+    SDDM_DIR_NAME="${SLUG}-sddm"
+    FF_DIR_NAME="${SLUG}-firefox"
+    CR_DIR_NAME="${SLUG}-chromium"
+    SCHEME_FILE="${SCHEME}.colors"
+    KONSOLE_FILE="${SCHEME}.colorscheme"
+    SDDM_THEME_TARGET="/usr/share/sddm/themes/$SLUG"
+}
+
+# Stateless slug resolver — used in spots that build paths without needing
+# to mutate the full set of globals (label-list builder, manual-steps tail).
+slug_for() {
+    if [[ "$1" == "umber" ]]; then echo "umber"; else echo "umber-$1"; fi
+}
+
+set_variant_names "$ACTIVE_VARIANT"
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO_ROOT"
@@ -87,24 +130,25 @@ note() { printf "    \033[0;36m..\033[0m %s\n" "$1"; }
 err()  { printf "\033[1;31mERROR:\033[0m %s\n" "$1" >&2; }
 
 # ---------------------------------------------------------------------------
-# Elevated-step orchestration. Every root-needing operation sets a HAS_*
-# flag during preflight/scan, then run_pending_elevated() prints the full
-# command list, prompts once, acquires sudo, runs everything inline, and
-# releases the cache (sudo -k). Result flags (DID_*) drive the post-run
-# manual-steps printout — anything that ran is omitted from the tail.
+# Elevated-step orchestration. Hush-migration leftovers and the SDDM shadow
+# scan set HAS_* flags; per-variant SDDM theme installs accumulate into the
+# SDDM_INSTALL_VARIANTS array (populated only if /etc/sddm.conf.d exists).
+# run_pending_elevated() prints the full command list, prompts once,
+# acquires sudo, runs everything inline, and releases the cache (sudo -k).
+# DID_* flags drive the post-run manual-steps printout — anything that ran
+# is omitted from the tail.
 HAS_HUSH_SDDM_REWRITE=0
 HAS_HUSH_SDDM_DIR_REMOVE=0
 HAS_SHADOW_MOVES=0
-HAS_SDDM_INSTALL=0
 DID_SDDM_INSTALL=0
 DID_SHADOW_MOVES=0
 SHADOW_FILES=()
-SDDM_THEME_TARGET=""   # filled in after variant resolution
+SDDM_INSTALL_VARIANTS=()
 SDDM_KDE_CONF="/etc/sddm.conf.d/kde_settings.conf"
 
 build_elevated_label_list() {
     local labels=()
-    local f
+    local f v slug target dir_name active_slug
     if (( HAS_HUSH_SDDM_REWRITE )); then
         labels+=("sed -i 's/^Current=hush\$/Current=umber/' $SDDM_KDE_CONF")
     fi
@@ -116,17 +160,23 @@ build_elevated_label_list() {
             labels+=("mv \"$f\" \"/etc/$(basename "$f")\"")
         done
     fi
-    if (( HAS_SDDM_INSTALL )); then
-        labels+=("mkdir -p $SDDM_THEME_TARGET")
-        labels+=("cp -r \"$REPO_ROOT/$SDDM_DIR_NAME/.\" $SDDM_THEME_TARGET/")
-        labels+=("sed -i 's/^Current=.*/Current=$SLUG/' $SDDM_KDE_CONF")
+    if (( ${#SDDM_INSTALL_VARIANTS[@]} > 0 )); then
+        for v in "${SDDM_INSTALL_VARIANTS[@]}"; do
+            slug=$(slug_for "$v")
+            dir_name="${slug}-sddm"
+            target="/usr/share/sddm/themes/$slug"
+            labels+=("mkdir -p $target")
+            labels+=("cp -r \"$REPO_ROOT/$dir_name/.\" $target/")
+        done
+        active_slug=$(slug_for "$ACTIVE_VARIANT")
+        labels+=("sed -i 's/^Current=.*/Current=$active_slug/' $SDDM_KDE_CONF")
     fi
     printf '%s\n' "${labels[@]}"
 }
 
 run_pending_elevated() {
     local total=$(( HAS_HUSH_SDDM_REWRITE + HAS_HUSH_SDDM_DIR_REMOVE \
-                    + HAS_SHADOW_MOVES + HAS_SDDM_INSTALL ))
+                    + HAS_SHADOW_MOVES + ${#SDDM_INSTALL_VARIANTS[@]} ))
     if (( total == 0 )); then
         return 0
     fi
@@ -154,7 +204,7 @@ run_pending_elevated() {
         return 1
     fi
 
-    local rc=0 f
+    local rc=0 f v slug target dir_name active_slug install_rc
     if (( HAS_HUSH_SDDM_REWRITE )); then
         if sudo sed -i 's/^Current=hush$/Current=umber/' "$SDDM_KDE_CONF"; then
             ok "rewrote Current=hush -> Current=umber in $SDDM_KDE_CONF"
@@ -179,14 +229,29 @@ run_pending_elevated() {
         done
         DID_SHADOW_MOVES=1
     fi
-    if (( HAS_SDDM_INSTALL )); then
-        if sudo mkdir -p "$SDDM_THEME_TARGET" \
-            && sudo cp -r "$REPO_ROOT/$SDDM_DIR_NAME/." "$SDDM_THEME_TARGET/" \
-            && sudo sed -i "s/^Current=.*/Current=$SLUG/" "$SDDM_KDE_CONF"; then
-            ok "SDDM theme installed at $SDDM_THEME_TARGET; Current=$SLUG"
-            DID_SDDM_INSTALL=1
+    if (( ${#SDDM_INSTALL_VARIANTS[@]} > 0 )); then
+        install_rc=0
+        for v in "${SDDM_INSTALL_VARIANTS[@]}"; do
+            slug=$(slug_for "$v")
+            dir_name="${slug}-sddm"
+            target="/usr/share/sddm/themes/$slug"
+            if sudo mkdir -p "$target" \
+                && sudo cp -r "$REPO_ROOT/$dir_name/." "$target/"; then
+                ok "SDDM theme installed at $target"
+            else
+                err "SDDM theme install failed for variant $v"; install_rc=1
+            fi
+        done
+        if (( install_rc == 0 )); then
+            active_slug=$(slug_for "$ACTIVE_VARIANT")
+            if sudo sed -i "s/^Current=.*/Current=$active_slug/" "$SDDM_KDE_CONF"; then
+                ok "SDDM Current=$active_slug (active variant)"
+                DID_SDDM_INSTALL=1
+            else
+                err "failed to write Current=$active_slug to $SDDM_KDE_CONF"; rc=1
+            fi
         else
-            err "SDDM theme install failed; rerun manually if needed"; rc=1
+            rc=1
         fi
     fi
 
@@ -209,7 +274,11 @@ require_bin() {
         exit 1
     fi
 }
-step "Preflight (variant: $NAME)"
+if (( ALL_VARIANTS == 1 )); then
+    step "Preflight (all variants; active: $NAME)"
+else
+    step "Preflight (variant: $NAME)"
+fi
 require_bin plasma-apply-lookandfeel  "plasma-workspace"
 require_bin plasma-apply-colorscheme  "plasma-workspace"
 require_bin kwriteconfig6             "kconfig"
@@ -226,27 +295,40 @@ else
     note "consumer files differ from palette TOMLs — run: python scripts/render_palette.py render [--palette palettes/<name>.toml]"
 fi
 
-# Sanity: the source dirs for THIS variant must exist in the repo.
-for src in "$REPO_ROOT/$PKG_ID" "$REPO_ROOT/$SHELL_DIR_NAME" \
-           "$REPO_ROOT/$SDDM_DIR_NAME" \
-           "$REPO_ROOT/$FF_DIR_NAME" "$REPO_ROOT/$CR_DIR_NAME"; do
-    if [[ ! -d "$src" ]]; then
-        err "missing variant source directory: $src"
-        printf "       Run: python scripts/render_palette.py render --palette palettes/%s.toml\n" "$VARIANT" >&2
-        exit 1
-    fi
+# Sanity: every variant we plan to install must have its source dirs in the repo.
+for v in "${VARIANTS_TO_INSTALL[@]}"; do
+    set_variant_names "$v"
+    for src in "$REPO_ROOT/$PKG_ID" "$REPO_ROOT/$SHELL_DIR_NAME" \
+               "$REPO_ROOT/$SDDM_DIR_NAME" \
+               "$REPO_ROOT/$FF_DIR_NAME" "$REPO_ROOT/$CR_DIR_NAME"; do
+        if [[ ! -d "$src" ]]; then
+            err "missing variant source directory: $src"
+            printf "       Run: python scripts/render_palette.py render --palette palettes/%s.toml\n" "$v" >&2
+            exit 1
+        fi
+    done
 done
+set_variant_names "$ACTIVE_VARIANT"
 
 # ---------------------------------------------------------------------------
-# Overwrite confirmation — scoped to THIS variant's paths so installing
-# (e.g.) ash never warns about canonical Umber being present.
+# Overwrite confirmation — combined across every variant being installed,
+# plus the shared cursor dir. One prompt covers the whole batch.
 existing=()
-[[ -d "$LNF_DIR/$PKG_ID" ]]                 && existing+=("$LNF_DIR/$PKG_ID")
-[[ -d "$SHELLS_DIR/$SHELL_PKG_ID" ]]        && existing+=("$SHELLS_DIR/$SHELL_PKG_ID")
-[[ -d "$ICONS_DIR/Umber-cursor" ]]          && existing+=("$ICONS_DIR/Umber-cursor")
-[[ -f "$SCHEMES_DIR/$SCHEME_FILE" ]]        && existing+=("$SCHEMES_DIR/$SCHEME_FILE")
+for v in "${VARIANTS_TO_INSTALL[@]}"; do
+    set_variant_names "$v"
+    [[ -d "$LNF_DIR/$PKG_ID" ]]           && existing+=("$LNF_DIR/$PKG_ID")
+    [[ -d "$SHELLS_DIR/$SHELL_PKG_ID" ]]  && existing+=("$SHELLS_DIR/$SHELL_PKG_ID")
+    [[ -f "$SCHEMES_DIR/$SCHEME_FILE" ]]  && existing+=("$SCHEMES_DIR/$SCHEME_FILE")
+    [[ -f "$KONSOLE_DIR/$KONSOLE_FILE" ]] && existing+=("$KONSOLE_DIR/$KONSOLE_FILE")
+done
+[[ -d "$ICONS_DIR/Umber-cursor" ]] && existing+=("$ICONS_DIR/Umber-cursor")
+set_variant_names "$ACTIVE_VARIANT"
 if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
-    step "Existing $NAME install detected"
+    if (( ALL_VARIANTS == 1 )); then
+        step "Existing install detected (all variants)"
+    else
+        step "Existing $NAME install detected"
+    fi
     for p in "${existing[@]}"; do note "will overwrite: $p"; done
     printf "    Continue? [y/N] "
     read -r reply
@@ -258,9 +340,9 @@ fi
 
 # ---------------------------------------------------------------------------
 # Hush → Umber migration. Variant-agnostic: cleans up artifacts from the
-# legacy "Hush" project name on the system regardless of which Umber variant
-# is being installed now. Only rewrites configs to canonical "Umber" — the
-# variant-specific apply step at the end retargets to $NAME if needed.
+# legacy "Hush" project name on the system regardless of which Umber variants
+# are being installed now. Only rewrites configs to canonical "Umber" — the
+# active variant's apply step at the end retargets to $NAME if needed.
 hush_artifacts=()
 [[ -d "$LNF_DIR/com.tyler.hush" ]]       && hush_artifacts+=("$LNF_DIR/com.tyler.hush")
 [[ -f "$SCHEMES_DIR/Hush.colors" ]]      && hush_artifacts+=("$SCHEMES_DIR/Hush.colors")
@@ -391,37 +473,50 @@ cp -a "$REPO_ROOT/cursors/Umber-cursor" "$ICONS_DIR/Umber-cursor"
 ok "installed to $ICONS_DIR/Umber-cursor"
 
 # ---------------------------------------------------------------------------
-step "$NAME color scheme"
-mkdir -p "$SCHEMES_DIR"
-cp "$REPO_ROOT/$PKG_ID/contents/colors/$SCHEME_FILE" "$SCHEMES_DIR/$SCHEME_FILE"
-ok "installed to $SCHEMES_DIR/$SCHEME_FILE"
+# Per-variant user-space installs: color scheme + LookAndFeel package +
+# Plasma/Shell package + Konsole color scheme. Each variant installs into
+# its own paths (com.tyler.umber-ash/, etc.) and they coexist on disk.
+# kscreenlockerrc Theme= is set ONCE below for the active variant only —
+# it's a global setting, not per-variant.
+mkdir -p "$LNF_DIR" "$SHELLS_DIR" "$SCHEMES_DIR" "$KONSOLE_DIR"
 
-# ---------------------------------------------------------------------------
-step "Plasma Look-and-Feel package ($PKG_ID)"
-mkdir -p "$LNF_DIR"
-rm -rf "$LNF_DIR/$PKG_ID"
-cp -a "$REPO_ROOT/$PKG_ID" "$LNF_DIR/$PKG_ID"
-ok "installed to $LNF_DIR/$PKG_ID"
+install_variant_user_files() {
+    local v="$1"
+    set_variant_names "$v"
 
-# ---------------------------------------------------------------------------
-# Plasma 6's kscreenlocker reads its QML from a Plasma/Shell package selected
-# by [Greeter]/Theme in kscreenlockerrc — independent of the LookAndFeel
-# package. The shell package ships only contents/lockscreen/ and falls back
-# to org.kde.plasma.desktop for everything else.
-step "Plasma Shell package ($SHELL_PKG_ID)"
-mkdir -p "$SHELLS_DIR"
-rm -rf "$SHELLS_DIR/$SHELL_PKG_ID"
-cp -a "$REPO_ROOT/$SHELL_DIR_NAME" "$SHELLS_DIR/$SHELL_PKG_ID"
-ok "installed to $SHELLS_DIR/$SHELL_PKG_ID"
+    step "$NAME color scheme"
+    cp "$REPO_ROOT/$PKG_ID/contents/colors/$SCHEME_FILE" "$SCHEMES_DIR/$SCHEME_FILE"
+    ok "installed to $SCHEMES_DIR/$SCHEME_FILE"
+
+    step "Plasma Look-and-Feel package ($PKG_ID)"
+    rm -rf "$LNF_DIR/$PKG_ID"
+    cp -a "$REPO_ROOT/$PKG_ID" "$LNF_DIR/$PKG_ID"
+    ok "installed to $LNF_DIR/$PKG_ID"
+
+    # Plasma 6's kscreenlocker reads its QML from a Plasma/Shell package
+    # selected by [Greeter]/Theme in kscreenlockerrc — independent of the
+    # LookAndFeel package. The shell package ships only contents/lockscreen/
+    # and falls back to org.kde.plasma.desktop for everything else.
+    step "Plasma Shell package ($SHELL_PKG_ID)"
+    rm -rf "$SHELLS_DIR/$SHELL_PKG_ID"
+    cp -a "$REPO_ROOT/$SHELL_DIR_NAME" "$SHELLS_DIR/$SHELL_PKG_ID"
+    ok "installed to $SHELLS_DIR/$SHELL_PKG_ID"
+
+    step "$NAME Konsole color scheme"
+    cp "$REPO_ROOT/konsole/$KONSOLE_FILE" "$KONSOLE_DIR/$KONSOLE_FILE"
+    ok "installed to $KONSOLE_DIR/$KONSOLE_FILE"
+}
+
+for v in "${VARIANTS_TO_INSTALL[@]}"; do
+    install_variant_user_files "$v"
+done
+
+# kscreenlockerrc Theme= → ACTIVE variant's shell package (the loop can't
+# set it per-variant since it's a single global key).
+set_variant_names "$ACTIVE_VARIANT"
 kwriteconfig6 --file kscreenlockerrc --group Greeter --key Theme "$SHELL_PKG_ID"
-ok "kscreenlockerrc [Greeter]/Theme = $SHELL_PKG_ID"
-
-# ---------------------------------------------------------------------------
-step "Konsole color scheme"
-mkdir -p "$KONSOLE_DIR"
-cp "$REPO_ROOT/konsole/$KONSOLE_FILE" "$KONSOLE_DIR/$KONSOLE_FILE"
-ok "installed to $KONSOLE_DIR/$KONSOLE_FILE"
-note "Konsole: open Settings → Edit Current Profile → Appearance → choose $NAME."
+ok "kscreenlockerrc [Greeter]/Theme = $SHELL_PKG_ID (active variant: $NAME)"
+note "Konsole: open Settings → Edit Current Profile → Appearance → choose $NAME (or any installed sibling)."
 
 # ---------------------------------------------------------------------------
 # VSCode extension is shared across all variants — a single extension dir
@@ -475,28 +570,13 @@ kbuildsycoca6 --noincremental >/dev/null 2>&1 || true
 ok "kbuildsycoca6 refreshed"
 
 # ---------------------------------------------------------------------------
-step "Applying Global Theme ($NAME)"
-( cd /tmp && plasma-apply-lookandfeel -a "$PKG_ID" ) || {
-    echo "WARNING: plasma-apply-lookandfeel failed — try logging out / back in." >&2
-}
-plasma-apply-colorscheme BreezeLight >/dev/null 2>&1 || true
-plasma-apply-colorscheme "$SCHEME" >/dev/null 2>&1 || true
-changeicons=""
-for p in /usr/lib/plasma-changeicons /usr/libexec/plasma-changeicons; do
-    [[ -x "$p" ]] && { changeicons="$p"; break; }
-done
-if [[ -n "$changeicons" ]]; then
-    "$changeicons" "$NEWAITA_VARIANT" >/dev/null 2>&1 || true
-else
-    note "plasma-changeicons helper not found — pick icons manually in System Settings."
-fi
-plasma-apply-cursortheme Umber-cursor >/dev/null 2>&1 || true
-ok "Global Theme applied ($NAME)"
-
-# ---------------------------------------------------------------------------
+# SDDM scan + elevated steps run BEFORE the live Plasma reload below.
+# plasma-apply-lookandfeel can wedge plasmashell/kwin on some setups; if it
+# does, every persistent change (file installs + root steps) is already on
+# disk and a logout/login finishes the job. Asking for sudo here also means
+# the user gets prompted mid-run, not after a long silent tail.
 step "Scanning /etc/sddm.conf.d/ for shadow files"
 SDDM_CONF_D="/etc/sddm.conf.d"
-SDDM_THEME_TARGET="/usr/share/sddm/themes/$SLUG"
 if [[ -d "$SDDM_CONF_D" ]]; then
     while IFS= read -r f; do
         [[ -f "$f" ]] || continue
@@ -514,32 +594,61 @@ if [[ -d "$SDDM_CONF_D" ]]; then
     else
         ok "no shadow files in $SDDM_CONF_D"
     fi
-    HAS_SDDM_INSTALL=1
+    # Queue every installed variant's SDDM theme for the elevated block.
+    SDDM_INSTALL_VARIANTS=("${VARIANTS_TO_INSTALL[@]}")
 else
     note "$SDDM_CONF_D not present — SDDM may not be installed; skipping SDDM steps"
 fi
 
-# ---------------------------------------------------------------------------
 # Run all queued elevated work in a single sudo prompt; sudo -k afterward.
 run_pending_elevated || true
 
 # ---------------------------------------------------------------------------
-# Print only the manual steps that did NOT auto-run.
-printf "\n\033[1;33m==> MANUAL STEPS REMAINING (%s)\033[0m\n\n" "$NAME"
+# Live Plasma reload last — anything noisy or wedge-prone happens here.
+# plasma-apply-lookandfeel's stderr goes to a logfile (matches sibling
+# commands' quietness, but keeps the evidence around for triage). We apply
+# the active variant only, regardless of how many were just installed.
+set_variant_names "$ACTIVE_VARIANT"
+step "Applying Global Theme ($NAME)"
+LNF_APPLY_LOG="$(mktemp -t umber-lnf-apply-XXXXXX.log)"
+( cd /tmp && plasma-apply-lookandfeel -a "$PKG_ID" ) >"$LNF_APPLY_LOG" 2>&1 || {
+    echo "WARNING: plasma-apply-lookandfeel failed — see $LNF_APPLY_LOG; try logging out / back in." >&2
+}
+plasma-apply-colorscheme BreezeLight >/dev/null 2>&1 || true
+plasma-apply-colorscheme "$SCHEME" >/dev/null 2>&1 || true
+changeicons=""
+for p in /usr/lib/plasma-changeicons /usr/libexec/plasma-changeicons; do
+    [[ -x "$p" ]] && { changeicons="$p"; break; }
+done
+if [[ -n "$changeicons" ]]; then
+    "$changeicons" "$NEWAITA_VARIANT" >/dev/null 2>&1 || true
+else
+    note "plasma-changeicons helper not found — pick icons manually in System Settings."
+fi
+plasma-apply-cursortheme Umber-cursor >/dev/null 2>&1 || true
+ok "Global Theme applied ($NAME)"
 
-if (( HAS_SDDM_INSTALL == 1 )) && (( DID_SDDM_INSTALL == 0 )); then
+# ---------------------------------------------------------------------------
+# Print only the manual steps that did NOT auto-run.
+printf "\n\033[1;33m==> MANUAL STEPS REMAINING\033[0m\n\n"
+
+if (( ${#SDDM_INSTALL_VARIANTS[@]} > 0 )) && (( DID_SDDM_INSTALL == 0 )); then
+    printf "\033[1;36mSDDM (login screen)\033[0m — root steps not run (declined, --no-sudo, or auth failed):\n"
+    for v in "${SDDM_INSTALL_VARIANTS[@]}"; do
+        slug=$(slug_for "$v")
+        target="/usr/share/sddm/themes/$slug"
+        printf "    sudo mkdir -p %s\n" "$target"
+        printf "    sudo cp -r \"%s/%s-sddm/.\" %s/\n" "$REPO_ROOT" "$slug" "$target"
+    done
+    active_slug=$(slug_for "$ACTIVE_VARIANT")
+    printf "    sudo sed -i 's/^Current=.*/Current=%s/' %s\n" "$active_slug" "$SDDM_KDE_CONF"
     cat <<EOF
-\033[1;36mSDDM (login screen)\033[0m — root steps not run (declined, --no-sudo, or auth failed):
-    sudo mkdir -p $SDDM_THEME_TARGET
-    sudo cp -r "$REPO_ROOT/$SDDM_DIR_NAME/." $SDDM_THEME_TARGET/
-    sudo sed -i 's/^Current=.*/Current=$SLUG/' $SDDM_KDE_CONF
   Trailing /. copies contents in place so re-running updates instead of nesting.
   Heads-up: SDDM reads $SDDM_CONF_D with no extension filter (alphabetical,
   last wins). Don't leave .bak / .orig / editor-swap files in that directory —
-  they silently override Current=$SLUG. The script scans for these above.
-  Test windowed first: sddm-greeter-qt6 --test-mode --theme "$REPO_ROOT/$SDDM_DIR_NAME"
-
+  they silently override Current=. The script scans for these above.
 EOF
+    printf "\n"
 fi
 
 if (( HAS_SHADOW_MOVES == 1 )) && (( DID_SHADOW_MOVES == 0 )); then
@@ -550,6 +659,9 @@ if (( HAS_SHADOW_MOVES == 1 )) && (( DID_SHADOW_MOVES == 0 )); then
     printf "\n"
 fi
 
+# Lock screen / Firefox / Chromium block — uses the ACTIVE variant's paths.
+# Sibling variants follow the same pattern with their own dir names.
+set_variant_names "$ACTIVE_VARIANT"
 cat <<EOF
 \033[1;36mLock screen\033[0m — optional, makes kscreenlocker reuse SDDM's wallpaper:
     SDDM_BG="\$(awk -F= '/^background=/{print \$2}' $SDDM_THEME_TARGET/theme.conf.user 2>/dev/null)"
@@ -560,15 +672,17 @@ cat <<EOF
   $SHELL_DIR_NAME/ and activated by setting kscreenlockerrc [Greeter]/Theme =
   $SHELL_PKG_ID (done above). Test with: loginctl lock-session.
 
-\033[1;36mFirefox theme\033[0m — load via about:debugging:
+\033[1;36mFirefox theme\033[0m — load via about:debugging (active: $NAME):
     1. Visit about:debugging#/runtime/this-firefox
     2. "Load Temporary Add-on…" → pick $REPO_ROOT/$FF_DIR_NAME/manifest.json
+  Sibling variants live at $REPO_ROOT/umber-{ash,slate,tide,storm}-firefox/.
   (Stable Firefox unloads unsigned extensions on restart. Sign on AMO or use
    Developer Edition with xpinstall.signatures.required=false for persistence.)
 
-\033[1;36mChromium / Chrome theme\033[0m — load unpacked:
+\033[1;36mChromium / Chrome theme\033[0m — load unpacked (active: $NAME):
     1. Visit chrome://extensions/
     2. Toggle "Developer mode"
     3. "Load unpacked" → pick $REPO_ROOT/$CR_DIR_NAME/
+  Sibling variants live at $REPO_ROOT/umber-{ash,slate,tide,storm}-chromium/.
 
 EOF

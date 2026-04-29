@@ -40,9 +40,10 @@ Install any variant alongside canonical:
 ./install.sh --variant slate    # overcast
 ./install.sh --variant tide     # teal dusk
 ./install.sh --variant storm    # slate-blue night sea
+./install.sh --all-variants     # canonical + all four variants in one run
 ```
 
-Variants and canonical coexist on the same machine — switch between them in System Settings → Global Theme.
+`--all-variants` does one sudo prompt and one live Plasma apply at the end — canonical Umber goes active by default, or pass `--variant N` alongside to make N active instead. Variants and canonical coexist on the same machine — switch between them in System Settings → Global Theme.
 
 ## Components
 
@@ -73,12 +74,13 @@ Run the one-shot installer from the repo root:
 
 ```fish
 ./install.sh                     # canonical warm Umber
-./install.sh --variant ash       # any variant; see Variants section above
+./install.sh --variant ash       # any single variant; see Variants section above
+./install.sh --all-variants      # canonical + all four variants in one run
 ./install.sh --migrate           # one-time: clean up legacy "Hush" install
 ./install.sh --no-sudo           # skip the SDDM sudo prompt; print manual steps
 ```
 
-User-space steps (Newaita icons, Umber cursor, color scheme, LookAndFeel package, lockscreen Shell package, Konsole scheme, VSCode extension link) run unprivileged, then the Global Theme is applied. Root-needing steps (SDDM theme install, `/etc/sddm.conf.d/` shadow-file cleanup, `Current=` rewrite) are gathered into a single sudo prompt near the end: the script prints the exact commands, asks once, runs them while the sudo cache is held, then releases it (`sudo -k`). Decline at the prompt — or pass `--no-sudo` — to print the manual steps instead. Browser themes (Firefox / Chromium) always need browser UI and stay in the manual-steps tail.
+User-space steps (Newaita icons, Umber cursor, color scheme, LookAndFeel package, lockscreen Shell package, Konsole scheme, VSCode extension link) run unprivileged, then the Global Theme is applied. Root-needing steps (SDDM theme install, `/etc/sddm.conf.d/` shadow-file cleanup, `Current=` rewrite) are gathered into a single sudo prompt that fires AFTER the user-space installs but BEFORE the live Plasma reload: the script prints the exact commands, asks once, runs them while the sudo cache is held, then releases it (`sudo -k`). Decline at the prompt — or pass `--no-sudo` — to print the manual steps instead. Browser themes (Firefox / Chromium) always need browser UI and stay in the manual-steps tail.
 
 The `--variant` flag is fully orthogonal — each variant installs into its own per-variant directories (`com.tyler.umber-ash/`, `umber-ash-shell/`, `umber-ash-sddm/`, etc.) so canonical and any number of variants can coexist on a single machine.
 
