@@ -1,0 +1,30 @@
+# Umber Storm — night-sea variant.
+#
+# Hearth: slate-blue charcoal (B > G > R, B-R ~ 12-16).
+# Glow:   ~20% desaturated from canonical-cool Umber.
+# Mist + Spark: identical to canonical.
+
+[hearth]
+"0" = "#1F2530"   # deepest bg     — slate blue
+"1" = "#262C36"   # panel bg
+"2" = "#2E343E"   # raised surface
+"3" = "#40454D"   # border
+
+[glow]
+"0" = "#9D9A96"   # muted
+"1" = "#CCBC9D"   # primary fg
+"2" = "#D4CCB9"   # emphasized fg
+"3" = "#E8E5DC"   # brightest fg
+
+[mist]
+"0" = "#4F7A7E"
+"1" = "#7AA8AC"
+"2" = "#88A6C5"
+"3" = "#A8BDD6"
+
+[spark]
+red    = "#E06C75"
+orange = "#D19A66"
+amber  = "#E5C07B"
+green  = "#98C379"
+violet = "#C586B0"

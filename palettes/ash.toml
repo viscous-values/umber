@@ -1,0 +1,34 @@
+# Umber Ash — neutral-charcoal variant.
+#
+# Warm cream foreground on neutral charcoal surfaces. Hearths anchor
+# on weave/hush's neutral charcoal quartet (R=G=B); glow shifts
+# ever-so-slightly cool from weave/hush's cream to balance against
+# the now-neutral hearth.
+#
+# The warmest of the cool family. Canonical warm Umber is preserved
+# as-is in palette.toml — Ash sits alongside it as a peer variant.
+
+[hearth]
+"0" = "#242424"   # deepest bg     — neutral charcoal (R=G=B)
+"1" = "#2B2B2B"   # panel bg
+"2" = "#333333"   # raised surface
+"3" = "#444444"   # border
+
+[glow]
+"0" = "#A6998A"   # muted / disabled / hint        (was #A89986, slight cool shift)
+"1" = "#D0BC95"   # primary fg / body text         (was #D4BC91, slight cool shift)
+"2" = "#DACEB0"   # emphasized fg / selection alt  (was #E1CDA5, cool-shift + slight desat)
+"3" = "#EDE6D6"   # brightest fg / cursor          (was #F0E5D0, slight cool shift)
+
+[mist]
+"0" = "#4F7A7E"
+"1" = "#7AA8AC"
+"2" = "#88A6C5"
+"3" = "#A8BDD6"
+
+[spark]
+red    = "#E06C75"
+orange = "#D19A66"
+amber  = "#E5C07B"
+green  = "#98C379"
+violet = "#C586B0"
