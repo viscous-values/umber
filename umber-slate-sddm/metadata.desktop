@@ -1,0 +1,15 @@
+[SddmGreeterTheme]
+Name=Umber Slate
+Description=Cream-on-overcast — Umber Slate. Neutral-cool charcoal hearths, lightly desaturated cream glow.
+Author=viscous-values (port); Marian Arlt (original Sugar Dark)
+Copyright=Copyright (C) 2018 Marian Arlt; 2026 port and adaptations by viscous-values
+License=GPL-3.0-or-later
+Type=sddm-theme
+Version=1.0
+Website=https://github.com/viscous-values/umber
+Screenshot=preview.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Theme-Id=umber-slate
+QtVersion=6

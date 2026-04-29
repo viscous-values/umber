@@ -8,6 +8,10 @@
 # The warmest of the cool family. Canonical warm Umber is preserved
 # as-is in palette.toml — Ash sits alongside it as a peer variant.
 
+[meta]
+description = "Warm cream foreground on neutral charcoal — Umber Ash, the warmest of the cool family."
+wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
+
 [hearth]
 "0" = "#242424"   # deepest bg     — neutral charcoal (R=G=B)
 "1" = "#2B2B2B"   # panel bg
