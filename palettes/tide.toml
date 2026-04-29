@@ -1,0 +1,30 @@
+# Umber Tide — dusk variant.
+#
+# Hearth: teal-cool charcoal (G ≈ B > R, B-R ~ 8-10).
+# Glow:   ~12% desaturated from canonical-cool Umber.
+# Mist + Spark: identical to canonical.
+
+[hearth]
+"0" = "#202629"   # deepest bg     — teal cool
+"1" = "#272D31"   # panel bg
+"2" = "#2F3539"   # raised surface
+"3" = "#404648"   # border
+
+[glow]
+"0" = "#A09A93"   # muted
+"1" = "#CDBC9A"   # primary fg
+"2" = "#D6CCB5"   # emphasized fg
+"3" = "#EAE5D9"   # brightest fg
+
+[mist]
+"0" = "#4F7A7E"
+"1" = "#7AA8AC"
+"2" = "#88A6C5"
+"3" = "#A8BDD6"
+
+[spark]
+red    = "#E06C75"
+orange = "#D19A66"
+amber  = "#E5C07B"
+green  = "#98C379"
+violet = "#C586B0"

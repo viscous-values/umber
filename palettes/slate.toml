@@ -1,0 +1,30 @@
+# Umber Slate — overcast variant.
+#
+# Hearth: neutral-cool charcoal (B > R by ~4-6 per channel).
+# Glow:   ~6% desaturated from canonical-cool Umber.
+# Mist + Spark: identical to canonical.
+
+[hearth]
+"0" = "#232527"   # deepest bg     — slight cool wash
+"1" = "#2A2C2F"   # panel bg
+"2" = "#323438"   # raised surface
+"3" = "#434548"   # border
+
+[glow]
+"0" = "#A39A8E"   # muted
+"1" = "#CFBC98"   # primary fg
+"2" = "#D8CDB2"   # emphasized fg
+"3" = "#ECE5D7"   # brightest fg
+
+[mist]
+"0" = "#4F7A7E"
+"1" = "#7AA8AC"
+"2" = "#88A6C5"
+"3" = "#A8BDD6"
+
+[spark]
+red    = "#E06C75"
+orange = "#D19A66"
+amber  = "#E5C07B"
+green  = "#98C379"
+violet = "#C586B0"
