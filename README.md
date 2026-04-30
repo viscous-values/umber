@@ -43,7 +43,15 @@ Install any variant alongside canonical:
 ./install.sh --all-variants     # canonical + all four variants in one run
 ```
 
-`--all-variants` does one sudo prompt and one live Plasma apply at the end — canonical Umber goes active by default, or pass `--variant N` alongside to make N active instead. Variants and canonical coexist on the same machine — switch between them in System Settings → Global Theme.
+`--all-variants` does one sudo prompt and one live Plasma apply at the end — canonical Umber goes active by default, or pass `--variant N` alongside to make N active instead. Variants and canonical coexist on the same machine.
+
+To switch between installed variants, use:
+
+```fish
+./scripts/apply-variant.sh ash    # umber | ash | slate | tide | storm
+```
+
+System Settings → Global Theme → Apply technically works but on Plasma 6 it strips `[Colors:*]` from `~/.config/kdeglobals` without repopulating them from user-path color schemes — running apps fall back to Breeze Light defaults (white window borders, white taskbar) until you log out. The wrapper script above runs `plasma-apply-lookandfeel` plus the `BreezeLight → <Variant>` flicker that defeats the "already set" short-circuit and writes colors back into `kdeglobals` for the live session.
 
 ## Components
 
