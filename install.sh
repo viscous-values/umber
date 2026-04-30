@@ -608,14 +608,34 @@ run_pending_elevated || true
 # plasma-apply-lookandfeel's stderr goes to a logfile (matches sibling
 # commands' quietness, but keeps the evidence around for triage). We apply
 # the active variant only, regardless of how many were just installed.
+#
+# Plasma 6 quirk: plasma-apply-lookandfeel for any LnF package that bundles
+# its own contents/colors/<scheme>.colors STRIPS every [Colors:*] section out
+# of ~/.config/kdeglobals (we keep the bundle so System-Settings switches
+# still get a clean fall-back to the .colors lookup chain). The plasma-
+# apply-colorscheme dance below repopulates them — BreezeLight first to
+# defeat the "already set" short-circuit, then the real scheme.
+#
+# Failures here are noisy on purpose: the previous quiet-and-continue mode
+# hid the case where one step silently no-op'd and the user saw a wiped
+# kdeglobals (no [Colors:*]) with no clue why "window backgrounds didn't
+# change". If something fails, we want to see it.
 set_variant_names "$ACTIVE_VARIANT"
 step "Applying Global Theme ($NAME)"
 LNF_APPLY_LOG="$(mktemp -t umber-lnf-apply-XXXXXX.log)"
-( cd /tmp && plasma-apply-lookandfeel -a "$PKG_ID" ) >"$LNF_APPLY_LOG" 2>&1 || {
-    echo "WARNING: plasma-apply-lookandfeel failed — see $LNF_APPLY_LOG; try logging out / back in." >&2
-}
-plasma-apply-colorscheme BreezeLight >/dev/null 2>&1 || true
-plasma-apply-colorscheme "$SCHEME" >/dev/null 2>&1 || true
+# IMPORTANT: must run from a directory that has no com.tyler.umber* sibling.
+# Run from $REPO_ROOT and KPackage's cwd scanner finds the source dir,
+# resolves to "com.tyler.umber-ash/" (note trailing slash), then the binary
+# fails to load it: "Unable to find the theme named com.tyler.umber-ash/".
+( cd /tmp && plasma-apply-lookandfeel -a "$PKG_ID" ) >"$LNF_APPLY_LOG" 2>&1 \
+    && ok "plasma-apply-lookandfeel $PKG_ID" \
+    || err "plasma-apply-lookandfeel failed — see $LNF_APPLY_LOG; logout/login may be needed"
+if plasma-apply-colorscheme BreezeLight 2>&1 | sed 's/^/    /'; then :; else
+    err "plasma-apply-colorscheme BreezeLight failed (intermediate flicker step)"
+fi
+if plasma-apply-colorscheme "$SCHEME" 2>&1 | sed 's/^/    /'; then :; else
+    err "plasma-apply-colorscheme $SCHEME failed — kdeglobals may have stale colors"
+fi
 changeicons=""
 for p in /usr/lib/plasma-changeicons /usr/libexec/plasma-changeicons; do
     [[ -x "$p" ]] && { changeicons="$p"; break; }
@@ -626,7 +646,18 @@ else
     note "plasma-changeicons helper not found — pick icons manually in System Settings."
 fi
 plasma-apply-cursortheme Umber-cursor >/dev/null 2>&1 || true
-ok "Global Theme applied ($NAME)"
+
+# Sanity check: did kdeglobals actually get [Colors:Window] populated?
+# If not, the apply silently no-op'd and running apps will keep stale
+# colors until logout/login. Surface this clearly.
+if grep -q '^\[Colors:Window\]' "$HOME/.config/kdeglobals" 2>/dev/null; then
+    ok "Global Theme applied ($NAME) — kdeglobals has [Colors:*] sections"
+else
+    err "Global Theme apply finished but ~/.config/kdeglobals has no [Colors:*] sections."
+    note "Running apps will keep stale colors. Try: plasma-apply-colorscheme $SCHEME"
+    note "If that says \"already set\", first run: plasma-apply-colorscheme BreezeLight"
+    note "Worst case: log out and back in to refresh every running app."
+fi
 
 # ---------------------------------------------------------------------------
 # Print only the manual steps that did NOT auto-run.
