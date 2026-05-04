@@ -179,7 +179,7 @@ if not any(e.get("identifier", {}).get("id") == "tyler.umber" for e in d):
 ```
 
 ### Firefox
-Each variant is a self-contained WebExtension theme — `manifest.json` plus a `icons/` directory rendered from `palette.toml`. Variants have distinct gecko ids (`umber@tyler`, `umber-tide@tyler`, …) so they install side-by-side once signed.
+Each variant is a self-contained WebExtension theme — `manifest.json` plus a `icons/` directory rendered from `palette.toml`. Variants have distinct gecko ids (`umber@viscous-values`, `umber-tide@viscous-values`, …) so they install side-by-side once signed.
 
 **Build signed-ready `.xpi` archives:**
 ```fish

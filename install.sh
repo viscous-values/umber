@@ -749,8 +749,8 @@ cat <<EOF
   Stable Firefox unloads unsigned extensions on restart. For persistence:
     Build → $REPO_ROOT/scripts/build-firefox-xpi.sh
     Submit dist/<variant>-firefox-<version>.xpi to addons.mozilla.org for
-    free AMO signing — each variant is its own listing (umber@tyler,
-    umber-tide@tyler, etc.). Once signed, install from the AMO listing.
+    free AMO signing — each variant is its own listing (umber@viscous-values,
+    umber-tide@viscous-values, etc.). Once signed, install from the AMO listing.
   IMPORTANT: do not add a profile-level userChrome.css with !important
   rules — it overrides the WebExtension theme and makes every variant
   look identical (this is what the legacy Hush install did).
