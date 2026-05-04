@@ -9,7 +9,7 @@
         "Category": "Plasma Look And Feel",
         "Description": "Cream-on-night-sea — Umber Storm. Slate-blue charcoal hearths, sand-cream glow.",
         "EnabledByDefault": true,
-        "Id": "com.legacy.umber-storm",
+        "Id": "io.github.viscous-values.umber-storm",
         "License": "GPL-3.0-or-later",
         "Name": "Umber Storm",
         "ServiceTypes": [
