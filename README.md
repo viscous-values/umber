@@ -45,13 +45,15 @@ Install any variant alongside canonical:
 
 `--all-variants` does one sudo prompt and one live Plasma apply at the end — canonical Umber goes active by default, or pass `--variant N` alongside to make N active instead. Variants and canonical coexist on the same machine.
 
-To switch between installed variants, use:
+To switch between installed variants, either pick one from KRunner / the app launcher (search "Apply Umber") or run the script directly:
 
 ```fish
 ./scripts/apply-variant.sh ash    # umber | ash | slate | tide | storm
 ```
 
-System Settings → Global Theme → Apply technically works but on Plasma 6 it strips `[Colors:*]` from `~/.config/kdeglobals` without repopulating them from user-path color schemes — running apps fall back to Breeze Light defaults (white window borders, white taskbar) until you log out. The wrapper script above runs `plasma-apply-lookandfeel` plus the `BreezeLight → <Variant>` flicker that defeats the "already set" short-circuit and writes colors back into `kdeglobals` for the live session.
+`install.sh` writes a per-variant `umber-apply-<v>.desktop` launcher to `~/.local/share/applications/` so each variant shows up in KRunner, the app menu, and Plasma's search as **Apply Umber Ash Theme**, etc.
+
+**Why not the System Settings tile picker?** Plasma 6's `plasma-apply-lookandfeel` (the binary the Global Theme KCM calls when you click Apply) is broken for any third-party LookAndFeel package: it updates the `LookAndFeelPackage` key but silently no-ops the color-scheme transition, so `[Colors:*]` in `kdeglobals` stays on the previous variant's values and apps don't repaint. `apply-variant.sh` (and the launchers above) work around it by running `plasma-apply-colorscheme BreezeLight` followed by the real scheme — the throwaway BreezeLight step defeats the "already set" short-circuit so the next apply actually writes `[Colors:*]` back into `kdeglobals` for the live session.
 
 ## Components
 
