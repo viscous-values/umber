@@ -119,6 +119,7 @@ SCHEMES_DIR="$HOME/.local/share/color-schemes"
 LNF_DIR="$HOME/.local/share/plasma/look-and-feel"
 SHELLS_DIR="$HOME/.local/share/plasma/shells"
 KONSOLE_DIR="$HOME/.local/share/konsole"
+APPS_DIR="$HOME/.local/share/applications"
 VSCODE_EXT_DIR="$HOME/.vscode/extensions"
 
 NEWAITA_VARIANT="Newaita-reborn-light-brown-dark"
@@ -478,7 +479,7 @@ ok "installed to $ICONS_DIR/Umber-cursor"
 # its own paths (com.tyler.umber-ash/, etc.) and they coexist on disk.
 # kscreenlockerrc Theme= is set ONCE below for the active variant only —
 # it's a global setting, not per-variant.
-mkdir -p "$LNF_DIR" "$SHELLS_DIR" "$SCHEMES_DIR" "$KONSOLE_DIR"
+mkdir -p "$LNF_DIR" "$SHELLS_DIR" "$SCHEMES_DIR" "$KONSOLE_DIR" "$APPS_DIR"
 
 install_variant_user_files() {
     local v="$1"
@@ -516,6 +517,33 @@ install_variant_user_files() {
     step "$NAME Konsole color scheme"
     cp "$REPO_ROOT/konsole/$KONSOLE_FILE" "$KONSOLE_DIR/$KONSOLE_FILE"
     ok "installed to $KONSOLE_DIR/$KONSOLE_FILE"
+
+    # Per-variant launcher .desktop. WHY: System Settings → Global Theme →
+    # Apply runs plasma-apply-lookandfeel, which has a Plasma 6 bug for any
+    # third-party LnF package — the color scheme transition silently no-ops
+    # and the new variant's [Colors:*] never make it into kdeglobals. Apps
+    # keep showing the previous variant's colors. apply-variant.sh works
+    # around it by running plasma-apply-colorscheme directly after the LnF
+    # apply (BreezeLight → real-scheme dance to defeat the "already set"
+    # short-circuit). This launcher exposes that script via KRunner / the
+    # app menu so users can switch variants without going through the
+    # broken KCM tile picker.
+    step "$NAME launcher (KRunner: \"Apply $NAME\")"
+    LAUNCHER="$APPS_DIR/umber-apply-$v.desktop"
+    cat > "$LAUNCHER" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Apply $NAME Theme
+GenericName=Umber Theme Switcher
+Comment=Switch the active Plasma session to $NAME (works around a Plasma 6 KCM bug)
+Exec=$REPO_ROOT/scripts/apply-variant.sh $v
+Icon=preferences-desktop-color
+Terminal=false
+Categories=Settings;DesktopSettings;
+Keywords=umber;theme;palette;colorscheme;plasma;
+NoDisplay=false
+EOF
+    ok "installed to $LAUNCHER"
 }
 
 for v in "${VARIANTS_TO_INSTALL[@]}"; do
