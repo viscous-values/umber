@@ -3,8 +3,8 @@
   "name": "Umber Slate",
   "version": "1.0.0",
   "description": "Umber palette family — Umber Slate (Chromium/Chrome theme).",
-  "author": "Tyler",
-  "homepage_url": "https://github.com/tyler872010/umber",
+  "author": "viscous-values",
+  "homepage_url": "https://github.com/viscous-values/umber",
 
   "icons": {
     "48":  "icons/icon-48.png",

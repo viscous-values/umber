@@ -3,8 +3,8 @@
   "name": "Umber",
   "version": "1.0.0",
   "description": "Umber palette family — Umber (Firefox theme).",
-  "author": "Tyler",
-  "homepage_url": "https://github.com/tyler872010/umber",
+  "author": "viscous-values",
+  "homepage_url": "https://github.com/viscous-values/umber",
 
   "browser_specific_settings": {
     "gecko": {

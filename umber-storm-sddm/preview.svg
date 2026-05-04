@@ -12,7 +12,7 @@
     <!-- user icon (simple silhouette) -->
     <circle cx="22" cy="14" r="5" fill="#D4BC91"/>
     <path d="M 12 28 Q 22 20 32 28" fill="none" stroke="#D4BC91" stroke-width="2" stroke-linecap="round"/>
-    <text x="135" y="24" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" fill="#D4BC91">tyler</text>
+    <text x="135" y="24" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" fill="#D4BC91">user</text>
   </g>
 
   <!-- password field -->

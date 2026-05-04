@@ -4,7 +4,7 @@
     "KPlugin": {
         "Authors": [
             {
-                "Name": "Tyler"
+                "Name": "viscous-values"
             }
         ],
         "Category": "Plasma Shell",
@@ -17,6 +17,6 @@
             "Plasma/Shell"
         ],
         "Version": "1.0.0",
-        "Website": "https://github.com/tyler872010/umber"
+        "Website": "https://github.com/viscous-values/umber"
     }
 }

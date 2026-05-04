@@ -441,7 +441,7 @@ def render_filemanager(palette, title, width=1200, height=760):
     bc_x = nav_x + 16
     bc_y = cy + 10
     crumbs = [("Home", mist["blue"]), (" / ", glow["dim"]),
-              ("tyler", mist["blue"]), (" / ", glow["dim"]),
+              ("user", mist["blue"]), (" / ", glow["dim"]),
               ("Documents", glow["warm"])]
     for txt, color in crumbs:
         draw.text((bc_x, bc_y), txt, font=font_body, fill=color)
@@ -833,7 +833,7 @@ def render_ui_catalog(palette, title, width=1200, height=760):
     # Email input — focused state with mist.blue ring.
     draw.rounded_rectangle([L, y, L + col_w - 20, y + inp_h], radius=4,
                            fill=hearth["deep"], outline=mist["blue"], width=2)
-    draw.text((L + 12, y + 9), "user@example.com",
+    draw.text((L + 12, y + 9), "viscous-values@example.com",
               font=font_body, fill=glow["warm"])
     y += inp_h + 14
     # Checkbox.

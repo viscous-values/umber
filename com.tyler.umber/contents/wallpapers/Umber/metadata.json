@@ -3,7 +3,7 @@
     "KPlugin": {
         "Authors": [
             {
-                "Name": "Tyler"
+                "Name": "viscous-values"
             }
         ],
         "Description": "Procedurally generated charcoal-to-faint-peach gradient — see scripts/render_wallpaper.py.",
