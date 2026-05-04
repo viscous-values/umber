@@ -5,7 +5,7 @@
 #   umber, umber-ash, umber-slate, umber-tide, umber-storm
 # An .xpi is just a zip of manifest.json + icons/ at the archive root
 # (no top-level directory; AMO rejects nested layouts). Each variant has
-# a distinct gecko id (umber@legacy, umber-tide@legacy, etc.) so they
+# a distinct gecko id (umber@viscous-values, umber-tide@viscous-values, etc.) so they
 # upload to AMO as separate listings under one developer account.
 #
 # Usage:
