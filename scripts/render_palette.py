@@ -34,6 +34,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+import render_extension_icon
+
 REPO = Path(__file__).resolve().parent.parent
 PALETTE_FILE = REPO / "palette.toml"
 PALETTES_DIR = REPO / "palettes"
@@ -210,6 +212,16 @@ def prepare_palette(path, variant):
 # render / check                                                              #
 # --------------------------------------------------------------------------- #
 
+def icon_outputs_for(variant):
+    """Return list of icon output paths the icon renderer will write for `variant`."""
+    slug = "umber" if variant == "umber" else f"umber-{variant}"
+    paths = []
+    for ext_dir in (f"{slug}-firefox", f"{slug}-chromium"):
+        for size in render_extension_icon.ICON_SIZES:
+            paths.append(f"{ext_dir}/icons/icon-{size}.png")
+    return paths
+
+
 def render_one(palette, variant):
     outputs = outputs_for(variant)
     written = []
@@ -220,6 +232,7 @@ def render_one(palette, variant):
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(rendered)
         written.append(out_rel)
+    written.extend(render_extension_icon.render_for_variant(palette, variant))
     return written
 
 
@@ -234,6 +247,11 @@ def check_one(palette, variant):
         current = out.read_text() if out.exists() else ""
         if rendered != current:
             drift.append(out_rel)
+    # Icons are binary; we only check existence (full pixel-diff on every
+    # check would be slow and would flag innocuous PIL/encoder changes).
+    for icon_rel in icon_outputs_for(variant):
+        if not (REPO / icon_rel).exists():
+            drift.append(icon_rel)
     return drift
 
 
