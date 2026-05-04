@@ -4,7 +4,7 @@ A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Five palettes
 
 ![Palette preview](palette-preview.svg)
 
-![Plasma preview](com.tyler.umber/contents/previews/fullscreenpreview.jpg)
+![Plasma preview](io.github.viscous-values.umber/contents/previews/fullscreenpreview.jpg)
 
 ## Palette
 
@@ -59,11 +59,11 @@ To switch between installed variants, either pick one from KRunner / the app lau
 
 | Path | What it is | Where it deploys |
 |------|------------|------------------|
-| `com.tyler.umber/` | Plasma 6 Look-and-Feel package + `Umber.colors` color scheme | `~/.local/share/plasma/look-and-feel/com.tyler.umber/` and `~/.local/share/color-schemes/Umber.colors` |
-| `umber-shell/` | Plasma 6 Shell package — overrides only `contents/lockscreen/` to match the SDDM layout (charcoal floor + 0.55 scrim); falls back to `org.kde.plasma.desktop` for everything else | `~/.local/share/plasma/shells/com.tyler.umber-shell/`, activated via `kscreenlockerrc [Greeter]/Theme=com.tyler.umber-shell` |
+| `io.github.viscous-values.umber/` | Plasma 6 Look-and-Feel package + `Umber.colors` color scheme | `~/.local/share/plasma/look-and-feel/io.github.viscous-values.umber/` and `~/.local/share/color-schemes/Umber.colors` |
+| `umber-shell/` | Plasma 6 Shell package — overrides only `contents/lockscreen/` to match the SDDM layout (charcoal floor + 0.55 scrim); falls back to `org.kde.plasma.desktop` for everything else | `~/.local/share/plasma/shells/io.github.viscous-values.umber-shell/`, activated via `kscreenlockerrc [Greeter]/Theme=io.github.viscous-values.umber-shell` |
 | `konsole/Umber.colorscheme` | Konsole 16-ANSI palette | `~/.local/share/konsole/Umber.colorscheme` (referenced by a Konsole profile) |
 | `umber-sddm/` | SDDM greeter theme — Qt6 port of sddm-sugar-dark with solid charcoal background | `/usr/share/sddm/themes/umber/` (system-wide; needs sudo) |
-| `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/tyler.umber-1.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
+| `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/viscous-values.umber-1.1.1` (or `~/.vscode/extensions/` for Microsoft VSCode) |
 | `umber-firefox/` | Firefox WebExtension theme (manifest v2) | loaded via `about:debugging` (temporary) or signed for permanent install |
 | `umber-chromium/` | Chromium / Chrome theme extension (manifest v3) | loaded unpacked via `chrome://extensions/` |
 | `palette-preview.svg` | Canonical visual reference for the 16-color spec | — |
@@ -71,28 +71,34 @@ To switch between installed variants, either pick one from KRunner / the app lau
 
 Bundled assets:
 - **Cursor:** `cursors/Umber-cursor/` — pre-built recolor of [Nordic-cursors](https://github.com/EliverLara/Nordic-cursors) (Nord palette → Umber palette, pixel-by-pixel). Regeneratable via `scripts/build-cursor.sh` if you have Nordic-cursors at `~/.icons/Nordic-cursors`.
-- **Wallpaper:** `com.tyler.umber/contents/wallpapers/Umber/` — 4K charcoal-to-faint-peach gradient. Regeneratable via `scripts/render_wallpaper.py`.
+- **Wallpaper:** `io.github.viscous-values.umber/contents/wallpapers/Umber/` — 4K charcoal-to-faint-peach gradient. Regeneratable via `scripts/render_wallpaper.py`.
 
 External dependency (auto-installed by `install.sh`):
 - **Icons:** [Newaita-reborn-light-brown-dark](https://github.com/cbrnix/Newaita-reborn) — desaturated taupe folders match Umber's `glow.dim` register. The Global Theme references it by name; `install.sh` clones and copies the `Newaita-reborn-light-brown-dark/` variant if it isn't already present at `~/.local/share/icons/`.
 
 ## Install
 
-**Requirements:** KDE Plasma 6, `git`, `python3` (the last two are only used by `install.sh`).
+### Platform requirements
 
-Run the one-shot installer from the repo root:
+`install.sh` is **Linux + KDE Plasma 6 only**. SDDM is required for the login-screen theme; the LookAndFeel package, Plasma Shell lockscreen, and Konsole scheme all rely on Plasma 6 binaries (`plasma-apply-lookandfeel`, `plasma-apply-colorscheme`, `kwriteconfig6`, `kbuildsycoca6`). The script doesn't call distro package managers — it assumes those binaries are already present on a working Plasma 6 desktop.
+
+The browser themes (Firefox, Chromium) and the VSCode extension are **cross-platform** and don't need `install.sh`. Install them independently from AMO / the Chrome Web Store / VSCode Marketplace if you're not on KDE.
+
+Tools `install.sh` invokes: `git`, `python3`, `plasma-apply-lookandfeel`, `plasma-apply-colorscheme`, `kwriteconfig6`, `kreadconfig6`, `kbuildsycoca6`, plus `sudo` for the SDDM block.
+
+### Run
 
 ```fish
 ./install.sh                     # canonical warm Umber
 ./install.sh --variant ash       # any single variant; see Variants section above
 ./install.sh --all-variants      # canonical + all four variants in one run
-./install.sh --migrate           # one-time: clean up legacy "Hush" install
+./install.sh --migrate           # one-time: clean up legacy "Hush" / com.tyler.* installs
 ./install.sh --no-sudo           # skip the SDDM sudo prompt; print manual steps
 ```
 
 User-space steps (Newaita icons, Umber cursor, color scheme, LookAndFeel package, lockscreen Shell package, Konsole scheme, VSCode extension link) run unprivileged, then the Global Theme is applied. Root-needing steps (SDDM theme install, `/etc/sddm.conf.d/` shadow-file cleanup, `Current=` rewrite) are gathered into a single sudo prompt that fires AFTER the user-space installs but BEFORE the live Plasma reload: the script prints the exact commands, asks once, runs them while the sudo cache is held, then releases it (`sudo -k`). Decline at the prompt — or pass `--no-sudo` — to print the manual steps instead. Browser themes (Firefox / Chromium) always need browser UI and stay in the manual-steps tail.
 
-The `--variant` flag is fully orthogonal — each variant installs into its own per-variant directories (`com.tyler.umber-ash/`, `umber-ash-shell/`, `umber-ash-sddm/`, etc.) so canonical and any number of variants can coexist on a single machine.
+The `--variant` flag is fully orthogonal — each variant installs into its own per-variant directories (`io.github.viscous-values.umber-ash/`, `umber-ash-shell/`, `umber-ash-sddm/`, etc.) so canonical and any number of variants can coexist on a single machine.
 
 ### What the Global Theme covers
 
@@ -118,15 +124,15 @@ If you want to install only one piece, the originals:
 
 ### Plasma colorscheme + Look-and-Feel
 ```fish
-cp -r com.tyler.umber ~/.local/share/plasma/look-and-feel/com.tyler.umber
+cp -r io.github.viscous-values.umber ~/.local/share/plasma/look-and-feel/io.github.viscous-values.umber
 # IMPORTANT: strip contents/colors/ from the installed package. If a LnF
 # package ships a colors/ dir, plasma-apply-lookandfeel (which is what
 # System Settings → Global Theme → Apply runs) wipes [Colors:*] out of
 # kdeglobals and never repopulates — apps fall back to white Breeze Light.
-rm -rf ~/.local/share/plasma/look-and-feel/com.tyler.umber/contents/colors
-cp com.tyler.umber/contents/colors/Umber.colors ~/.local/share/color-schemes/Umber.colors
+rm -rf ~/.local/share/plasma/look-and-feel/io.github.viscous-values.umber/contents/colors
+cp io.github.viscous-values.umber/contents/colors/Umber.colors ~/.local/share/color-schemes/Umber.colors
 kbuildsycoca6 --noincremental
-cd /tmp; plasma-apply-lookandfeel -a com.tyler.umber
+cd /tmp; plasma-apply-lookandfeel -a io.github.viscous-values.umber
 # Force-reapply the colorscheme (toggle through BreezeLight to make Plasma rewrite [WM] inline values)
 plasma-apply-colorscheme BreezeLight
 plasma-apply-colorscheme Umber
@@ -134,8 +140,8 @@ plasma-apply-colorscheme Umber
 
 ### Lockscreen (Plasma 6 shell package)
 ```fish
-cp -r umber-shell ~/.local/share/plasma/shells/com.tyler.umber-shell
-kwriteconfig6 --file kscreenlockerrc --group Greeter --key Theme com.tyler.umber-shell
+cp -r umber-shell ~/.local/share/plasma/shells/io.github.viscous-values.umber-shell
+kwriteconfig6 --file kscreenlockerrc --group Greeter --key Theme io.github.viscous-values.umber-shell
 # Test it: loginctl lock-session   (Ctrl+Alt+L on most setups)
 ```
 
@@ -156,7 +162,7 @@ sudo sed -i 's/^Current=.*/Current=umber/' /etc/sddm.conf.d/kde_settings.conf
 
 ### VSCode / code-oss
 ```fish
-ln -sfn $PWD/umber-vscode ~/.vscode/extensions/tyler.umber-1.0.0
+ln -sfn $PWD/umber-vscode ~/.vscode/extensions/viscous-values.umber-1.1.1
 # (or ~/.vscode-oss/extensions/ for code-oss)
 # Microsoft VSCode caches its extension list and won't auto-pick up a symlink
 # until you also register it in extensions.json — easiest fix is to add a stub
@@ -165,12 +171,12 @@ python3 -c '
 import json, time, pathlib
 p = pathlib.Path.home()/".vscode"/"extensions"/"extensions.json"
 d = json.loads(p.read_text())
-if not any(e.get("identifier", {}).get("id") == "tyler.umber" for e in d):
+if not any(e.get("identifier", {}).get("id") == "viscous-values.umber" for e in d):
     d.append({
-        "identifier": {"id": "tyler.umber"},
+        "identifier": {"id": "viscous-values.umber"},
         "version": "1.0.0",
-        "location": {"$mid": 1, "path": str(pathlib.Path.home()/".vscode/extensions/tyler.umber-1.0.0"), "scheme": "file"},
-        "relativeLocation": "tyler.umber-1.0.0",
+        "location": {"$mid": 1, "path": str(pathlib.Path.home()/".vscode/extensions/viscous-values.umber-1.1.1"), "scheme": "file"},
+        "relativeLocation": "viscous-values.umber-1.1.1",
         "metadata": {"installedTimestamp": int(time.time()*1000), "pinned": True, "source": "vsix"},
     })
     p.write_text(json.dumps(d))
@@ -212,7 +218,7 @@ Each variant is a self-contained WebExtension theme — `manifest.json` plus a `
 ## Known gotchas
 
 - **`plasma-apply-colorscheme Umber` says "already set" and is a no-op** when the scheme is already current — Plasma keeps any stale inline `[WM]` values in `~/.config/kdeglobals`. Toggle through another scheme (e.g. `BreezeLight`) first to force the rewrite.
-- **Don't run `plasma-apply-lookandfeel -a com.tyler.umber` from the project directory.** `kpackagetool6` resolves the source dir as a package path and the apply fails. Run from `/tmp` or anywhere outside the repo.
+- **Don't run `plasma-apply-lookandfeel -a io.github.viscous-values.umber` from the project directory.** `kpackagetool6` resolves the source dir as a package path and the apply fails. Run from `/tmp` or anywhere outside the repo.
 - **Existing Konsole tabs hold the old palette** — open a new tab to see scheme changes.
 - The look-and-feel package's `metadata.json` needs `KPlugin.ServiceTypes: ["Plasma/LookAndFeel"]` *plus* top-level `X-Plasma-MainScript` and `X-Plasma-APIVersion`, otherwise `plasma-apply-lookandfeel` lists it but cannot apply it.
 

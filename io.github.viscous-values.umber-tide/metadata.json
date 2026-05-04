@@ -7,11 +7,11 @@
             }
         ],
         "Category": "Plasma Look And Feel",
-        "Description": "Cream-on-night-sea — Umber Storm. Slate-blue charcoal hearths, sand-cream glow.",
+        "Description": "Cream-on-dusk — Umber Tide. Teal-cool charcoal hearths, cream glow drifting toward sand.",
         "EnabledByDefault": true,
-        "Id": "com.tyler.umber-storm",
+        "Id": "io.github.viscous-values.umber-tide",
         "License": "GPL-3.0-or-later",
-        "Name": "Umber Storm",
+        "Name": "Umber Tide",
         "ServiceTypes": [
             "Plasma/LookAndFeel"
         ],

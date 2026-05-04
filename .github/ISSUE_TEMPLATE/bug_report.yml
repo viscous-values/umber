@@ -1,0 +1,111 @@
+name: Bug report
+description: Report a visual glitch, install failure, or unexpected behavior in Umber.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. The fields below are designed to capture what I usually need to reproduce.
+
+        For **security** issues please use [private vulnerability reporting](https://github.com/viscous-values/umber/security/advisories/new) instead — see [SECURITY.md](../SECURITY.md).
+
+  - type: dropdown
+    id: variant
+    attributes:
+      label: Which variant?
+      options:
+        - Umber (canonical)
+        - Umber Ash
+        - Umber Slate
+        - Umber Tide
+        - Umber Storm
+        - Multiple / all
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which component?
+      multiple: true
+      options:
+        - Plasma Look-and-Feel package
+        - Plasma Shell (lockscreen)
+        - Konsole color scheme
+        - VSCode extension
+        - Firefox theme
+        - Chromium / Chrome theme
+        - SDDM (login screen)
+        - Cursor theme
+        - Wallpaper
+        - install.sh / migration
+        - Renderer / build pipeline
+        - README / docs
+    validations:
+      required: true
+
+  - type: input
+    id: plasma-version
+    attributes:
+      label: Plasma 6 version
+      description: "Output of `plasmashell --version`"
+      placeholder: "plasmashell 6.4.5"
+    validations:
+      required: false
+
+  - type: input
+    id: distro
+    attributes:
+      label: Distro / OS
+      placeholder: "CachyOS / Arch / Fedora 41 / Ubuntu 24.04 / NixOS / etc."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: apply-path
+    attributes:
+      label: How did you apply the theme?
+      description: Plasma 6's System Settings KCM has a known bug for third-party themes — the project ships KRunner launchers + `apply-variant.sh` to work around it.
+      options:
+        - "`./scripts/apply-variant.sh <variant>` (or KRunner: `Apply Umber <variant>`)"
+        - "System Settings → Appearance → Global Theme tile picker"
+        - "`./install.sh` end-to-end"
+        - "Manual / per-component install (see README §Install per component)"
+        - "Loaded directly in the browser (Firefox / Chrome theme only)"
+        - "VSCode theme picker"
+        - "Other (describe below)"
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you see, what did you expect?
+      placeholder: |
+        Steps:
+        1. ...
+        2. ...
+
+        Expected: ...
+        Got: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / output (optional)
+      description: install.sh output, `journalctl -u sddm`, browser console, etc.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots (optional)
+      description: Drag images into this field. Side-by-side with the expected look helps a lot.
+    validations:
+      required: false

@@ -7,11 +7,11 @@
             }
         ],
         "Category": "Plasma Look And Feel",
-        "Description": "Cream-on-dusk — Umber Tide. Teal-cool charcoal hearths, cream glow drifting toward sand.",
+        "Description": "Quiet warm peach foreground on neutral charcoal — palette adapted from MarianArlt's Sugar Dark, muted for long sessions.",
         "EnabledByDefault": true,
-        "Id": "com.tyler.umber-tide",
+        "Id": "io.github.viscous-values.umber",
         "License": "GPL-3.0-or-later",
-        "Name": "Umber Tide",
+        "Name": "Umber",
         "ServiceTypes": [
             "Plasma/LookAndFeel"
         ],

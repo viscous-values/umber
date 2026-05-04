@@ -12,8 +12,8 @@ Templates live in scripts/templates/ and use {{ key }} placeholders:
     {{ var.name }}              -> "Umber" / "Umber Ash"
     {{ var.slug }}              -> "umber" / "umber-ash"
     {{ var.scheme }}            -> "Umber" / "Umber-Ash"  (filename-style)
-    {{ var.id }}                -> "com.tyler.umber" / "com.tyler.umber-ash"
-    {{ var.shell_id }}          -> "com.tyler.umber-shell" / "com.tyler.umber-ash-shell"
+    {{ var.id }}                -> "io.github.viscous-values.umber" / "io.github.viscous-values.umber-ash"
+    {{ var.shell_id }}          -> "io.github.viscous-values.umber-shell" / "io.github.viscous-values.umber-ash-shell"
     {{ var.shell_name }}        -> "Umber Shell" / "Umber Ash Shell"
     {{ var.description }}       -> palette[meta][description]
     {{ var.wallpaper_description }} -> palette[meta][wallpaper_description]
@@ -57,7 +57,7 @@ def compute_var(palette, variant):
     slug = "umber" if is_canon else f"umber-{variant}"
     name = "Umber" if is_canon else f"Umber {variant.title()}"
     scheme = "Umber" if is_canon else f"Umber-{variant.title()}"
-    pkg_id = f"com.tyler.{slug}"
+    pkg_id = f"io.github.viscous-values.{slug}"
     shell_id = f"{pkg_id}-shell"
     shell_name = f"{name} Shell"
 
@@ -88,7 +88,7 @@ def outputs_for(variant):
     is_canon = (variant == "umber")
     slug = "umber" if is_canon else f"umber-{variant}"
     scheme = "Umber" if is_canon else f"Umber-{variant.title()}"
-    pkg_id = f"com.tyler.{slug}"
+    pkg_id = f"io.github.viscous-values.{slug}"
     shell_dir = f"{slug}-shell"
 
     return {

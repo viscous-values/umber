@@ -92,7 +92,7 @@ set_variant_names() {
         SCHEME="Umber-${v^}"   # Title-case suffix: ash → Ash
         NAME="Umber ${v^}"
     fi
-    PKG_ID="com.tyler.$SLUG"
+    PKG_ID="io.github.viscous-values.$SLUG"
     SHELL_PKG_ID="$PKG_ID-shell"
     SHELL_DIR_NAME="${SLUG}-shell"     # source dir in repo
     SDDM_DIR_NAME="${SLUG}-sddm"
@@ -370,12 +370,12 @@ if (( ${#hush_artifacts[@]} > 0 )); then
                 ok "rewrote ColorScheme= in $cfg"
             fi
             if grep -q '^LookAndFeelPackage=com\.tyler\.hush$' "$cfg" 2>/dev/null; then
-                sed -i 's|^LookAndFeelPackage=com\.tyler\.hush$|LookAndFeelPackage=com.tyler.umber|' "$cfg"
+                sed -i 's|^LookAndFeelPackage=com\.tyler\.hush$|LookAndFeelPackage=io.github.viscous-values.umber|' "$cfg"
                 ok "rewrote LookAndFeelPackage= in $cfg"
             fi
         done
         if [[ -f "$HOME/.config/plasmarc" ]] && grep -q '^name=com\.tyler\.hush$' "$HOME/.config/plasmarc" 2>/dev/null; then
-            sed -i 's|^name=com\.tyler\.hush$|name=com.tyler.umber|' "$HOME/.config/plasmarc"
+            sed -i 's|^name=com\.tyler\.hush$|name=io.github.viscous-values.umber|' "$HOME/.config/plasmarc"
             ok "rewrote name= in plasmarc"
         fi
         if [[ -f "$HOME/.config/kcminputrc" ]] && grep -q '^cursorTheme=Hush-cursor$' "$HOME/.config/kcminputrc" 2>/dev/null; then
@@ -426,14 +426,105 @@ EOF
 
 Plus rewrite these config keys if present:
     ~/.config/kdedefaults/kdeglobals    ColorScheme=Hush             → Umber
-                                         LookAndFeelPackage=com.tyler.hush → com.tyler.umber
-    ~/.config/plasmarc                  name=com.tyler.hush          → com.tyler.umber
+                                         LookAndFeelPackage=com.tyler.hush → io.github.viscous-values.umber
+    ~/.config/plasmarc                  name=com.tyler.hush          → io.github.viscous-values.umber
     ~/.config/kcminputrc                cursorTheme=Hush-cursor      → Umber-cursor
     /etc/sddm.conf.d/kde_settings.conf  Current=hush                 → umber  (needs sudo)
     ~/.vscode/extensions/extensions.json   remove tyler.hush entry
 
 Refusing to install on top of existing Hush state to avoid the dual-install
 footgun (both themes half-applied across config files).
+EOF
+        exit 1
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# com.tyler.* → io.github.viscous-values.* namespace migration. Older Umber
+# installs (pre-rebrand) used the com.tyler.<variant> reverse-DNS namespace.
+# The new namespace is io.github.viscous-values.<variant>. This block detects
+# the legacy install state and cleans it up so the fresh install can land
+# without colliding. Variant-agnostic: catches all five variants in one pass.
+ns_artifacts=()
+for v in umber umber-ash umber-slate umber-tide umber-storm; do
+    [[ -d "$LNF_DIR/com.tyler.$v" ]]                && ns_artifacts+=("$LNF_DIR/com.tyler.$v")
+    [[ -d "$SHELLS_DIR/com.tyler.$v-shell" ]]       && ns_artifacts+=("$SHELLS_DIR/com.tyler.$v-shell")
+done
+[[ -e "$VSCODE_EXT_DIR/tyler.umber-1.0.0" ]] && ns_artifacts+=("$VSCODE_EXT_DIR/tyler.umber-1.0.0")
+
+if (( ${#ns_artifacts[@]} > 0 )); then
+    if (( MIGRATE == 1 )); then
+        step "Migrating com.tyler.* → io.github.viscous-values.*"
+        for p in "${ns_artifacts[@]}"; do
+            if [[ -L "$p" ]]; then
+                unlink "$p"
+                ok "unlinked $p"
+            else
+                rm -rf "$p"
+                ok "removed $p"
+            fi
+        done
+        # Rewrite kdeglobals LookAndFeelPackage=com.tyler.umber* → new namespace
+        for cfg in "$HOME/.config/kdedefaults/kdeglobals" "$HOME/.config/kdeglobals"; do
+            [[ -f "$cfg" ]] || continue
+            if grep -qE '^LookAndFeelPackage=com\.tyler\.umber' "$cfg" 2>/dev/null; then
+                sed -i 's|^LookAndFeelPackage=com\.tyler\.\(umber[^[:space:]]*\)$|LookAndFeelPackage=io.github.viscous-values.\1|' "$cfg"
+                ok "rewrote LookAndFeelPackage= in $cfg"
+            fi
+        done
+        # Rewrite plasmarc name=com.tyler.umber* if present
+        if [[ -f "$HOME/.config/plasmarc" ]] && grep -qE '^name=com\.tyler\.umber' "$HOME/.config/plasmarc" 2>/dev/null; then
+            sed -i 's|^name=com\.tyler\.\(umber[^[:space:]]*\)$|name=io.github.viscous-values.\1|' "$HOME/.config/plasmarc"
+            ok "rewrote name= in plasmarc"
+        fi
+        # Rewrite kscreenlockerrc [Greeter]/Theme=com.tyler.umber*-shell
+        if [[ -f "$HOME/.config/kscreenlockerrc" ]] && grep -qE '^Theme=com\.tyler\.umber' "$HOME/.config/kscreenlockerrc" 2>/dev/null; then
+            sed -i 's|^Theme=com\.tyler\.\(umber[^[:space:]]*\)$|Theme=io.github.viscous-values.\1|' "$HOME/.config/kscreenlockerrc"
+            ok "rewrote Theme= in kscreenlockerrc"
+        fi
+        # Drop the tyler.umber entry from VSCode's extensions.json (the install
+        # re-adds it under the new viscous-values.umber id below).
+        if [[ -f "$VSCODE_EXT_DIR/extensions.json" ]]; then
+            python3 - <<'PYEOF'
+import json, pathlib
+p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
+try:
+    data = json.loads(p.read_text() or "[]")
+except (FileNotFoundError, json.JSONDecodeError):
+    data = []
+before = len(data)
+data = [e for e in data if e.get("identifier", {}).get("id") != "tyler.umber"]
+if len(data) != before:
+    p.write_text(json.dumps(data))
+    print("    .. removed tyler.umber entry from extensions.json")
+PYEOF
+        fi
+        ok "namespace migration complete"
+    else
+        step "Legacy com.tyler.* install detected"
+        for p in "${ns_artifacts[@]}"; do note "$p"; done
+        cat <<EOF
+
+A previous Umber install used the com.tyler.* package namespace. The
+current package layout uses io.github.viscous-values.*. Re-run with
+--migrate to clean up the legacy paths automatically:
+
+    ./install.sh --migrate
+
+Or remove the artifacts manually:
+
+EOF
+        for p in "${ns_artifacts[@]}"; do echo "    rm -rf $p"; done
+        cat <<EOF
+
+Plus rewrite these config keys if present:
+    ~/.config/kdeglobals          LookAndFeelPackage=com.tyler.umber* → io.github.viscous-values.umber*
+    ~/.config/plasmarc            name=com.tyler.umber*               → io.github.viscous-values.umber*
+    ~/.config/kscreenlockerrc     Theme=com.tyler.umber*-shell        → io.github.viscous-values.umber*-shell
+    ~/.vscode/extensions/extensions.json   remove tyler.umber entry
+
+Refusing to install on top of legacy namespace state to avoid the
+dual-install footgun (both old + new packages half-applied).
 EOF
         exit 1
     fi
@@ -476,7 +567,7 @@ ok "installed to $ICONS_DIR/Umber-cursor"
 # ---------------------------------------------------------------------------
 # Per-variant user-space installs: color scheme + LookAndFeel package +
 # Plasma/Shell package + Konsole color scheme. Each variant installs into
-# its own paths (com.tyler.umber-ash/, etc.) and they coexist on disk.
+# its own paths (io.github.viscous-values.umber-ash/, etc.) and they coexist on disk.
 # kscreenlockerrc Theme= is set ONCE below for the active variant only —
 # it's a global setting, not per-variant.
 mkdir -p "$LNF_DIR" "$SHELLS_DIR" "$SCHEMES_DIR" "$KONSOLE_DIR" "$APPS_DIR"
@@ -564,7 +655,7 @@ note "Konsole: open Settings → Edit Current Profile → Appearance → choose 
 step "VSCode (Microsoft) extension link + cache stub"
 if [[ -d "$VSCODE_EXT_DIR" ]] || [[ -d "$HOME/.vscode" ]]; then
     mkdir -p "$VSCODE_EXT_DIR"
-    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/tyler.umber-1.0.0"
+    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/viscous-values.umber-1.1.1"
     python3 - <<'PYEOF'
 import json, time, pathlib
 p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
@@ -576,16 +667,16 @@ else:
         data = json.loads(p.read_text() or "[]")
     except json.JSONDecodeError:
         data = []
-if not any(e.get("identifier", {}).get("id") == "tyler.umber" for e in data):
+if not any(e.get("identifier", {}).get("id") == "viscous-values.umber" for e in data):
     data.append({
-        "identifier": {"id": "tyler.umber"},
-        "version": "1.0.0",
+        "identifier": {"id": "viscous-values.umber"},
+        "version": "1.1.1",
         "location": {
             "$mid": 1,
-            "path": str(pathlib.Path.home() / ".vscode/extensions/tyler.umber-1.0.0"),
+            "path": str(pathlib.Path.home() / ".vscode/extensions/viscous-values.umber-1.1.1"),
             "scheme": "file",
         },
-        "relativeLocation": "tyler.umber-1.0.0",
+        "relativeLocation": "viscous-values.umber-1.1.1",
         "metadata": {
             "installedTimestamp": int(time.time() * 1000),
             "pinned": True,
@@ -593,14 +684,14 @@ if not any(e.get("identifier", {}).get("id") == "tyler.umber" for e in data):
         },
     })
     p.write_text(json.dumps(data))
-    print("    .. registered tyler.umber in extensions.json")
+    print("    .. registered viscous-values.umber in extensions.json")
 else:
-    print("    .. tyler.umber already registered in extensions.json")
+    print("    .. viscous-values.umber already registered in extensions.json")
 PYEOF
-    ok "linked to $VSCODE_EXT_DIR/tyler.umber-1.0.0"
+    ok "linked to $VSCODE_EXT_DIR/viscous-values.umber-1.1.1"
     note "Restart VSCode, then Ctrl+K Ctrl+T → $NAME (or any sibling variant)."
 else
-    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/tyler.umber-1.0.0"
+    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/viscous-values.umber-1.1.1"
 fi
 
 # ---------------------------------------------------------------------------
@@ -662,10 +753,10 @@ run_pending_elevated || true
 set_variant_names "$ACTIVE_VARIANT"
 step "Applying Global Theme ($NAME)"
 LNF_APPLY_LOG="$(mktemp -t umber-lnf-apply-XXXXXX.log)"
-# IMPORTANT: must run from a directory that has no com.tyler.umber* sibling.
+# IMPORTANT: must run from a directory that has no io.github.viscous-values.umber* sibling.
 # Run from $REPO_ROOT and KPackage's cwd scanner finds the source dir,
-# resolves to "com.tyler.umber-ash/" (note trailing slash), then the binary
-# fails to load it: "Unable to find the theme named com.tyler.umber-ash/".
+# resolves to "io.github.viscous-values.umber-ash/" (note trailing slash), then
+# the binary fails to load: "Unable to find the theme named io.github.viscous-values.umber-ash/".
 ( cd /tmp && plasma-apply-lookandfeel -a "$PKG_ID" ) >"$LNF_APPLY_LOG" 2>&1 \
     && ok "plasma-apply-lookandfeel $PKG_ID" \
     || err "plasma-apply-lookandfeel failed — see $LNF_APPLY_LOG; logout/login may be needed"

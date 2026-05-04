@@ -7,11 +7,11 @@
             }
         ],
         "Category": "Plasma Look And Feel",
-        "Description": "Quiet warm peach foreground on neutral charcoal — palette adapted from MarianArlt's Sugar Dark, muted for long sessions.",
+        "Description": "Cream-on-overcast — Umber Slate. Neutral-cool charcoal hearths, lightly desaturated cream glow.",
         "EnabledByDefault": true,
-        "Id": "com.tyler.umber",
+        "Id": "io.github.viscous-values.umber-slate",
         "License": "GPL-3.0-or-later",
-        "Name": "Umber",
+        "Name": "Umber Slate",
         "ServiceTypes": [
             "Plasma/LookAndFeel"
         ],

@@ -10,7 +10,7 @@
         "Category": "Plasma Shell",
         "Description": "Umber's lockscreen shell — overrides only contents/lockscreen/ to mirror the umber-sddm layout. Falls back to org.kde.plasma.desktop for the panels/applets/etc. that this package does not ship.",
         "EnabledByDefault": false,
-        "Id": "com.tyler.umber-storm-shell",
+        "Id": "io.github.viscous-values.umber-storm-shell",
         "License": "GPL-3.0-or-later",
         "Name": "Umber Storm Shell",
         "ServiceTypes": [

@@ -2,8 +2,8 @@
   "name": "umber",
   "displayName": "Umber",
   "description": "Umber palette family — warm-on-charcoal canonical plus four cool variants (Ash, Slate, Tide, Storm).",
-  "version": "1.1.0",
-  "publisher": "tyler",
+  "version": "1.1.1",
+  "publisher": "viscous-values",
   "license": "GPL-3.0-or-later",
   "engines": {
     "vscode": "^1.70.0"

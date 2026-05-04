@@ -9,7 +9,7 @@
         "Category": "Plasma Look And Feel",
         "Description": "Warm cream foreground on neutral charcoal — Umber Ash, the warmest of the cool family.",
         "EnabledByDefault": true,
-        "Id": "com.tyler.umber-ash",
+        "Id": "io.github.viscous-values.umber-ash",
         "License": "GPL-3.0-or-later",
         "Name": "Umber Ash",
         "ServiceTypes": [

@@ -139,7 +139,7 @@
       <text x="16" y="76">
         <tspan fill="#D4BC91">❯ </tspan><tspan fill="#E1CDA5">ls -la</tspan>
       </text>
-      <text x="16" y="94" fill="#A89986">drwxr-xr-x  4 user user   100 Jan  1 12:00 <tspan fill="#88A6C5">com.tyler.umber</tspan></text>
+      <text x="16" y="94" fill="#A89986">drwxr-xr-x  4 user user   100 Jan  1 12:00 <tspan fill="#88A6C5">io.github.viscous-values.umber</tspan></text>
       <text x="16" y="110" fill="#A89986">drwxr-xr-x  3 user user    80 Jan  1 12:00 <tspan fill="#88A6C5">umber-sddm</tspan></text>
       <text x="16" y="126" fill="#A89986">-rw-r--r--  1 user user  2195 Jan  1 12:00 <tspan fill="#D4BC91">preview.svg</tspan></text>
       <text x="16" y="142" fill="#A89986">-rw-r--r--  1 user user  4830 Jan  1 12:00 <tspan fill="#D4BC91">palette-preview.svg</tspan></text>

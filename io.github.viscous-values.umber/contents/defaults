@@ -1,5 +1,5 @@
 [kdeglobals][General]
-ColorScheme=Umber-Tide
+ColorScheme=Umber
 
 [kdeglobals][Icons]
 Theme=Newaita-reborn-light-brown-dark
@@ -11,7 +11,7 @@ widgetStyle=Breeze
 cursorTheme=Umber-cursor
 
 [ksplashrc][KSplash]
-Theme=com.tyler.umber-tide
+Theme=io.github.viscous-values.umber
 
 [kwinrc][org.kde.kdecoration2]
 library=org.kde.breeze
@@ -21,4 +21,4 @@ theme=Breeze
 name=default
 
 [Wallpaper]
-Image=Umber-Tide
+Image=Umber

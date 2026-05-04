@@ -30,10 +30,10 @@ case "$VARIANT" in
 esac
 
 if [[ "$VARIANT" == "umber" ]]; then
-    PKG_ID="com.tyler.umber"
+    PKG_ID="io.github.viscous-values.umber"
     SCHEME="Umber"
 else
-    PKG_ID="com.tyler.umber-$VARIANT"
+    PKG_ID="io.github.viscous-values.umber-$VARIANT"
     SCHEME="Umber-${VARIANT^}"   # ash → Ash, slate → Slate, ...
 fi
 
