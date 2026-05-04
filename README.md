@@ -2,6 +2,7 @@
 
 [![License: GPL v3+](https://img.shields.io/github/license/viscous-values/umber?color=informational)](LICENSE)
 [![KDE Plasma 6](https://img.shields.io/badge/KDE-Plasma%206-1d99f3)](https://kde.org/plasma-desktop/)
+[![Firefox AMO](https://img.shields.io/badge/Firefox-AMO-FF7139?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/umber/)
 [![Last commit](https://img.shields.io/github/last-commit/viscous-values/umber)](https://github.com/viscous-values/umber/commits/main)
 
 A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Five palettes share Mist + Spark accents: **Umber** (warm canonical), **Ash** (warmest of the cool family — neutral charcoal hearths), **Slate** (overcast), **Tide** (dusk), **Storm** (night sea). Originally adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark), muted for long-session comfort and built out into a full Nord-style palette.
@@ -193,19 +194,21 @@ if not any(e.get("identifier", {}).get("id") == "viscous-values.umber" for e in 
 ```
 
 ### Firefox
-Each variant is a self-contained WebExtension theme — `manifest.json` plus a `icons/` directory rendered from `palette.toml`. Variants have distinct gecko ids (`umber@viscous-values`, `umber-tide@viscous-values`, …) so they install side-by-side once signed.
+Each variant is a self-contained WebExtension theme — `manifest.json` plus a `icons/` directory rendered from `palette.toml`. Variants have distinct gecko ids (`umber@viscous-values`, `umber-tide@viscous-values`, …) so they install side-by-side from AMO.
 
-**Build signed-ready `.xpi` archives:**
+**Install from AMO (one-click, signed, persistent):**
+
+- [Umber](https://addons.mozilla.org/en-US/firefox/addon/umber/) — canonical warm
+- [Umber Ash](https://addons.mozilla.org/en-US/firefox/addon/umber-ash/) — neutral charcoal
+- [Umber Slate](https://addons.mozilla.org/en-US/firefox/addon/umber-slate/) — overcast
+- [Umber Tide](https://addons.mozilla.org/en-US/firefox/addon/umber-tide/) — teal dusk
+- [Umber Storm](https://addons.mozilla.org/en-US/firefox/addon/umber-storm/) — slate-blue night sea
+
+Build signed-ready `.xpi` archives locally (e.g. when adding a variant before AMO submission):
 ```fish
 ./scripts/build-firefox-xpi.sh           # all five variants → dist/*.xpi
 ./scripts/build-firefox-xpi.sh tide      # one variant
 ```
-
-**Persistent install via AMO (recommended):**
-1. Sign in at [addons.mozilla.org/developers/](https://addons.mozilla.org/developers/) (free account, no submission fee)
-2. Submit each `dist/<variant>-firefox-<version>.xpi` as a new add-on under "On your own" or "On AMO" distribution
-3. Each variant becomes a separate listing under your one developer account
-4. After AMO signs the `.xpi`, install from the listing in stable Firefox — persists across restarts
 
 **Dev install (unsigned, doesn't survive restart in stable Firefox):**
 ```fish
