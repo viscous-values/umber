@@ -1,5 +1,9 @@
 # Umber
 
+[![License: GPL v3+](https://img.shields.io/github/license/viscous-values/umber?color=informational)](LICENSE)
+[![KDE Plasma 6](https://img.shields.io/badge/KDE-Plasma%206-1d99f3)](https://kde.org/plasma-desktop/)
+[![Last commit](https://img.shields.io/github/last-commit/viscous-values/umber)](https://github.com/viscous-values/umber/commits/main)
+
 A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Five palettes share Mist + Spark accents: **Umber** (warm canonical), **Ash** (warmest of the cool family — neutral charcoal hearths), **Slate** (overcast), **Tide** (dusk), **Storm** (night sea). Originally adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark), muted for long-session comfort and built out into a full Nord-style palette.
 
 ![Palette preview](palette-preview.svg)
