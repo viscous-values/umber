@@ -746,8 +746,14 @@ cat <<EOF
     1. Visit about:debugging#/runtime/this-firefox
     2. "Load Temporary Add-on…" → pick $REPO_ROOT/$FF_DIR_NAME/manifest.json
   Sibling variants live at $REPO_ROOT/umber-{ash,slate,tide,storm}-firefox/.
-  (Stable Firefox unloads unsigned extensions on restart. Sign on AMO or use
-   Developer Edition with xpinstall.signatures.required=false for persistence.)
+  Stable Firefox unloads unsigned extensions on restart. For persistence:
+    Build → $REPO_ROOT/scripts/build-firefox-xpi.sh
+    Submit dist/<variant>-firefox-<version>.xpi to addons.mozilla.org for
+    free AMO signing — each variant is its own listing (umber@tyler,
+    umber-tide@tyler, etc.). Once signed, install from the AMO listing.
+  IMPORTANT: do not add a profile-level userChrome.css with !important
+  rules — it overrides the WebExtension theme and makes every variant
+  look identical (this is what the legacy Hush install did).
 
 \033[1;36mChromium / Chrome theme\033[0m — load unpacked (active: $NAME):
     1. Visit chrome://extensions/

@@ -179,16 +179,27 @@ if not any(e.get("identifier", {}).get("id") == "tyler.umber" for e in d):
 ```
 
 ### Firefox
+Each variant is a self-contained WebExtension theme — `manifest.json` plus a `icons/` directory rendered from `palette.toml`. Variants have distinct gecko ids (`umber@tyler`, `umber-tide@tyler`, …) so they install side-by-side once signed.
+
+**Build signed-ready `.xpi` archives:**
 ```fish
-# Unsigned WebExtensions can only be loaded as *temporary* in stable Firefox
-# (they unload on restart). For persistent install, sign the addon at
-# addons.mozilla.org or use Developer Edition / Nightly with
-# xpinstall.signatures.required=false.
-#
-# Quick dev path:
-#   1. Visit about:debugging#/runtime/this-firefox
-#   2. "Load Temporary Add-on…" → pick umber-firefox/manifest.json
+./scripts/build-firefox-xpi.sh           # all five variants → dist/*.xpi
+./scripts/build-firefox-xpi.sh tide      # one variant
 ```
+
+**Persistent install via AMO (recommended):**
+1. Sign in at [addons.mozilla.org/developers/](https://addons.mozilla.org/developers/) (free account, no submission fee)
+2. Submit each `dist/<variant>-firefox-<version>.xpi` as a new add-on under "On your own" or "On AMO" distribution
+3. Each variant becomes a separate listing under your one developer account
+4. After AMO signs the `.xpi`, install from the listing in stable Firefox — persists across restarts
+
+**Dev install (unsigned, doesn't survive restart in stable Firefox):**
+```fish
+# Visit about:debugging#/runtime/this-firefox
+# "Load Temporary Add-on…" → pick <variant>-firefox/manifest.json
+```
+
+> **Don't add a profile-level `userChrome.css` overlay.** Earlier Hush-era builds shipped one with `!important` rules; it overrode every WebExtension theme so all variants looked identical. The current architecture relies entirely on what the manifest's `theme.colors` block exposes — whatever Firefox's WebExtension theme API can't reach (URL bar dropdown rows, sidebar internals) falls back to stock dark, which is the AMO-shipped reality.
 
 ### Chromium / Chrome
 ```fish
