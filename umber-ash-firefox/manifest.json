@@ -31,7 +31,7 @@
       "toolbar_field":            "#333333",
       "toolbar_field_text":       "#EDE6D6",
       "toolbar_field_border":     "#444444",
-      "toolbar_field_focus":      "#3A3A3A",
+      "toolbar_field_focus":      "#444444",
       "toolbar_field_text_focus": "#DACEB0",
       "toolbar_field_border_focus": "#D0BC95",
       "toolbar_field_highlight":  "#D0BC95",
@@ -58,8 +58,8 @@
       "sidebar":                 "#2B2B2B",
       "sidebar_text":            "#EDE6D6",
       "sidebar_border":          "#333333",
-      "sidebar_highlight":       "#3A3A3A",
-      "sidebar_highlight_text":  "#DACEB0",
+      "sidebar_highlight":       "#D0BC95",
+      "sidebar_highlight_text":  "#242424",
 
       "button_background_hover":  "#333333",
       "button_background_active": "#444444",
@@ -69,7 +69,7 @@
       "ntp_card_background":     "#2B2B2B",
 
       "address_bar_box_text":    "#EDE6D6",
-      "address_bar_box_focus":   "#3A3A3A",
+      "address_bar_box_focus":   "#444444",
 
       "tab_attention":           "#E5C07B"
     },

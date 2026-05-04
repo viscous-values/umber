@@ -31,15 +31,15 @@
       "toolbar_field":            "#323438",
       "toolbar_field_text":       "#ECE5D7",
       "toolbar_field_border":     "#434548",
-      "toolbar_field_focus":      "#3A3A3A",
+      "toolbar_field_focus":      "#434548",
       "toolbar_field_text_focus": "#D8CDB2",
-      "toolbar_field_border_focus": "#CFBC98",
-      "toolbar_field_highlight":  "#CFBC98",
+      "toolbar_field_border_focus": "#88A6C5",
+      "toolbar_field_highlight":  "#88A6C5",
       "toolbar_field_highlight_text": "#232527",
 
       "tab_text":                "#D8CDB2",
-      "tab_loading":             "#CFBC98",
-      "tab_line":                "#CFBC98",
+      "tab_loading":             "#88A6C5",
+      "tab_line":                "#88A6C5",
       "tab_selected":            "#323438",
       "tab_background_text":     "#A39A8E",
       "tab_background_separator": "#323438",
@@ -58,8 +58,8 @@
       "sidebar":                 "#2A2C2F",
       "sidebar_text":            "#ECE5D7",
       "sidebar_border":          "#323438",
-      "sidebar_highlight":       "#3A3A3A",
-      "sidebar_highlight_text":  "#D8CDB2",
+      "sidebar_highlight":       "#88A6C5",
+      "sidebar_highlight_text":  "#232527",
 
       "button_background_hover":  "#323438",
       "button_background_active": "#434548",
@@ -69,7 +69,7 @@
       "ntp_card_background":     "#2A2C2F",
 
       "address_bar_box_text":    "#ECE5D7",
-      "address_bar_box_focus":   "#3A3A3A",
+      "address_bar_box_focus":   "#434548",
 
       "tab_attention":           "#E5C07B"
     },

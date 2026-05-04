@@ -31,15 +31,15 @@
       "toolbar_field":            "#2E343E",
       "toolbar_field_text":       "#E8E5DC",
       "toolbar_field_border":     "#40454D",
-      "toolbar_field_focus":      "#3A3A3A",
+      "toolbar_field_focus":      "#40454D",
       "toolbar_field_text_focus": "#D4CCB9",
-      "toolbar_field_border_focus": "#CCBC9D",
-      "toolbar_field_highlight":  "#CCBC9D",
+      "toolbar_field_border_focus": "#88A6C5",
+      "toolbar_field_highlight":  "#88A6C5",
       "toolbar_field_highlight_text": "#1F2530",
 
       "tab_text":                "#D4CCB9",
-      "tab_loading":             "#CCBC9D",
-      "tab_line":                "#CCBC9D",
+      "tab_loading":             "#88A6C5",
+      "tab_line":                "#88A6C5",
       "tab_selected":            "#2E343E",
       "tab_background_text":     "#9D9A96",
       "tab_background_separator": "#2E343E",
@@ -58,8 +58,8 @@
       "sidebar":                 "#262C36",
       "sidebar_text":            "#E8E5DC",
       "sidebar_border":          "#2E343E",
-      "sidebar_highlight":       "#3A3A3A",
-      "sidebar_highlight_text":  "#D4CCB9",
+      "sidebar_highlight":       "#88A6C5",
+      "sidebar_highlight_text":  "#1F2530",
 
       "button_background_hover":  "#2E343E",
       "button_background_active": "#40454D",
@@ -69,7 +69,7 @@
       "ntp_card_background":     "#262C36",
 
       "address_bar_box_text":    "#E8E5DC",
-      "address_bar_box_focus":   "#3A3A3A",
+      "address_bar_box_focus":   "#40454D",
 
       "tab_attention":           "#E5C07B"
     },
