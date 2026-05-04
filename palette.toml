@@ -48,3 +48,12 @@ orange = "#D19A66"   # numbers / constants / debug
 amber  = "#E5C07B"   # warning / neutral / pending
 green  = "#98C379"   # success / strings / added
 violet = "#C586B0"   # keyword / visited / control flow
+
+# Variant-specific UI accent. Drives selection backgrounds, focused-field
+# borders, active-tab lines — anywhere a "highlight" wants to feel native
+# to the variant's mood. Canonical Umber + Ash use the warm glow signature;
+# cool variants (Slate, Storm, Tide) pull from mist so the highlight reads
+# cool on a cool field.
+[accent]
+highlight      = "#D4BC91"   # selection bg (= glow.1, warm peach)
+highlight_text = "#26221E"   # text on highlight bg (= hearth.0)
