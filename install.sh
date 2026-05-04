@@ -491,6 +491,17 @@ install_variant_user_files() {
     step "Plasma Look-and-Feel package ($PKG_ID)"
     rm -rf "$LNF_DIR/$PKG_ID"
     cp -a "$REPO_ROOT/$PKG_ID" "$LNF_DIR/$PKG_ID"
+    # Strip contents/colors/ from the INSTALLED package. If a LnF package
+    # ships a colors/ dir, Plasma 6's plasma-apply-lookandfeel — the same
+    # code path System Settings → Global Theme → Apply uses — wipes every
+    # [Colors:*] section out of ~/.config/kdeglobals and does NOT
+    # repopulate from ~/.local/share/color-schemes/, so KDE apps fall back
+    # to compiled-in Breeze Light defaults (white frames, white app bg,
+    # blue selection — see Umber-Ash screenshot). The .colors source-of-
+    # truth lives in the source dir for the renderer; the user-level copy
+    # at $SCHEMES_DIR/$SCHEME_FILE (installed just above) is what
+    # plasma-apply-colorscheme reads.
+    rm -rf "$LNF_DIR/$PKG_ID/contents/colors"
     ok "installed to $LNF_DIR/$PKG_ID"
 
     # Plasma 6's kscreenlocker reads its QML from a Plasma/Shell package
@@ -609,12 +620,12 @@ run_pending_elevated || true
 # commands' quietness, but keeps the evidence around for triage). We apply
 # the active variant only, regardless of how many were just installed.
 #
-# Plasma 6 quirk: plasma-apply-lookandfeel for any LnF package that bundles
-# its own contents/colors/<scheme>.colors STRIPS every [Colors:*] section out
-# of ~/.config/kdeglobals (we keep the bundle so System-Settings switches
-# still get a clean fall-back to the .colors lookup chain). The plasma-
-# apply-colorscheme dance below repopulates them — BreezeLight first to
-# defeat the "already set" short-circuit, then the real scheme.
+# Plasma 6 quirk: plasma-apply-lookandfeel for any LnF package that ships
+# a contents/colors/ dir STRIPS every [Colors:*] section out of
+# ~/.config/kdeglobals and does NOT repopulate. We strip contents/colors/
+# from the INSTALLED package above to dodge the bug — and still run the
+# plasma-apply-colorscheme dance below as defense-in-depth so a re-install
+# repopulates kdeglobals if a previous install left it stripped.
 #
 # Failures here are noisy on purpose: the previous quiet-and-continue mode
 # hid the case where one step silently no-op'd and the user saw a wiped
