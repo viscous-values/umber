@@ -23,6 +23,10 @@ Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, p
 
 The Umber family is a cool-temperature ramp anchored on the warm canonical. Mist + Spark are identical across all five; **Hearth shifts cool** and **Glow desaturates progressively** to suppress peach selection bands on cool grounds.
 
+| Umber | Ash | Slate | Tide | Storm |
+|:---:|:---:|:---:|:---:|:---:|
+| ![Umber](mockups/umber-thumb.png) | ![Ash](mockups/ash-thumb.png) | ![Slate](mockups/slate-thumb.png) | ![Tide](mockups/tide-thumb.png) | ![Storm](mockups/storm-thumb.png) |
+
 | Variant | Mood | Hearth character | Glow desat |
 |---|---|---|---|
 | **Umber** (canonical) | fireside | warm-tinted brown-charcoal (R−B ≈ 5–8) | reference |
