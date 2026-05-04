@@ -3,18 +3,17 @@
 #
 # Why this exists: Plasma 6's plasma-apply-lookandfeel — the same code path
 # System Settings → Global Theme → Apply uses — STRIPS every [Colors:*]
-# section out of ~/.config/kdeglobals when it loads any of our LnF packages
-# (a quirk triggered by us bundling contents/colors/<scheme>.colors inside
-# the package; stock Plasma packages like BreezeDark don't ship a colors/
-# dir and don't trigger the wipe). After the strip, plasma-apply-lookandfeel
-# does NOT repopulate [Colors:*] from the user-installed scheme at
-# ~/.local/share/color-schemes/<scheme>.colors — it only repopulates from
-# /usr/share/color-schemes/. So running apps fall back to compiled-in Breeze
-# Light defaults: white window borders, white taskbar, etc.
+# section out of ~/.config/kdeglobals when it loads a LnF package that
+# ships contents/colors/<scheme>.colors, and does NOT repopulate. Running
+# apps then fall back to compiled-in Breeze Light defaults (white window
+# borders, white app backgrounds, blue selection).
 #
-# This script does the LnF apply, then the BreezeLight → real-scheme flicker
-# that defeats plasma-apply-colorscheme's "already set" short-circuit and
-# writes [Colors:*] back into kdeglobals. Same recipe install.sh uses.
+# install.sh strips contents/colors/ from the installed LnF package to
+# avoid triggering the strip in the first place. This script keeps the
+# BreezeLight → real-scheme dance as a one-shot recovery for sessions
+# whose kdeglobals was stripped before the fix landed: BreezeLight defeats
+# plasma-apply-colorscheme's "already set" short-circuit, then the real
+# scheme repopulates [Colors:*].
 #
 # Usage: ./scripts/apply-variant.sh <variant>   (one of: umber ash slate tide storm)
 

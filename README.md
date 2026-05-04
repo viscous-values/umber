@@ -117,6 +117,11 @@ If you want to install only one piece, the originals:
 ### Plasma colorscheme + Look-and-Feel
 ```fish
 cp -r com.tyler.umber ~/.local/share/plasma/look-and-feel/com.tyler.umber
+# IMPORTANT: strip contents/colors/ from the installed package. If a LnF
+# package ships a colors/ dir, plasma-apply-lookandfeel (which is what
+# System Settings → Global Theme → Apply runs) wipes [Colors:*] out of
+# kdeglobals and never repopulates — apps fall back to white Breeze Light.
+rm -rf ~/.local/share/plasma/look-and-feel/com.tyler.umber/contents/colors
 cp com.tyler.umber/contents/colors/Umber.colors ~/.local/share/color-schemes/Umber.colors
 kbuildsycoca6 --noincremental
 cd /tmp; plasma-apply-lookandfeel -a com.tyler.umber
