@@ -76,7 +76,9 @@ def build_data(next_dir=NEXT_DIR):
 
 
 def render(out=OUT, next_dir=NEXT_DIR):
-    data = json.dumps(build_data(next_dir), separators=(",", ":")).replace("</", "<\\/")
+    # No "<" may survive inside the <script>: "</script" or "<!--" in palette text
+    # would end or comment out the page script. JSON reads \u003c back as "<".
+    data = json.dumps(build_data(next_dir), separators=(",", ":")).replace("<", "\\u003c")
     html = TEMPLATE.read_text()
     html = html.replace("/*__ENGINE__*/", ENGINE.read_text())
     html = html.replace("/*__DATA__*/", f"const DATA = {data};\n")
