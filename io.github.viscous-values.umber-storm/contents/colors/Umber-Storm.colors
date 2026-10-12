@@ -89,12 +89,12 @@ DecorationFocus=38,44,54
 DecorationHover=38,44,54
 ForegroundActive=31,37,48
 ForegroundInactive=64,69,77
-ForegroundLink=139,90,0
-ForegroundNegative=160,44,50
-ForegroundNeutral=139,90,0
+ForegroundLink=82,51,0
+ForegroundNegative=109,27,31
+ForegroundNeutral=82,51,0
 ForegroundNormal=38,44,54
-ForegroundPositive=45,80,22
-ForegroundVisited=92,66,37
+ForegroundPositive=36,65,16
+ForegroundVisited=75,53,29
 
 [Colors:Tooltip]
 BackgroundAlternate=46,52,62

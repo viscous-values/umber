@@ -36,5 +36,10 @@ violet = "#C586B0"
 # Variant-specific UI accent. soft cool blue (= mist.2) — Slate's overcast field reads cool, accent matches.
 # See palette.toml [accent] for the canonical block.
 [accent]
-highlight      = "#88A6C5"
-highlight_text = "#232527"
+highlight          = "#88A6C5"
+highlight_text     = "#232527"
+highlight_link     = "#523300"   # 4.53:1 on highlight
+highlight_negative = "#6D1B1F"   # 4.54:1
+highlight_neutral  = "#523300"   # 4.53:1
+highlight_positive = "#244110"   # 4.51:1
+highlight_visited  = "#4B351D"   # 4.54:1
