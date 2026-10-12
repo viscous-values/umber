@@ -182,8 +182,55 @@ const Engine = (() => {
     return out;
   }
 
+  // ------------------------------------------------------------ tuner edits
+  // Saved edits are {"tier.key": {from, to}}. An edit applies only while the
+  // palette file still holds `from`; once the file changes underneath it the
+  // edit is stale and dropped, so regenerated drafts are never shadowed.
+  function diffEdits(original, tuned) {
+    const edits = {};
+    for (const [tier, colors] of Object.entries(tuned))
+      for (const [k, hex] of Object.entries(colors))
+        if (original[tier]?.[k] !== hex) edits[`${tier}.${k}`] = { from: original[tier]?.[k], to: hex };
+    return edits;
+  }
+  function applyEdits(tiers, edits) {
+    const out = structuredClone(tiers), applied = [], stale = [];
+    for (const [key, { from, to }] of Object.entries(edits || {})) {
+      const dot = key.indexOf('.'), tier = key.slice(0, dot), k = key.slice(dot + 1);
+      if (out[tier]?.[k] !== undefined && out[tier][k] === from) { out[tier][k] = to; applied.push(key); }
+      else stale.push(key);
+    }
+    return { tiers: out, applied, stale };
+  }
+
+  // ------------------------------------------------------------ TOML export
+  const tomlKey = k => (/^[A-Za-z_][\w-]*$/.test(k) ? k : JSON.stringify(k));
+  const tomlVal = x => (typeof x === 'string' ? JSON.stringify(x) : String(x));
+  // A complete palette file: [meta], every tier (with OKLCH notes), [role] overrides.
+  function toToml(v) {
+    let out = `# ${v.name} — exported from the Umber Palette Lab\n`;
+    if (v.meta && Object.keys(v.meta).length)
+      out += '\n[meta]\n' + Object.entries(v.meta).map(([k, x]) => `${tomlKey(k)} = ${tomlVal(x)}`).join('\n') + '\n';
+    for (const [tier, colors] of Object.entries(v.tiers)) {
+      out += `\n[${tier}]\n` + Object.entries(colors).map(([k, hex]) => {
+        const [L, C, H] = oklch(hex);
+        return `${tomlKey(k).padEnd(18)} = "${hex}"   # L ${L.toFixed(3)} C ${C.toFixed(3)} h ${H.toFixed(0)}`;
+      }).join('\n') + '\n';
+    }
+    const emit = (obj, path) => {
+      const scalars = Object.entries(obj).filter(([, x]) => !isTable(x));
+      const tables = Object.entries(obj).filter(([, x]) => isTable(x));
+      let s = scalars.length ? `\n[${path}]\n` + scalars.map(([k, x]) => `${tomlKey(k)} = ${tomlVal(x)}`).join('\n') + '\n' : '';
+      for (const [k, x] of tables) s += emit(x, `${path}.${tomlKey(k)}`);
+      return s;
+    };
+    if (v.role && Object.keys(v.role).length) out += emit(v.role, 'role');
+    return out;
+  }
+
   return { hexRgb, rgbHex, oklab, oklch, oklchToHex, deltaE, hueDelta, luminance, contrast, apca,
-           simulateCvd, toGrey, deepMerge, resolve, prepare, role, measure, evaluate, auditVariant, auditFamily };
+           simulateCvd, toGrey, deepMerge, resolve, prepare, role, measure, evaluate, auditVariant, auditFamily,
+           diffEdits, applyEdits, toToml };
 })();
 
 if (typeof module !== 'undefined') module.exports = Engine;

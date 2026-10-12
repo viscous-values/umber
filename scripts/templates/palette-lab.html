@@ -62,7 +62,9 @@ main { padding-top: 18px; }
 .vconcept { font-size: 12px; color: var(--ink-2); min-height: 2.9em; }
 .vmeta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .chip { font: 11px var(--font-data); padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
-.chip.bad { color: var(--fail); } .chip.good { color: var(--pass); }
+.chip.bad { color: var(--fail); } .chip.good { color: var(--pass); } .chip.mod { color: var(--warn); }
+.chips { display: inline-flex; gap: 6px; }
+.modtxt, .notice { color: var(--warn); }
 .strip { display: flex; height: 14px; border-radius: 3px; overflow: hidden; }
 .strip i { flex: 1; }
 .strip i.gap { flex: 0 0 4px; background: transparent; }
@@ -161,6 +163,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
     <div class="mark">Umber <span>Palette Lab</span></div>
     <div class="score" id="score"></div>
   </div>
+  <div class="score notice" id="notice" hidden></div>
   <nav class="tabs" role="tablist" id="tabs">
     <button role="tab" id="tab-lineup" data-tab="lineup" aria-selected="true">Lineup</button>
     <button role="tab" id="tab-value" data-tab="value">Value</button>
@@ -224,7 +227,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   </section>
 
   <section class="panel" id="panel-tune" role="tabpanel" aria-labelledby="tab-tune" hidden>
-    <p class="intro">Adjust any pigment in OKLCH. Every view and the audit update live. Edits stay in this browser only; <b>Export TOML</b> gives you the tier tables to paste into the palette file.</p>
+    <p class="intro">Adjust any pigment in OKLCH. Every view and the audit update live. Edits stay in this browser only and drop away automatically when the palette file they were made against changes. <b>Export TOML</b> gives you a complete palette file: <code>[meta]</code>, every tier, and role overrides.</p>
     <div class="picker">
       <span class="lbl">Set</span><select id="tune-set"></select>
       <span class="lbl">Variant</span><select id="tune-variant"></select>
@@ -259,15 +262,36 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   const store = {
     get(k) { try { return JSON.parse(localStorage.getItem('umber-lab:' + k)); } catch { return null; } },
     set(k, v) { try { localStorage.setItem('umber-lab:' + k, JSON.stringify(v)); } catch { /* storage unavailable */ } },
+    remove(k) { try { localStorage.removeItem('umber-lab:' + k); } catch { /* storage unavailable */ } },
   };
 
   // Working copies of every set; originals kept for reset + parity.
   const ORIGINAL = structuredClone(DATA.sets);
   const SETS = structuredClone(DATA.sets);
+  // Local tuner edits: {"tier.key": {from, to}} per variant. An edit applies
+  // only while the embedded palette still holds `from`, so a regenerated draft
+  // is never hidden behind old local values.
+  const MODIFIED = {};
+  const NOTICES = [];
   for (const [setName, set] of Object.entries(SETS)) {
     for (const v of set.variants) {
-      const saved = store.get(`tiers:${setName}:${v.slug}`);
-      if (saved) v.tiers = saved;
+      const id = `${setName}:${v.slug}`;
+      let edits = store.get(`edits:${id}`);
+      const legacy = store.get(`tiers:${id}`);  // whole-tier saves from the first lab version
+      if (legacy) {
+        store.remove(`tiers:${id}`);
+        if (!edits) {
+          edits = E.diffEdits(v.tiers, legacy);
+          if (Object.keys(edits).length) NOTICES.push(`${v.name} (${set.label}): restored local edits from an earlier version of this page. Reset the variant in Tune to see the current palette.`);
+        }
+      }
+      if (!edits) continue;
+      const res = E.applyEdits(v.tiers, edits);
+      v.tiers = res.tiers;
+      if (res.stale.length) NOTICES.push(`${v.name} (${set.label}): ${res.stale.length} local edit(s) dropped because the palette file changed.`);
+      const kept = Object.fromEntries(res.applied.map(k => [k, edits[k]]));
+      if (res.applied.length) store.set(`edits:${id}`, kept); else store.remove(`edits:${id}`);
+      MODIFIED[id] = res.applied.length > 0;
     }
   }
   const hasDraft = 'draft' in SETS;
@@ -322,7 +346,11 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
       const n = setScore(s);
       return `${SETS[s].label}: <b class="${n ? 'bad' : 'good'}">${n}</b> failing`;
     });
-    $('#score').innerHTML = parts.join(' &nbsp;·&nbsp; ') + ' <span>(error-level checks, incl. cross-variant)</span>';
+    const mods = Object.values(MODIFIED).filter(Boolean).length;
+    $('#score').innerHTML = parts.join(' &nbsp;·&nbsp; ') + ' <span>(error-level checks, incl. cross-variant)</span>' +
+      (mods ? ` &nbsp;·&nbsp; <span class="modtxt">local edits on ${mods} variant${mods > 1 ? 's' : ''}</span>` : '');
+    $('#notice').innerHTML = NOTICES.map(esc).join('<br>');
+    $('#notice').hidden = !NOTICES.length;
   }
 
   // ------------------------------------------------------------ lineup mock
@@ -440,8 +468,9 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
         if (!e) return `<div class="setlabel">${SETS[setName].label}: not in this set</div>`;
         if (!e.pal) return `<div class="setlabel">${SETS[setName].label}: invalid — ${esc(e.err)}</div>`;
         const n = failing(auditOf(e.pal)).length;
+        const mod = MODIFIED[`${setName}:${slug}`] ? '<span class="chip mod">locally modified</span>' : '';
         return `<div class="vmeta"><span class="setlabel">${sets.length > 1 ? SETS[setName].label : esc(e.v.file)}</span>
-                  <span class="chip ${n ? 'bad' : 'good'}">${n ? n + ' failing' : 'all pass'}</span></div>
+                  <span class="chips">${mod}<span class="chip ${n ? 'bad' : 'good'}">${n ? n + ' failing' : 'all pass'}</span></span></div>
                 ${strip(e.pal)}${mock(e.pal)}`;
       }).join('');
       const first = sets.map(s => PREP[s].find(x => x.v.slug === slug)).find(Boolean);
@@ -695,32 +724,15 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   function setTier(tier, k, hex) {
     const v = tuneVariant();
     v.tiers[tier][k] = hex;
-    store.set(`tiers:${state.tuneSet}:${v.slug}`, v.tiers);
+    const id = `${state.tuneSet}:${v.slug}`;
+    const edits = E.diffEdits(ORIGINAL[state.tuneSet].variants.find(x => x.slug === v.slug).tiers, v.tiers);
+    if (Object.keys(edits).length) store.set(`edits:${id}`, edits); else store.remove(`edits:${id}`);
+    MODIFIED[id] = Object.keys(edits).length > 0;
     prepareAll();
     renderScore();
     renderTuneScore();
     $('#tune-note').textContent = '';
   }
-  function tomlKey(k) { return /^[A-Za-z_][\w-]*$/.test(k) ? k : `"${k}"`; }
-  function toToml(v) {
-    let out = `# ${v.name} — tiers exported from the Palette Lab\n`;
-    for (const [tier, colors] of Object.entries(v.tiers)) {
-      out += `\n[${tier}]\n` + Object.entries(colors).map(([k, hex]) => {
-        const [L, C, H] = E.oklch(hex);
-        return `${tomlKey(k).padEnd(18)} = "${hex}"   # L ${L.toFixed(3)} C ${C.toFixed(3)} h ${H.toFixed(0)}`;
-      }).join('\n') + '\n';
-    }
-    const emit = (obj, path) => {
-      const scalars = Object.entries(obj).filter(([, x]) => typeof x === 'string');
-      const tables = Object.entries(obj).filter(([, x]) => typeof x === 'object');
-      let s = scalars.length ? `\n[${path}]\n` + scalars.map(([k, x]) => `${tomlKey(k)} = "${x}"`).join('\n') + '\n' : '';
-      for (const [k, x] of tables) s += emit(x, `${path}.${tomlKey(k)}`);
-      return s;
-    };
-    if (v.role && Object.keys(v.role).length) out += emit(v.role, 'role');
-    return out;
-  }
-
   // ------------------------------------------------------------ wiring
   const RENDER = { lineup: renderLineup, value: renderValue, hue: renderHue, distance: renderDistance, audit: renderAudit, tune: renderTune };
   function renderActive() { RENDER[state.tab](); }
@@ -778,10 +790,10 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
     row.querySelector('.sw').style.background = paint(hex);
     setTier(tier, k, hex);
   });
-  $('#export').addEventListener('click', () => { $('#toml').value = toToml(tuneVariant()); });
+  $('#export').addEventListener('click', () => { $('#toml').value = E.toToml(tuneVariant()); });
   $('#copy').addEventListener('click', () => {
     const ta = $('#toml');
-    if (!ta.value) ta.value = toToml(tuneVariant());
+    if (!ta.value) ta.value = E.toToml(tuneVariant());
     navigator.clipboard.writeText(ta.value)
       .then(() => { $('#tune-note').textContent = 'Copied.'; })
       .catch(() => { ta.select(); $('#tune-note').textContent = 'Copy is blocked here. The text is selected; press Ctrl+C.'; });
@@ -790,7 +802,8 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
     const v = tuneVariant();
     v.tiers = structuredClone(ORIGINAL[state.tuneSet].variants.find(x => x.slug === v.slug).tiers);
     for (const k of Object.keys(LCH_CACHE)) if (k.startsWith(`${state.tuneSet}:${v.slug}:`)) delete LCH_CACHE[k];
-    store.set(`tiers:${state.tuneSet}:${v.slug}`, null);
+    store.remove(`edits:${state.tuneSet}:${v.slug}`);
+    MODIFIED[`${state.tuneSet}:${v.slug}`] = false;
     prepareAll(); renderScore(); renderTune();
     $('#tune-note').textContent = `${v.name} reset to ${SETS[state.tuneSet].label.toLowerCase()} values.`;
   });

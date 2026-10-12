@@ -44,6 +44,7 @@ def variant_entry(path):
         "file": str(path.relative_to(REPO)) if path.is_relative_to(REPO) else path.name,
         "description": meta.get("description", ""),
         "concept": meta.get("concept", ""),
+        "meta": meta,
         "tiers": {k: raw[k] for k in TIER_KEYS if k in raw},
         "role": raw.get("role", {}),
         "audit": {c.id: c.value for c in palette_audit.audit_variant(pal)},
