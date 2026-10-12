@@ -40,6 +40,10 @@ fg_strong    = "glow.3"   # brightest text: active foreground, url/popup text
 fg_on_accent = "hearth.0" # text on filled buttons, badges, status items
 cursor       = "glow.3"
 
+# Neutrals that do not come from a tier.
+bg_active_hover = "#555555"   # hover on bg_active: secondary button, scrollbar thumb
+shadow          = "#000000"   # drop shadows and scrims (alpha set in templates)
+
 # Identity + interaction.
 accent            = "accent.highlight"  # signature color: active tab line, panel title border
 interactive       = "mist.2"            # badges, progress, matches, info-ish fills
@@ -147,5 +151,16 @@ white        = "glow.1"
 bright_black = "glow.0"
 bright_blue  = "mist.3"
 bright_white = "glow.3"
-faint_black  = "hearth.1"
-faint_white  = "glow.0"
+bright_red     = "ansi.bright_red"
+bright_green   = "ansi.bright_green"
+bright_yellow  = "ansi.bright_yellow"
+bright_magenta = "ansi.bright_magenta"
+bright_cyan    = "ansi.bright_cyan"
+faint_black    = "hearth.1"
+faint_red      = "ansi.faint_red"
+faint_green    = "ansi.faint_green"
+faint_yellow   = "ansi.faint_yellow"
+faint_blue     = "ansi.faint_blue"
+faint_magenta  = "ansi.faint_magenta"
+faint_cyan     = "ansi.faint_cyan"
+faint_white    = "glow.0"

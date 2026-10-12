@@ -192,7 +192,7 @@
     "button.hoverBackground": "{{ role.button_hover }}",
     "button.secondaryBackground": "{{ role.bg_active }}",
     "button.secondaryForeground": "{{ role.fg }}",
-    "button.secondaryHoverBackground": "#555555",
+    "button.secondaryHoverBackground": "{{ role.bg_active_hover }}",
 
     "checkbox.background": "{{ role.bg }}",
     "checkbox.foreground": "{{ role.fg }}",
@@ -220,9 +220,9 @@
     "badge.background": "{{ role.interactive }}",
     "badge.foreground": "{{ role.fg_on_accent }}",
 
-    "scrollbar.shadow": "#00000080",
+    "scrollbar.shadow": "{{ role.shadow | rgba 80 }}",
     "scrollbarSlider.background": "{{ role.bg_active | rgba 66 }}",
-    "scrollbarSlider.hoverBackground": "#55555588",
+    "scrollbarSlider.hoverBackground": "{{ role.bg_active_hover | rgba 88 }}",
     "scrollbarSlider.activeBackground": "{{ role.fg_muted | rgba AA }}",
 
     "progressBar.background": "{{ role.interactive }}",
@@ -259,12 +259,12 @@
     "terminal.ansiCyan":          "{{ role.ansi.cyan }}",
     "terminal.ansiWhite":         "{{ role.ansi.white }}",
     "terminal.ansiBrightBlack":   "{{ role.ansi.bright_black }}",
-    "terminal.ansiBrightRed":     "#EB8590",
-    "terminal.ansiBrightGreen":   "#B5D690",
-    "terminal.ansiBrightYellow":  "#F0CF8E",
+    "terminal.ansiBrightRed":     "{{ role.ansi.bright_red }}",
+    "terminal.ansiBrightGreen":   "{{ role.ansi.bright_green }}",
+    "terminal.ansiBrightYellow":  "{{ role.ansi.bright_yellow }}",
     "terminal.ansiBrightBlue":    "{{ role.ansi.bright_blue }}",
-    "terminal.ansiBrightMagenta": "#D5A0C2",
-    "terminal.ansiBrightCyan":    "#9CC4C7",
+    "terminal.ansiBrightMagenta": "{{ role.ansi.bright_magenta }}",
+    "terminal.ansiBrightCyan":    "{{ role.ansi.bright_cyan }}",
     "terminal.ansiBrightWhite":   "{{ role.ansi.bright_white }}",
 
     "debugToolBar.background": "{{ role.bg_raised }}",

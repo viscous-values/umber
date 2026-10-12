@@ -60,6 +60,23 @@ class RolesTest(unittest.TestCase):
                     offenders.append(f"{tmpl.name}:{no} {key}")
         self.assertEqual(offenders, [], "templates must use role.* (tiers only in doc lines)")
 
+    def test_templates_have_no_color_literals(self):
+        # Plasma [ColorEffects:*] Color= values are effect parameters for
+        # effects that are switched off (ColorEffect=0 / Enable=false).
+        literal = re.compile(r"#[0-9A-Fa-f]{6}|Color=\d+,\d+,\d+")
+        offenders = []
+        for tmpl in sorted(TEMPLATES.glob("*.tmpl")):
+            section = None
+            for no, line in enumerate(tmpl.read_text().splitlines(), 1):
+                stripped = line.strip()
+                if stripped.startswith("["):
+                    section = stripped
+                if stripped.startswith(("#", "//")) or (section or "").startswith("[ColorEffects"):
+                    continue
+                if literal.search(line):
+                    offenders.append(f"{tmpl.name}:{no} {stripped}")
+        self.assertEqual(offenders, [], "colors belong in the palette or roles.toml")
+
     def test_rendered_consumers_match_templates(self):
         result = subprocess.run(
             [sys.executable, "-B", str(REPO / "scripts" / "render_palette.py"), "check"],
