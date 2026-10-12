@@ -164,121 +164,141 @@ class Check:
         return f"{self.value:.2f}:1" if self.group == "contrast" else f"{self.value:.3f}"
 
 
-def role(pal, key):
-    return palette_lib.resolve(pal, "role." + key)
+# A check spec is plain data so the Palette Lab (scripts/render_lab.py) can
+# evaluate the exact same list in the browser. Kinds:
+#   contrast  WCAG ratio of roles a and b
+#   dl        OKLab L(b) - L(a)                 (b should sit above a)
+#   de        OKLab ΔE(a, b)
+#   dh        hue angle between a and b, degrees
+#   cvd       ΔE(a, b) after simulating spec["cvd"] (protan / deutan / tritan)
+#   apca      |APCA Lc| of text a on background b
+def _spec(id, group, kind, a, b, threshold, op=">=", level="error", **extra):
+    return {"id": id, "group": group, "kind": kind, "a": a, "b": b,
+            "op": op, "threshold": threshold, "level": level, **extra}
 
 
-def _contrast(pal, fg, bg, minimum, level="error", group="contrast"):
-    return Check(f"contrast:{fg}/{bg}", group, contrast(role(pal, fg), role(pal, bg)), ">=", minimum, level)
-
-
-def _distinct(pal, prefix, a, b, minimum, level="error"):
-    return Check(f"{prefix}:{a}~{b}", "distinct", delta_e(role(pal, a), role(pal, b)), ">=", minimum, level)
-
-
-def audit_variant(pal):
+def check_specs():
     t = THRESHOLDS
-    checks = []
-    text = t["text_contrast"]
+    text, nontext = t["text_contrast"], t["nontext_contrast"]
+    specs = []
+
+    def contrast_spec(fg, bg, minimum=text, level="error"):
+        specs.append(_spec(f"contrast:{fg}/{bg}", "contrast", "contrast", fg, bg, minimum, level=level))
 
     # Text on the surfaces it is drawn on.
     for fg in ("fg", "fg_muted"):
         for bg in ("bg", "bg_panel", "bg_raised"):
-            checks.append(_contrast(pal, fg, bg, text))
-    checks += [
-        _contrast(pal, "fg_emphasis", "bg_active", text),
-        _contrast(pal, "fg_strong", "bg_raised", text),
-        _contrast(pal, "link", "bg_panel", text),
-        _contrast(pal, "link_visited", "bg_panel", text),
-        _contrast(pal, "fg_on_accent", "button_bg", text),
-        _contrast(pal, "fg_on_accent", "interactive", text),
-    ]
+            contrast_spec(fg, bg)
+    for fg, bg in (("fg_emphasis", "bg_active"), ("fg_strong", "bg_raised"), ("link", "bg_panel"),
+                   ("link_visited", "bg_panel"), ("fg_on_accent", "button_bg"), ("fg_on_accent", "interactive")):
+        contrast_spec(fg, bg)
     for status in ("error", "warning", "success", "info"):
-        checks.append(_contrast(pal, status, "bg_panel", text))
+        contrast_spec(status, "bg_panel")
     for syn in SYNTAX_SET:
-        checks.append(_contrast(pal, f"syntax.{syn}", "bg", text))
+        contrast_spec(f"syntax.{syn}", "bg")
     for key in ("fg", "fg_soft", "link", "visited", "negative", "neutral", "positive"):
-        checks.append(_contrast(pal, f"on_selection.{key}", "selection_bg", text))
-    checks.append(_contrast(pal, "on_selection.fg_inactive", "selection_bg", text, level="warn"))
+        contrast_spec(f"on_selection.{key}", "selection_bg")
+    contrast_spec("on_selection.fg_inactive", "selection_bg", level="warn")
     for ansi in ("red", "green", "yellow", "blue", "magenta", "cyan", "white"):
-        checks.append(_contrast(pal, f"ansi.{ansi}", "ansi.bg", text))
+        contrast_spec(f"ansi.{ansi}", "ansi.bg")
 
     # Non-text: focus indicators and control boundaries.
-    nontext = t["nontext_contrast"]
-    checks += [
-        _contrast(pal, "focus_ring", "bg", nontext),
-        _contrast(pal, "focus_ring", "bg_panel", nontext),
-        _contrast(pal, "decoration_focus", "bg_panel", nontext),
-        _contrast(pal, "border", "bg", nontext, level="warn"),
-    ]
+    contrast_spec("focus_ring", "bg", nontext)
+    contrast_spec("focus_ring", "bg_panel", nontext)
+    contrast_spec("decoration_focus", "bg_panel", nontext)
+    contrast_spec("border", "bg", nontext, level="warn")
 
     # Surfaces must read as separate planes.
     for pair, minimum in t["surface_step"].items():
         lo, hi = pair.split(">")
-        dl = oklch(role(pal, hi))[0] - oklch(role(pal, lo))[0]
-        checks.append(Check(f"surface:{pair}", "surface", dl, ">=", minimum))
+        specs.append(_spec(f"surface:{pair}", "surface", "dl", lo, hi, minimum))
 
     # Body text vs everything that has to read as "not body text".
     for other in ("link", "accent", "syntax.type", "syntax.keyword", "syntax.function",
                   "syntax.string", "syntax.number"):
         minimum = t["accent_vs_fg_de"] if other == "accent" else t["distinct_from_fg"]
-        checks.append(_distinct(pal, "distinct", "fg", other, minimum))
+        specs.append(_spec(f"distinct:fg~{other}", "distinct", "de", "fg", other, minimum))
 
     # Links.
-    checks.append(_distinct(pal, "link", "link", "link_visited", t["link_visited_de"]))
-    checks.append(Check("link-hue:link~link_visited", "distinct",
-                        hue_delta(role(pal, "link"), role(pal, "link_visited")), ">=", t["link_visited_dh"]))
+    specs.append(_spec("link:link~link_visited", "distinct", "de", "link", "link_visited", t["link_visited_de"]))
+    specs.append(_spec("link-hue:link~link_visited", "distinct", "dh", "link", "link_visited", t["link_visited_dh"]))
 
     # Syntax roles against each other.
     for a, b in itertools.combinations(SYNTAX_SET, 2):
-        c = _distinct(pal, "syntax", f"syntax.{a}", f"syntax.{b}", t["syntax_pair_de"])
-        c.id = f"syntax:{a}~{b}"
-        checks.append(c)
+        specs.append(_spec(f"syntax:{a}~{b}", "distinct", "de", f"syntax.{a}", f"syntax.{b}", t["syntax_pair_de"]))
 
     # Colors drawn on the selection must stay distinguishable from each other.
-    onsel = ["fg", "link", "visited", "negative", "neutral", "positive"]
-    for a, b in itertools.combinations(onsel, 2):
-        c = _distinct(pal, "onsel", f"on_selection.{a}", f"on_selection.{b}", t["onsel_pair_de"])
-        c.id = f"onsel:{a}~{b}"
-        checks.append(c)
-    checks.append(Check("selection-alt:selection_alt~selection_bg", "distinct",
-                        delta_e(role(pal, "selection_alt"), role(pal, "selection_bg")), "<=",
-                        t["selection_alt_de"], level="warn"))
+    for a, b in itertools.combinations(["fg", "link", "visited", "negative", "neutral", "positive"], 2):
+        specs.append(_spec(f"onsel:{a}~{b}", "distinct", "de", f"on_selection.{a}", f"on_selection.{b}",
+                           t["onsel_pair_de"]))
+    specs.append(_spec("selection-alt:selection_alt~selection_bg", "distinct", "de", "selection_alt",
+                       "selection_bg", t["selection_alt_de"], op="<=", level="warn"))
 
     # Comments recede below body text.
-    dl = oklch(role(pal, "fg"))[0] - oklch(role(pal, "syntax.comment"))[0]
-    checks.append(Check("comment-recedes", "distinct", dl, ">=", t["comment_recede_dl"]))
+    specs.append(_spec("comment-recedes", "distinct", "dl", "syntax.comment", "fg", t["comment_recede_dl"]))
 
     # Color-vision deficiency: semantic pairs must survive simulation.
     for kind in CVD_MATRICES:
         for a, b in (("error", "success"), ("diff_added", "diff_removed"), ("success", "warning")):
-            de = delta_e(simulate_cvd(role(pal, a), kind), simulate_cvd(role(pal, b), kind))
-            checks.append(Check(f"cvd-{kind}:{a}~{b}", "cvd", de, ">=", t["cvd_pair_de"]))
+            specs.append(_spec(f"cvd-{kind}:{a}~{b}", "cvd", "cvd", a, b, t["cvd_pair_de"], cvd=kind))
 
     # Terminal.
-    dl = oklch(role(pal, "ansi.black"))[0] - oklch(role(pal, "ansi.bg"))[0]
-    checks.append(Check("ansi:black/bg", "ansi", dl, ">=", t["ansi_black_dl"]))
-    checks.append(Check("ansi:blue~cyan", "ansi", delta_e(role(pal, "ansi.blue"), role(pal, "ansi.cyan")),
-                        ">=", t["ansi_blue_cyan_de"]))
+    specs.append(_spec("ansi:black/bg", "ansi", "dl", "ansi.bg", "ansi.black", t["ansi_black_dl"]))
+    specs.append(_spec("ansi:blue~cyan", "ansi", "de", "ansi.blue", "ansi.cyan", t["ansi_blue_cyan_de"]))
 
     # APCA readout for the two texts people read most (informational).
     for fg in ("fg", "syntax.comment"):
-        checks.append(Check(f"apca:{fg}/bg", "apca", abs(apca(role(pal, fg), role(pal, "bg"))), ">=", 0, "info"))
-    return checks
+        specs.append(_spec(f"apca:{fg}/bg", "apca", "apca", fg, "bg", 0, level="info"))
+    return specs
+
+
+def role(pal, key):
+    return palette_lib.resolve(pal, "role." + key)
+
+
+def measure(kind, a, b, cvd=None):
+    """Evaluate one spec kind on two hex colors."""
+    if kind == "contrast":
+        return contrast(a, b)
+    if kind == "dl":
+        return oklch(b)[0] - oklch(a)[0]
+    if kind == "de":
+        return delta_e(a, b)
+    if kind == "dh":
+        return hue_delta(a, b)
+    if kind == "cvd":
+        return delta_e(simulate_cvd(a, cvd), simulate_cvd(b, cvd))
+    if kind == "apca":
+        return abs(apca(a, b))
+    raise ValueError(f"unknown check kind {kind!r}")
+
+
+def evaluate(spec, pal):
+    value = measure(spec["kind"], role(pal, spec["a"]), role(pal, spec["b"]), spec.get("cvd"))
+    return Check(spec["id"], spec["group"], value, spec["op"], spec["threshold"], spec["level"])
+
+
+def audit_variant(pal):
+    return [evaluate(spec, pal) for spec in check_specs()]
+
+
+def family_specs():
+    """Cross-variant checks: role (or the fingerprint set) compared between two variants."""
+    t = THRESHOLDS
+    return [
+        {"id": "cross-ground", "roles": ["bg"], "threshold": t["cross_ground_de"]},
+        {"id": "cross-accent", "roles": ["accent"], "threshold": t["cross_accent_de"]},
+        {"id": "cross-fingerprint", "roles": FINGERPRINT, "threshold": t["cross_fingerprint"]},
+    ]
 
 
 def audit_family(pals):
     """Cross-variant identity checks. `pals` maps variant name -> prepared palette."""
-    t = THRESHOLDS
     checks = []
     for (na, a), (nb, b) in itertools.combinations(pals.items(), 2):
-        pair = f"{na}~{nb}"
-        checks.append(Check(f"cross-ground:{pair}", "cross", delta_e(role(a, "bg"), role(b, "bg")),
-                            ">=", t["cross_ground_de"]))
-        checks.append(Check(f"cross-accent:{pair}", "cross", delta_e(role(a, "accent"), role(b, "accent")),
-                            ">=", t["cross_accent_de"]))
-        fp = sum(delta_e(role(a, k), role(b, k)) for k in FINGERPRINT) / len(FINGERPRINT)
-        checks.append(Check(f"cross-fingerprint:{pair}", "cross", fp, ">=", t["cross_fingerprint"]))
+        for spec in family_specs():
+            value = sum(delta_e(role(a, k), role(b, k)) for k in spec["roles"]) / len(spec["roles"])
+            checks.append(Check(f"{spec['id']}:{na}~{nb}", "cross", value, ">=", spec["threshold"]))
     return checks
 
 

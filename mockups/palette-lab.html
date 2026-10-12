@@ -1,0 +1,1011 @@
+<title>Umber Palette Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@1,400;1,500&family=Noto+Sans:wght@400;600&family=Noto+Sans+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a viewing booth. Neutral (zero-chroma) surround so the chrome never
+   biases color judgment; an instrument bar on top; one panel per question
+   (lineup, value, hue, distance, audit, tune). Single dark look by design —
+   the booth grey is user-selectable because surround changes perception. */
+:root {
+  color-scheme: dark;
+  --booth: #262626;      /* N2.5 neutral surround */
+  --booth-raised: #303030;
+  --rule: #3C3C3C;
+  --ink: #E9E9E9;
+  --ink-2: #ABABAB;
+  --ink-3: #777777;
+  --fail: #EC6A6F;       /* lab semantics, not theme colors */
+  --warn: #D9A540;
+  --pass: #79C27C;
+  --font-ui: "IBM Plex Sans", "Noto Sans", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", "Noto Sans Mono", ui-monospace, monospace;
+  --font-name: "IBM Plex Serif", Georgia, serif;
+  --font-kde: "Noto Sans", "IBM Plex Sans", system-ui, sans-serif;
+  --font-kde-mono: "Noto Sans Mono", "IBM Plex Mono", ui-monospace, monospace;
+}
+body.booth-n1 { --booth: #0E0E0E; --booth-raised: #1A1A1A; --rule: #2E2E2E; }
+body.booth-n5 { --booth: #777777; --booth-raised: #6C6C6C; --rule: #8A8A8A; --ink: #111111; --ink-2: #262626; --ink-3: #3F3F3F; --fail: #8E1218; --warn: #6A4500; --pass: #1F5A22; }
+* { box-sizing: border-box; }
+body { background: var(--booth); color: var(--ink); font: 14px/1.45 var(--font-ui); padding-inline: 16px; padding-block: 0 48px; }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--booth); border-bottom: 1px solid var(--rule); padding-block: 12px 10px; display: grid; gap: 10px; }
+.bar-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+.mark { font-weight: 600; letter-spacing: 0.01em; }
+.mark span { color: var(--ink-3); font-weight: 400; }
+.score { font: 12px var(--font-data); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.score b { font-weight: 500; }
+.score .bad { color: var(--fail); }
+.score .good { color: var(--pass); }
+nav.tabs, .controls { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.seg button { background: none; border: 0; padding: 3px 10px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--booth); }
+.seg button:disabled { opacity: 0.35; cursor: not-allowed; }
+.lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
+nav.tabs button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 4px 2px; color: var(--ink-2); cursor: pointer; font-weight: 500; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+main { padding-top: 18px; }
+.panel[hidden] { display: none; }
+.intro { max-width: 70ch; color: var(--ink-2); margin: 0 0 16px; }
+.intro b { color: var(--ink); font-weight: 500; }
+
+/* ---------- lineup ---------- */
+.lineup { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 282px), 1fr)); gap: 28px 20px; align-items: start; }
+.vcard { min-width: 0; display: grid; gap: 8px; }
+.vhead { display: grid; gap: 2px; }
+.vname { font: italic 500 20px/1.15 var(--font-name); }
+.vconcept { font-size: 12px; color: var(--ink-2); min-height: 2.9em; }
+.vmeta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.chip { font: 11px var(--font-data); padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.chip.bad { color: var(--fail); } .chip.good { color: var(--pass); }
+.strip { display: flex; height: 14px; border-radius: 3px; overflow: hidden; }
+.strip i { flex: 1; }
+.strip i.gap { flex: 0 0 4px; background: transparent; }
+.setlabel { font: 11px var(--font-data); color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+/* the mock desktop: every color comes from inline styles set by JS */
+.mock { font: 11px/1.5 var(--font-kde); border-radius: 6px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
+.mock .row { display: flex; align-items: center; gap: 8px; padding: 0 8px; min-height: 21px; }
+.mock .titlebar { justify-content: space-between; font-weight: 600; min-height: 26px; }
+.mock .dots { display: flex; gap: 6px; } .mock .dots i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.mock .split { display: grid; grid-template-columns: 34% 1fr; }
+.mock .side { padding: 6px 4px; display: grid; gap: 1px; align-content: start; }
+.mock .side .cap { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 6px 2px; }
+.mock .side .it { padding: 1px 6px; border-radius: 3px; border: 1px solid transparent; }
+.mock .files .row { justify-content: space-between; min-height: 19px; }
+.mock .files .row span:last-child { font-variant-numeric: tabular-nums; }
+.mock .onsel { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 4px 8px; }
+.mock .controls { display: flex; flex-wrap: wrap; gap: 6px 8px; padding: 8px; align-items: center; }
+.mock .btn { padding: 2px 10px; border-radius: 3px; border: 1px solid; }
+.mock .field { padding: 2px 6px; border-radius: 3px; border: 1px solid; min-width: 90px; }
+.mock .tip { padding: 2px 6px; border-radius: 3px; border: 1px solid; font-size: 10.5px; }
+.mock a { text-decoration: underline; text-underline-offset: 2px; }
+.mock .status { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 0 8px 8px; }
+.mock .tabsrow { display: flex; font-size: 10.5px; }
+.mock .tab { padding: 4px 10px 3px; border-top: 2px solid transparent; }
+.mock pre { margin: 0; font: 10.5px/1.6 var(--font-kde-mono); overflow-x: auto; }
+.mock .code { display: grid; grid-template-columns: 2.6em 1fr; }
+.mock .gut { text-align: right; padding-right: 8px; user-select: none; }
+.mock .ln { display: block; padding-left: 4px; white-space: pre; }
+.mock .sbar { display: flex; justify-content: space-between; font-size: 10px; min-height: 18px; padding: 0 0 0 8px; }
+.mock .sbar .rem { padding: 0 8px; display: flex; align-items: center; }
+.mock .term { padding: 6px 8px; font: 10.5px/1.55 var(--font-kde-mono); white-space: pre-wrap; word-break: break-all; }
+.mock .ansi { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; padding: 0 8px 8px; }
+.mock .ansi i { height: 9px; display: block; border-radius: 1px; }
+
+/* ---------- value ---------- */
+.ladders { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 24px 20px; }
+.ladder svg { width: 100%; height: auto; display: block; }
+.ladder text { font: 10px var(--font-data); fill: var(--ink-2); }
+.ladder .axis { stroke: var(--rule); }
+.ladder .lane { fill: var(--ink); opacity: 0.06; }
+.ladder .dead { fill: url(#hatch); }
+.ladder .lanelbl { fill: var(--ink-3); font-size: 9px; }
+
+/* ---------- hue ---------- */
+.wheels { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 24px 20px; }
+.wheel svg { width: 100%; height: auto; display: block; }
+.wheel text { font: 9.5px var(--font-data); fill: var(--ink-2); }
+.wheel .ring { fill: none; stroke: var(--rule); }
+.wheel .spoke { stroke: var(--rule); stroke-dasharray: 2 3; }
+
+/* ---------- distance / audit tables ---------- */
+.scroll { overflow-x: auto; max-width: 100%; }
+table.grid { border-collapse: collapse; font: 11px var(--font-data); font-variant-numeric: tabular-nums; }
+table.grid th, table.grid td { padding: 3px 6px; text-align: right; white-space: nowrap; }
+table.grid th { color: var(--ink-3); font-weight: 400; }
+table.grid thead th { text-align: center; vertical-align: bottom; }
+table.grid tbody th { text-align: left; }
+table.grid td.f { color: var(--fail); font-weight: 500; }
+table.grid td.w { color: var(--warn); }
+table.grid td.d { color: var(--ink-3); }
+.swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; }
+.picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+select { background: var(--booth-raised); border: 1px solid var(--rule); border-radius: 4px; padding: 2px 6px; }
+h2 { font: 600 13px var(--font-ui); letter-spacing: 0.02em; margin: 26px 0 8px; }
+h2:first-child { margin-top: 0; }
+.audit { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 24px 24px; align-items: start; }
+.audit table { width: 100%; }
+.audit td:nth-child(3), .audit th:nth-child(3) { text-align: left; }
+.mk { font-weight: 600; }
+.mk.f { color: var(--fail); } .mk.w { color: var(--warn); } .mk.p { color: var(--pass); }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--ink-2); text-decoration: underline; cursor: pointer; font-size: 12px; }
+
+/* ---------- tune ---------- */
+.tune { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .tune { grid-template-columns: 1fr; } }
+.tiers { display: grid; gap: 18px; }
+.tier h3 { font: 500 12px var(--font-data); color: var(--ink-2); margin: 0 0 6px; }
+.trow { display: grid; grid-template-columns: 28px 74px 78px repeat(3, minmax(60px, 1fr)); gap: 8px; align-items: center; font: 11px var(--font-data); padding: 2px 0; }
+.trow .sw { width: 28px; height: 20px; border-radius: 3px; border: 1px solid var(--rule); }
+.trow input[type="text"] { width: 74px; background: var(--booth-raised); border: 1px solid var(--rule); border-radius: 3px; padding: 1px 4px; font: 11px var(--font-data); }
+.trow input[type="range"] { width: 100%; accent-color: var(--ink-2); }
+.trow .oog { color: var(--warn); }
+.trow label { display: grid; gap: 0; color: var(--ink-3); font-size: 9.5px; }
+@media (max-width: 560px) { .trow { grid-template-columns: 28px 1fr 1fr; } .trow label { grid-column: span 1; } }
+.side-tools { position: sticky; top: 130px; display: grid; gap: 12px; }
+textarea { width: 100%; min-height: 260px; background: var(--booth-raised); border: 1px solid var(--rule); border-radius: 4px; color: var(--ink); font: 11px/1.45 var(--font-data); padding: 8px; resize: vertical; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.action { background: var(--booth-raised); border: 1px solid var(--rule); border-radius: 4px; padding: 3px 12px; cursor: pointer; }
+.note { font-size: 12px; color: var(--ink-3); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="bar">
+  <div class="bar-top">
+    <div class="mark">Umber <span>Palette Lab</span></div>
+    <div class="score" id="score"></div>
+  </div>
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" id="tab-lineup" data-tab="lineup" aria-selected="true">Lineup</button>
+    <button role="tab" id="tab-value" data-tab="value">Value</button>
+    <button role="tab" id="tab-hue" data-tab="hue">Hue</button>
+    <button role="tab" id="tab-distance" data-tab="distance">Distance</button>
+    <button role="tab" id="tab-audit" data-tab="audit">Audit</button>
+    <button role="tab" id="tab-tune" data-tab="tune">Tune</button>
+  </nav>
+  <div class="controls">
+    <span class="lbl">Set</span>
+    <span class="seg" id="ctl-set">
+      <button id="set-current" data-v="current" aria-pressed="true">Current</button>
+      <button id="set-draft" data-v="draft" aria-pressed="false">Draft</button>
+      <button id="set-split" data-v="split" aria-pressed="false">Both</button>
+    </span>
+    <span class="lbl">See</span>
+    <span class="seg" id="ctl-vision">
+      <button id="vis-color" data-v="color" aria-pressed="true">Color</button>
+      <button id="vis-value" data-v="value" aria-pressed="false" title="OKLab lightness only">Value</button>
+      <button id="vis-protan" data-v="protan" aria-pressed="false">Protan</button>
+      <button id="vis-deutan" data-v="deutan" aria-pressed="false">Deutan</button>
+      <button id="vis-tritan" data-v="tritan" aria-pressed="false">Tritan</button>
+    </span>
+    <span class="lbl">Booth</span>
+    <span class="seg" id="ctl-booth">
+      <button id="booth-n1" data-v="n1" aria-pressed="false" title="Near-black surround">N1</button>
+      <button id="booth-n25" data-v="n25" aria-pressed="true" title="Dark neutral surround">N2.5</button>
+      <button id="booth-n5" data-v="n5" aria-pressed="false" title="Mid-grey surround">N5</button>
+    </span>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="panel-lineup" role="tabpanel" aria-labelledby="tab-lineup">
+    <p class="intro">Each variant as it renders in Plasma (window, Dolphin list, selection), VSCode (editor, tabs, status bar) and Konsole. Every color is a <b>resolved role</b> from <code>roles.toml</code>, the same values the templates write. Switch <b>See → Value</b> to strip hue: if two roles merge in grey, only hue is holding them apart.</p>
+    <div class="lineup" id="lineup"></div>
+  </section>
+
+  <section class="panel" id="panel-value" role="tabpanel" aria-labelledby="tab-value" hidden>
+    <p class="intro">OKLab lightness of every surface (left) and text role (right). The shaded band is where text clears <b>4.5:1</b> on the editor background. The hatched band is the <b>selection dead zone</b>: a selection background there can't carry either dark or light text at 4.5:1.</p>
+    <div class="ladders" id="ladders"></div>
+  </section>
+
+  <section class="panel" id="panel-hue" role="tabpanel" aria-labelledby="tab-hue" hidden>
+    <p class="intro">Hue angle and chroma (distance from center) of the signal roles. Rings mark chroma 0.04 / 0.08 / 0.12 / 0.16. The last wheel overlays every variant's <b>accent</b> (circles) and <b>ground</b> (squares, chroma ×5 so the tint is visible).</p>
+    <div class="wheels" id="wheels"></div>
+  </section>
+
+  <section class="panel" id="panel-distance" role="tabpanel" aria-labelledby="tab-distance" hidden>
+    <p class="intro">ΔE in OKLab between roles. About <b>0.02</b> is the smallest difference most people notice side by side; roles that must read differently need far more. Red cells are below the audit threshold for that pair.</p>
+    <div class="picker"><span class="lbl">Variant</span><select id="dist-variant"></select></div>
+    <div class="scroll" id="dist-matrix"></div>
+    <h2>Between variants</h2>
+    <div class="scroll" id="dist-cross"></div>
+  </section>
+
+  <section class="panel" id="panel-audit" role="tabpanel" aria-labelledby="tab-audit" hidden>
+    <p class="intro">The same checks <code>scripts/palette_audit.py</code> runs, evaluated live. <b>!!</b> error-level (WCAG AA or a separation the redesign exists for), <b>~~</b> advisory.</p>
+    <div class="picker"><button class="linkbtn" id="toggle-passing" aria-pressed="false">Show passing checks</button></div>
+    <div class="audit" id="audit"></div>
+  </section>
+
+  <section class="panel" id="panel-tune" role="tabpanel" aria-labelledby="tab-tune" hidden>
+    <p class="intro">Adjust any pigment in OKLCH. Every view and the audit update live. Edits stay in this browser only; <b>Export TOML</b> gives you the tier tables to paste into the palette file.</p>
+    <div class="picker">
+      <span class="lbl">Set</span><select id="tune-set"></select>
+      <span class="lbl">Variant</span><select id="tune-variant"></select>
+    </div>
+    <div class="tune">
+      <div class="tiers" id="tiers"></div>
+      <div class="side-tools">
+        <div class="score" id="tune-score"></div>
+        <div class="btnrow">
+          <button class="action" id="export">Export TOML</button>
+          <button class="action" id="copy">Copy</button>
+          <button class="action" id="reset">Reset variant</button>
+        </div>
+        <textarea id="toml" aria-label="Exported TOML" spellcheck="false" readonly></textarea>
+        <p class="note" id="tune-note"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+// Umber Palette Lab — color engine.
+//
+// A line-for-line port of scripts/palette_lib.py (role merge + resolve) and
+// scripts/palette_audit.py (color math + check evaluation), so the lab can
+// re-audit live while you tune. tests/test_palette_lab.py runs this file
+// under node and requires it to match the Python numbers for every check.
+// render_lab.py inlines it into mockups/palette-lab.html.
+
+const Engine = (() => {
+  const HEX_RE = /^#[0-9A-F]{6}$/;
+
+  // ------------------------------------------------------------ color math
+  function hexRgb(h) {
+    const s = h.replace('#', '');
+    return [0, 2, 4].map(i => parseInt(s.slice(i, i + 2), 16));
+  }
+  function rgbHex(rgb) {
+    return '#' + rgb.map(c => Math.max(0, Math.min(255, Math.round(c)))
+      .toString(16).toUpperCase().padStart(2, '0')).join('');
+  }
+  function toLinear(c8) {
+    const c = c8 / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  }
+  function toSrgb8(lin) {
+    lin = Math.max(0, Math.min(1, lin));
+    const c = lin <= 0.0031308 ? 12.92 * lin : 1.055 * lin ** (1 / 2.4) - 0.055;
+    return c * 255;
+  }
+  function oklab(h) {
+    const [r, g, b] = hexRgb(h).map(toLinear);
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+    const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+    const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+    return [
+      0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+      1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+      0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s,
+    ];
+  }
+  function oklch(h) {
+    const [L, a, b] = oklab(h);
+    const hue = ((Math.atan2(b, a) * 180 / Math.PI) % 360 + 360) % 360;
+    return [L, Math.hypot(a, b), hue];
+  }
+  // OKLCH -> hex, clipping to sRGB. inGamut is false when clipping moved a channel.
+  function oklchToHex(L, C, h) {
+    const a = C * Math.cos(h * Math.PI / 180), b = C * Math.sin(h * Math.PI / 180);
+    const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+    const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+    const s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
+    const lin = [
+      4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+      -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
+    ];
+    const inGamut = lin.every(c => c >= -0.001 && c <= 1.001);
+    return { hex: rgbHex(lin.map(toSrgb8)), inGamut };
+  }
+  function deltaE(x, y) {
+    const [a, b] = [oklab(x), oklab(y)];
+    return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  }
+  function hueDelta(x, y) {
+    const d = Math.abs(oklch(x)[2] - oklch(y)[2]) % 360;
+    return Math.min(d, 360 - d);
+  }
+  function luminance(h) {
+    const [r, g, b] = hexRgb(h).map(toLinear);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+  function contrast(x, y) {
+    const [hi, lo] = [luminance(x), luminance(y)].sort((p, q) => q - p);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+  function apca(text, bg) {
+    const y = h => {
+      const [r, g, b] = hexRgb(h).map(c => (c / 255) ** 2.4);
+      const v = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b;
+      return v < 0.022 ? v + (0.022 - v) ** 1.414 : v;
+    };
+    const yt = y(text), yb = y(bg);
+    if (Math.abs(yb - yt) < 0.0005) return 0;
+    if (yb > yt) {
+      const sapc = (yb ** 0.56 - yt ** 0.57) * 1.14;
+      return sapc < 0.1 ? 0 : (sapc - 0.027) * 100;
+    }
+    const sapc = (yb ** 0.65 - yt ** 0.62) * 1.14;
+    return sapc > -0.1 ? 0 : (sapc + 0.027) * 100;
+  }
+  // Machado, Oliveira & Fernandes 2009, severity 1.0, applied in linear RGB.
+  const CVD = {
+    protan: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+    deutan: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]],
+    tritan: [[1.255528, -0.076749, -0.178779], [-0.078411, 0.930809, 0.147602], [0.004733, 0.691367, 0.303900]],
+  };
+  function simulateCvd(h, kind) {
+    const lin = hexRgb(h).map(toLinear);
+    return rgbHex(CVD[kind].map(row => toSrgb8(row[0] * lin[0] + row[1] * lin[1] + row[2] * lin[2])));
+  }
+  // Grey of equal OKLab lightness — the "value only" view.
+  function toGrey(h) {
+    return oklchToHex(oklch(h)[0], 0, 0).hex;
+  }
+
+  // ------------------------------------------------------------ roles
+  const isTable = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+  function deepMerge(defaults, overrides, path = 'role') {
+    const merged = structuredClone(defaults);
+    for (const [key, val] of Object.entries(overrides || {})) {
+      const where = `${path}.${key}`;
+      if (!(key in merged)) throw new Error(`unknown role override: ${where}`);
+      if (isTable(merged[key]) !== isTable(val)) throw new Error(`role override ${where}: table/value mismatch`);
+      merged[key] = isTable(val) ? deepMerge(merged[key], val, where) : val;
+    }
+    return merged;
+  }
+  function resolve(pal, key, chain = []) {
+    if (chain.includes(key)) throw new Error('role cycle: ' + [...chain, key].join(' -> '));
+    let val = pal;
+    for (const part of key.split('.')) {
+      if (!isTable(val) || !(part in val)) throw new Error('unresolvable key: ' + [...chain, key].join(' -> '));
+      val = val[part];
+    }
+    if (key.startsWith('var.')) return val;
+    if (typeof val !== 'string') throw new Error(`${key} is a table, not a color`);
+    if (val.startsWith('#')) {
+      if (!HEX_RE.test(val)) throw new Error(`${key} = '${val}': colors must be uppercase #RRGGBB`);
+      return val;
+    }
+    return resolve(pal, val, [...chain, key]);
+  }
+  function resolveTree(pal, table, prefix) {
+    for (const [key, val] of Object.entries(table)) {
+      const full = `${prefix}.${key}`;
+      if (isTable(val)) resolveTree(pal, val, full);
+      else table[key] = resolve(pal, full);
+    }
+  }
+  // variant: {tiers: {hearth: {...}, ...}, role: {overrides}}; roles: roles.toml [role] tree.
+  function prepare(variant, roles) {
+    const pal = structuredClone(variant.tiers);
+    pal.role = deepMerge(roles, variant.role || {});
+    resolveTree(pal, pal.role, 'role');
+    return pal;
+  }
+  const role = (pal, key) => resolve(pal, 'role.' + key);
+
+  // ------------------------------------------------------------ checks
+  function measure(kind, a, b, cvd) {
+    switch (kind) {
+      case 'contrast': return contrast(a, b);
+      case 'dl': return oklch(b)[0] - oklch(a)[0];
+      case 'de': return deltaE(a, b);
+      case 'dh': return hueDelta(a, b);
+      case 'cvd': return deltaE(simulateCvd(a, cvd), simulateCvd(b, cvd));
+      case 'apca': return Math.abs(apca(a, b));
+      default: throw new Error(`unknown check kind ${kind}`);
+    }
+  }
+  const passes = (value, op, threshold) => (op === '>=' ? value >= threshold : value <= threshold);
+  function evaluate(spec, pal) {
+    const value = measure(spec.kind, role(pal, spec.a), role(pal, spec.b), spec.cvd);
+    return { ...spec, value, ok: passes(value, spec.op, spec.threshold) };
+  }
+  function auditVariant(pal, specs) {
+    return specs.map(s => evaluate(s, pal));
+  }
+  // entries: [{slug, pal}]; familySpecs from palette_audit.family_specs().
+  function auditFamily(entries, familySpecs) {
+    const out = [];
+    for (let i = 0; i < entries.length; i++) {
+      for (let j = i + 1; j < entries.length; j++) {
+        const [A, B] = [entries[i], entries[j]];
+        for (const spec of familySpecs) {
+          const value = spec.roles.reduce((sum, k) => sum + deltaE(role(A.pal, k), role(B.pal, k)), 0) / spec.roles.length;
+          out.push({ id: `${spec.id}:${A.slug}~${B.slug}`, group: 'cross', kind: 'de', a: A.slug, b: B.slug,
+                     op: '>=', threshold: spec.threshold, level: 'error', value, ok: value >= spec.threshold });
+        }
+      }
+    }
+    return out;
+  }
+
+  return { hexRgb, rgbHex, oklab, oklch, oklchToHex, deltaE, hueDelta, luminance, contrast, apca,
+           simulateCvd, toGrey, deepMerge, resolve, prepare, role, measure, evaluate, auditVariant, auditFamily };
+})();
+
+if (typeof module !== 'undefined') module.exports = Engine;
+
+</script>
+<script>
+const DATA = {"roles":{"bg":"hearth.0","bg_panel":"hearth.1","bg_raised":"hearth.2","bg_active":"hearth.3","bg_overlay":"hearth.3","line_highlight":"role.bg_panel","border":"hearth.3","divider":"hearth.1","separator":"hearth.2","fg":"glow.1","fg_muted":"glow.0","fg_emphasis":"glow.2","fg_strong":"glow.3","fg_on_accent":"hearth.0","cursor":"glow.3","bg_active_hover":"#555555","shadow":"#000000","accent":"accent.highlight","interactive":"mist.2","interactive_hover":"mist.3","button_bg":"role.interactive","button_hover":"role.interactive_hover","focus_ring":"role.interactive","decoration_focus":"glow.3","decoration_hover":"glow.3","link":"glow.2","link_visited":"spark.violet","selection_bg":"role.accent","selection_alt":"spark.amber","error":"spark.red","warning":"spark.amber","success":"spark.green","info":"mist.2","hint":"mist.3","debug":"spark.orange","attention":"spark.amber","brand":"spark.amber","diff_added":"spark.green","diff_removed":"spark.red","diff_modified":"spark.amber","on_selection":{"fg":"accent.highlight_text","fg_soft":"hearth.1","fg_inactive":"hearth.3","decoration":"hearth.1","link":"accent.highlight_link","visited":"accent.highlight_visited","negative":"accent.highlight_negative","neutral":"accent.highlight_neutral","positive":"accent.highlight_positive"},"syntax":{"comment":"mist.3","keyword":"spark.violet","storage":"role.syntax.keyword","builtin":"role.syntax.keyword","macro":"role.syntax.keyword","operator":"glow.0","punctuation":"role.syntax.operator","function":"mist.2","namespace":"role.syntax.function","type":"spark.amber","class":"role.syntax.type","decorator":"role.syntax.type","attribute":"role.syntax.type","string":"spark.green","number":"spark.orange","constant":"role.syntax.number","escape":"role.syntax.number","regex":"mist.1","variable":"role.fg","parameter":"role.syntax.variable","property":"role.syntax.variable","key":"mist.2","tag":"spark.red","heading":"role.syntax.keyword","emphasis":"role.fg_emphasis","markup_link":"mist.2","markup_code":"role.syntax.string","markup_list":"role.syntax.number","quote":"role.syntax.comment","invalid":"role.error","deprecated":"role.fg_muted"},"bracket":{"1":"role.fg","2":"role.syntax.function","3":"role.syntax.keyword","4":"role.syntax.string","5":"role.syntax.type","6":"role.syntax.regex"},"ansi":{"bg":"role.bg","fg":"role.fg","fg_faint":"role.fg_muted","fg_intense":"role.fg_strong","cursor":"role.cursor","black":"hearth.1","red":"spark.red","green":"spark.green","yellow":"spark.amber","blue":"mist.2","magenta":"spark.violet","cyan":"mist.1","white":"glow.1","bright_black":"glow.0","bright_blue":"mist.3","bright_white":"glow.3","bright_red":"ansi.bright_red","bright_green":"ansi.bright_green","bright_yellow":"ansi.bright_yellow","bright_magenta":"ansi.bright_magenta","bright_cyan":"ansi.bright_cyan","faint_black":"hearth.1","faint_red":"ansi.faint_red","faint_green":"ansi.faint_green","faint_yellow":"ansi.faint_yellow","faint_blue":"ansi.faint_blue","faint_magenta":"ansi.faint_magenta","faint_cyan":"ansi.faint_cyan","faint_white":"glow.0"}},"specs":[{"id":"contrast:fg/bg","group":"contrast","kind":"contrast","a":"fg","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg/bg_panel","group":"contrast","kind":"contrast","a":"fg","b":"bg_panel","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg/bg_raised","group":"contrast","kind":"contrast","a":"fg","b":"bg_raised","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg_muted/bg","group":"contrast","kind":"contrast","a":"fg_muted","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg_muted/bg_panel","group":"contrast","kind":"contrast","a":"fg_muted","b":"bg_panel","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg_muted/bg_raised","group":"contrast","kind":"contrast","a":"fg_muted","b":"bg_raised","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg_emphasis/bg_active","group":"contrast","kind":"contrast","a":"fg_emphasis","b":"bg_active","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg_strong/bg_raised","group":"contrast","kind":"contrast","a":"fg_strong","b":"bg_raised","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:link/bg_panel","group":"contrast","kind":"contrast","a":"link","b":"bg_panel","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:link_visited/bg_panel","group":"contrast","kind":"contrast","a":"link_visited","b":"bg_panel","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg_on_accent/button_bg","group":"contrast","kind":"contrast","a":"fg_on_accent","b":"button_bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:fg_on_accent/interactive","group":"contrast","kind":"contrast","a":"fg_on_accent","b":"interactive","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:error/bg_panel","group":"contrast","kind":"contrast","a":"error","b":"bg_panel","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:warning/bg_panel","group":"contrast","kind":"contrast","a":"warning","b":"bg_panel","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:success/bg_panel","group":"contrast","kind":"contrast","a":"success","b":"bg_panel","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:info/bg_panel","group":"contrast","kind":"contrast","a":"info","b":"bg_panel","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.variable/bg","group":"contrast","kind":"contrast","a":"syntax.variable","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.operator/bg","group":"contrast","kind":"contrast","a":"syntax.operator","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.comment/bg","group":"contrast","kind":"contrast","a":"syntax.comment","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.keyword/bg","group":"contrast","kind":"contrast","a":"syntax.keyword","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.function/bg","group":"contrast","kind":"contrast","a":"syntax.function","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.type/bg","group":"contrast","kind":"contrast","a":"syntax.type","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.string/bg","group":"contrast","kind":"contrast","a":"syntax.string","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.number/bg","group":"contrast","kind":"contrast","a":"syntax.number","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.regex/bg","group":"contrast","kind":"contrast","a":"syntax.regex","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:syntax.tag/bg","group":"contrast","kind":"contrast","a":"syntax.tag","b":"bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:on_selection.fg/selection_bg","group":"contrast","kind":"contrast","a":"on_selection.fg","b":"selection_bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:on_selection.fg_soft/selection_bg","group":"contrast","kind":"contrast","a":"on_selection.fg_soft","b":"selection_bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:on_selection.link/selection_bg","group":"contrast","kind":"contrast","a":"on_selection.link","b":"selection_bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:on_selection.visited/selection_bg","group":"contrast","kind":"contrast","a":"on_selection.visited","b":"selection_bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:on_selection.negative/selection_bg","group":"contrast","kind":"contrast","a":"on_selection.negative","b":"selection_bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:on_selection.neutral/selection_bg","group":"contrast","kind":"contrast","a":"on_selection.neutral","b":"selection_bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:on_selection.positive/selection_bg","group":"contrast","kind":"contrast","a":"on_selection.positive","b":"selection_bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:on_selection.fg_inactive/selection_bg","group":"contrast","kind":"contrast","a":"on_selection.fg_inactive","b":"selection_bg","op":">=","threshold":4.5,"level":"warn"},{"id":"contrast:ansi.red/ansi.bg","group":"contrast","kind":"contrast","a":"ansi.red","b":"ansi.bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:ansi.green/ansi.bg","group":"contrast","kind":"contrast","a":"ansi.green","b":"ansi.bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:ansi.yellow/ansi.bg","group":"contrast","kind":"contrast","a":"ansi.yellow","b":"ansi.bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:ansi.blue/ansi.bg","group":"contrast","kind":"contrast","a":"ansi.blue","b":"ansi.bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:ansi.magenta/ansi.bg","group":"contrast","kind":"contrast","a":"ansi.magenta","b":"ansi.bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:ansi.cyan/ansi.bg","group":"contrast","kind":"contrast","a":"ansi.cyan","b":"ansi.bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:ansi.white/ansi.bg","group":"contrast","kind":"contrast","a":"ansi.white","b":"ansi.bg","op":">=","threshold":4.5,"level":"error"},{"id":"contrast:focus_ring/bg","group":"contrast","kind":"contrast","a":"focus_ring","b":"bg","op":">=","threshold":3.0,"level":"error"},{"id":"contrast:focus_ring/bg_panel","group":"contrast","kind":"contrast","a":"focus_ring","b":"bg_panel","op":">=","threshold":3.0,"level":"error"},{"id":"contrast:decoration_focus/bg_panel","group":"contrast","kind":"contrast","a":"decoration_focus","b":"bg_panel","op":">=","threshold":3.0,"level":"error"},{"id":"contrast:border/bg","group":"contrast","kind":"contrast","a":"border","b":"bg","op":">=","threshold":3.0,"level":"warn"},{"id":"surface:bg>bg_panel","group":"surface","kind":"dl","a":"bg","b":"bg_panel","op":">=","threshold":0.03,"level":"error"},{"id":"surface:bg_panel>bg_raised","group":"surface","kind":"dl","a":"bg_panel","b":"bg_raised","op":">=","threshold":0.035,"level":"error"},{"id":"surface:bg_raised>bg_active","group":"surface","kind":"dl","a":"bg_raised","b":"bg_active","op":">=","threshold":0.06,"level":"error"},{"id":"distinct:fg~link","group":"distinct","kind":"de","a":"fg","b":"link","op":">=","threshold":0.08,"level":"error"},{"id":"distinct:fg~accent","group":"distinct","kind":"de","a":"fg","b":"accent","op":">=","threshold":0.1,"level":"error"},{"id":"distinct:fg~syntax.type","group":"distinct","kind":"de","a":"fg","b":"syntax.type","op":">=","threshold":0.08,"level":"error"},{"id":"distinct:fg~syntax.keyword","group":"distinct","kind":"de","a":"fg","b":"syntax.keyword","op":">=","threshold":0.08,"level":"error"},{"id":"distinct:fg~syntax.function","group":"distinct","kind":"de","a":"fg","b":"syntax.function","op":">=","threshold":0.08,"level":"error"},{"id":"distinct:fg~syntax.string","group":"distinct","kind":"de","a":"fg","b":"syntax.string","op":">=","threshold":0.08,"level":"error"},{"id":"distinct:fg~syntax.number","group":"distinct","kind":"de","a":"fg","b":"syntax.number","op":">=","threshold":0.08,"level":"error"},{"id":"link:link~link_visited","group":"distinct","kind":"de","a":"link","b":"link_visited","op":">=","threshold":0.1,"level":"error"},{"id":"link-hue:link~link_visited","group":"distinct","kind":"dh","a":"link","b":"link_visited","op":">=","threshold":45.0,"level":"error"},{"id":"syntax:variable~operator","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.operator","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:variable~comment","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.comment","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:variable~keyword","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.keyword","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:variable~function","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.function","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:variable~type","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.type","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:variable~string","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.string","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:variable~number","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.number","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:variable~regex","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.regex","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:variable~tag","group":"distinct","kind":"de","a":"syntax.variable","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:operator~comment","group":"distinct","kind":"de","a":"syntax.operator","b":"syntax.comment","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:operator~keyword","group":"distinct","kind":"de","a":"syntax.operator","b":"syntax.keyword","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:operator~function","group":"distinct","kind":"de","a":"syntax.operator","b":"syntax.function","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:operator~type","group":"distinct","kind":"de","a":"syntax.operator","b":"syntax.type","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:operator~string","group":"distinct","kind":"de","a":"syntax.operator","b":"syntax.string","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:operator~number","group":"distinct","kind":"de","a":"syntax.operator","b":"syntax.number","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:operator~regex","group":"distinct","kind":"de","a":"syntax.operator","b":"syntax.regex","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:operator~tag","group":"distinct","kind":"de","a":"syntax.operator","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:comment~keyword","group":"distinct","kind":"de","a":"syntax.comment","b":"syntax.keyword","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:comment~function","group":"distinct","kind":"de","a":"syntax.comment","b":"syntax.function","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:comment~type","group":"distinct","kind":"de","a":"syntax.comment","b":"syntax.type","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:comment~string","group":"distinct","kind":"de","a":"syntax.comment","b":"syntax.string","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:comment~number","group":"distinct","kind":"de","a":"syntax.comment","b":"syntax.number","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:comment~regex","group":"distinct","kind":"de","a":"syntax.comment","b":"syntax.regex","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:comment~tag","group":"distinct","kind":"de","a":"syntax.comment","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:keyword~function","group":"distinct","kind":"de","a":"syntax.keyword","b":"syntax.function","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:keyword~type","group":"distinct","kind":"de","a":"syntax.keyword","b":"syntax.type","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:keyword~string","group":"distinct","kind":"de","a":"syntax.keyword","b":"syntax.string","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:keyword~number","group":"distinct","kind":"de","a":"syntax.keyword","b":"syntax.number","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:keyword~regex","group":"distinct","kind":"de","a":"syntax.keyword","b":"syntax.regex","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:keyword~tag","group":"distinct","kind":"de","a":"syntax.keyword","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:function~type","group":"distinct","kind":"de","a":"syntax.function","b":"syntax.type","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:function~string","group":"distinct","kind":"de","a":"syntax.function","b":"syntax.string","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:function~number","group":"distinct","kind":"de","a":"syntax.function","b":"syntax.number","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:function~regex","group":"distinct","kind":"de","a":"syntax.function","b":"syntax.regex","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:function~tag","group":"distinct","kind":"de","a":"syntax.function","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:type~string","group":"distinct","kind":"de","a":"syntax.type","b":"syntax.string","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:type~number","group":"distinct","kind":"de","a":"syntax.type","b":"syntax.number","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:type~regex","group":"distinct","kind":"de","a":"syntax.type","b":"syntax.regex","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:type~tag","group":"distinct","kind":"de","a":"syntax.type","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:string~number","group":"distinct","kind":"de","a":"syntax.string","b":"syntax.number","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:string~regex","group":"distinct","kind":"de","a":"syntax.string","b":"syntax.regex","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:string~tag","group":"distinct","kind":"de","a":"syntax.string","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:number~regex","group":"distinct","kind":"de","a":"syntax.number","b":"syntax.regex","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:number~tag","group":"distinct","kind":"de","a":"syntax.number","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"syntax:regex~tag","group":"distinct","kind":"de","a":"syntax.regex","b":"syntax.tag","op":">=","threshold":0.06,"level":"error"},{"id":"onsel:fg~link","group":"distinct","kind":"de","a":"on_selection.fg","b":"on_selection.link","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:fg~visited","group":"distinct","kind":"de","a":"on_selection.fg","b":"on_selection.visited","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:fg~negative","group":"distinct","kind":"de","a":"on_selection.fg","b":"on_selection.negative","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:fg~neutral","group":"distinct","kind":"de","a":"on_selection.fg","b":"on_selection.neutral","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:fg~positive","group":"distinct","kind":"de","a":"on_selection.fg","b":"on_selection.positive","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:link~visited","group":"distinct","kind":"de","a":"on_selection.link","b":"on_selection.visited","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:link~negative","group":"distinct","kind":"de","a":"on_selection.link","b":"on_selection.negative","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:link~neutral","group":"distinct","kind":"de","a":"on_selection.link","b":"on_selection.neutral","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:link~positive","group":"distinct","kind":"de","a":"on_selection.link","b":"on_selection.positive","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:visited~negative","group":"distinct","kind":"de","a":"on_selection.visited","b":"on_selection.negative","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:visited~neutral","group":"distinct","kind":"de","a":"on_selection.visited","b":"on_selection.neutral","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:visited~positive","group":"distinct","kind":"de","a":"on_selection.visited","b":"on_selection.positive","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:negative~neutral","group":"distinct","kind":"de","a":"on_selection.negative","b":"on_selection.neutral","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:negative~positive","group":"distinct","kind":"de","a":"on_selection.negative","b":"on_selection.positive","op":">=","threshold":0.08,"level":"error"},{"id":"onsel:neutral~positive","group":"distinct","kind":"de","a":"on_selection.neutral","b":"on_selection.positive","op":">=","threshold":0.08,"level":"error"},{"id":"selection-alt:selection_alt~selection_bg","group":"distinct","kind":"de","a":"selection_alt","b":"selection_bg","op":"<=","threshold":0.1,"level":"warn"},{"id":"comment-recedes","group":"distinct","kind":"dl","a":"syntax.comment","b":"fg","op":">=","threshold":0.1,"level":"error"},{"id":"cvd-protan:error~success","group":"cvd","kind":"cvd","a":"error","b":"success","op":">=","threshold":0.05,"level":"error","cvd":"protan"},{"id":"cvd-protan:diff_added~diff_removed","group":"cvd","kind":"cvd","a":"diff_added","b":"diff_removed","op":">=","threshold":0.05,"level":"error","cvd":"protan"},{"id":"cvd-protan:success~warning","group":"cvd","kind":"cvd","a":"success","b":"warning","op":">=","threshold":0.05,"level":"error","cvd":"protan"},{"id":"cvd-deutan:error~success","group":"cvd","kind":"cvd","a":"error","b":"success","op":">=","threshold":0.05,"level":"error","cvd":"deutan"},{"id":"cvd-deutan:diff_added~diff_removed","group":"cvd","kind":"cvd","a":"diff_added","b":"diff_removed","op":">=","threshold":0.05,"level":"error","cvd":"deutan"},{"id":"cvd-deutan:success~warning","group":"cvd","kind":"cvd","a":"success","b":"warning","op":">=","threshold":0.05,"level":"error","cvd":"deutan"},{"id":"cvd-tritan:error~success","group":"cvd","kind":"cvd","a":"error","b":"success","op":">=","threshold":0.05,"level":"error","cvd":"tritan"},{"id":"cvd-tritan:diff_added~diff_removed","group":"cvd","kind":"cvd","a":"diff_added","b":"diff_removed","op":">=","threshold":0.05,"level":"error","cvd":"tritan"},{"id":"cvd-tritan:success~warning","group":"cvd","kind":"cvd","a":"success","b":"warning","op":">=","threshold":0.05,"level":"error","cvd":"tritan"},{"id":"ansi:black/bg","group":"ansi","kind":"dl","a":"ansi.bg","b":"ansi.black","op":">=","threshold":0.1,"level":"error"},{"id":"ansi:blue~cyan","group":"ansi","kind":"de","a":"ansi.blue","b":"ansi.cyan","op":">=","threshold":0.08,"level":"error"},{"id":"apca:fg/bg","group":"apca","kind":"apca","a":"fg","b":"bg","op":">=","threshold":0,"level":"info"},{"id":"apca:syntax.comment/bg","group":"apca","kind":"apca","a":"syntax.comment","b":"bg","op":">=","threshold":0,"level":"info"}],"familySpecs":[{"id":"cross-ground","roles":["bg"],"threshold":0.025},{"id":"cross-accent","roles":["accent"],"threshold":0.1},{"id":"cross-fingerprint","roles":["bg","bg_panel","fg","fg_muted","accent","link","syntax.keyword","syntax.function","syntax.type","syntax.string","syntax.number","syntax.comment"],"threshold":0.06}],"thresholds":{"text_contrast":4.5,"nontext_contrast":3.0,"surface_step":{"bg>bg_panel":0.03,"bg_panel>bg_raised":0.035,"bg_raised>bg_active":0.06},"distinct_from_fg":0.08,"link_visited_de":0.1,"link_visited_dh":45.0,"syntax_pair_de":0.06,"onsel_pair_de":0.08,"comment_recede_dl":0.1,"accent_vs_fg_de":0.1,"cvd_pair_de":0.05,"ansi_black_dl":0.1,"ansi_blue_cyan_de":0.08,"selection_alt_de":0.1,"cross_ground_de":0.025,"cross_accent_de":0.1,"cross_fingerprint":0.06},"syntaxSet":["variable","operator","comment","keyword","function","type","string","number","regex","tag"],"fingerprint":["bg","bg_panel","fg","fg_muted","accent","link","syntax.keyword","syntax.function","syntax.type","syntax.string","syntax.number","syntax.comment"],"sets":{"current":{"label":"Current","variants":[{"slug":"umber","name":"Umber","file":"palette.toml","description":"Quiet warm peach foreground on neutral charcoal \u2014 palette adapted from MarianArlt's Sugar Dark, muted for long sessions.","concept":"","tiers":{"hearth":{"0":"#26221E","1":"#2D2823","2":"#363029","3":"#48413A"},"glow":{"0":"#A89986","1":"#D4BC91","2":"#E1CDA5","3":"#F0E5D0"},"mist":{"0":"#4F7A7E","1":"#7AA8AC","2":"#88A6C5","3":"#A8BDD6"},"spark":{"red":"#E06C75","orange":"#D19A66","amber":"#E5C07B","green":"#98C379","violet":"#C586B0"},"accent":{"highlight":"#D4BC91","highlight_text":"#26221E","highlight_link":"#6D4600","highlight_negative":"#91272C","highlight_neutral":"#6D4600","highlight_positive":"#2D5016","highlight_visited":"#5C4225"},"ansi":{"bright_red":"#EB8590","bright_green":"#B5D690","bright_yellow":"#F0CF8E","bright_magenta":"#D5A0C2","bright_cyan":"#9CC4C7","faint_red":"#A04D54","faint_green":"#6D8C56","faint_yellow":"#A48A58","faint_blue":"#57748F","faint_magenta":"#8D608A","faint_cyan":"#508083"}},"role":{},"audit":{"contrast:fg/bg":8.57278350108637,"contrast:fg/bg_panel":7.921250229725478,"contrast:fg/bg_raised":7.074449263109292,"contrast:fg_muted/bg":5.688618862674988,"contrast:fg_muted/bg_panel":5.256282684273395,"contrast:fg_muted/bg_raised":4.694373247156056,"contrast:fg_emphasis/bg_active":6.439994239812044,"contrast:fg_strong/bg_raised":10.438711375718789,"contrast:link/bg_panel":9.363412667406479,"contrast:link_visited/bg_panel":5.148814888646198,"contrast:fg_on_accent/button_bg":6.246430072303,"contrast:fg_on_accent/interactive":6.246430072303,"contrast:error/bg_panel":4.565456174698814,"contrast:warning/bg_panel":8.446416215260445,"contrast:success/bg_panel":7.237374369242639,"contrast:info/bg_panel":5.771700129709806,"contrast:syntax.variable/bg":8.57278350108637,"contrast:syntax.operator/bg":5.688618862674988,"contrast:syntax.comment/bg":8.206947385155193,"contrast:syntax.keyword/bg":5.57231169921818,"contrast:syntax.function/bg":6.246430072303,"contrast:syntax.type/bg":9.141145081084325,"contrast:syntax.string/bg":7.832657949751312,"contrast:syntax.number/bg":6.4100315247594635,"contrast:syntax.regex/bg":6.033418443854155,"contrast:syntax.tag/bg":4.940970962199648,"contrast:on_selection.fg/selection_bg":8.57278350108637,"contrast:on_selection.fg_soft/selection_bg":7.921250229725478,"contrast:on_selection.link/selection_bg":4.5131375196363575,"contrast:on_selection.visited/selection_bg":5.042569488147457,"contrast:on_selection.negative/selection_bg":4.5056106756352,"contrast:on_selection.neutral/selection_bg":4.5131375196363575,"contrast:on_selection.positive/selection_bg":5.021327593686872,"contrast:on_selection.fg_inactive/selection_bg":5.4480997114561305,"contrast:ansi.red/ansi.bg":4.940970962199648,"contrast:ansi.green/ansi.bg":7.832657949751312,"contrast:ansi.yellow/ansi.bg":9.141145081084325,"contrast:ansi.blue/ansi.bg":6.246430072303,"contrast:ansi.magenta/ansi.bg":5.57231169921818,"contrast:ansi.cyan/ansi.bg":6.033418443854155,"contrast:ansi.white/ansi.bg":8.57278350108637,"contrast:focus_ring/bg":6.246430072303,"contrast:focus_ring/bg_panel":5.771700129709806,"contrast:decoration_focus/bg_panel":11.68820947153254,"contrast:border/bg":1.5735364540152836,"surface:bg>bg_panel":0.025585669113002252,"surface:bg_panel>bg_raised":0.03266643537896058,"surface:bg_raised>bg_active":0.06686398158703921,"distinct:fg~link":0.050238311115570526,"distinct:fg~accent":0.0,"distinct:fg~syntax.type":0.038970080478553534,"distinct:fg~syntax.keyword":0.16527562121864184,"distinct:fg~syntax.function":0.15017353219921836,"distinct:fg~syntax.string":0.0934984370785339,"distinct:fg~syntax.number":0.08735597974802745,"link:link~link_visited":0.20031938393648227,"link-hue:link~link_visited":104.66583298974504,"syntax:variable~operator":0.11864783804948845,"syntax:variable~comment":0.10655968934927473,"syntax:variable~keyword":0.16527562121864184,"syntax:variable~function":0.15017353219921836,"syntax:variable~type":0.038970080478553534,"syntax:variable~string":0.0934984370785339,"syntax:variable~number":0.08735597974802745,"syntax:variable~regex":0.14393572672822796,"syntax:variable~tag":0.1876928031505252,"syntax:operator~comment":0.12475572290961359,"syntax:operator~keyword":0.10220795695566305,"syntax:operator~function":0.09147571367753357,"syntax:operator~type":0.14914777665014023,"syntax:operator~string":0.12486720585093256,"syntax:operator~number":0.07311844071477161,"syntax:operator~regex":0.07482545202957572,"syntax:operator~tag":0.1314226745662038,"syntax:comment~keyword":0.1386032713427216,"syntax:comment~function":0.07837200912144827,"syntax:comment~type":0.14320664344693598,"syntax:comment~string":0.13835371678731617,"syntax:comment~number":0.15090517119015434,"syntax:comment~regex":0.09875342593517977,"syntax:comment~tag":0.20978565308374592,"syntax:keyword~function":0.11175198286542286,"syntax:keyword~type":0.1970437971614951,"syntax:keyword~string":0.21198641171925214,"syntax:keyword~number":0.13053168111760574,"syntax:keyword~regex":0.13516753060215295,"syntax:keyword~tag":0.09347017945116795,"syntax:function~type":0.1887712833141384,"syntax:function~string":0.15457117549241375,"syntax:function~number":0.151690097201019,"syntax:function~regex":0.04445872356535618,"syntax:function~tag":0.18947091790552534,"syntax:type~string":0.10599348931422892,"syntax:type~number":0.10231299726050198,"syntax:type~regex":0.1797727884863413,"syntax:type~tag":0.2057755328485192,"syntax:string~number":0.12415837623084083,"syntax:string~regex":0.12456572798533005,"syntax:string~tag":0.23799941279992284,"syntax:number~regex":0.13888911567180873,"syntax:number~tag":0.11981090786305924,"syntax:regex~tag":0.1962927634095078,"onsel:fg~link":0.19170120179812045,"onsel:fg~visited":0.1531278431931489,"onsel:fg~negative":0.23022865174237225,"onsel:fg~neutral":0.19170120179812045,"onsel:fg~positive":0.16395144904580772,"onsel:link~visited":0.044980750294297975,"onsel:link~negative":0.10968475574619367,"onsel:link~neutral":0.0,"onsel:link~positive":0.10313623637292434,"onsel:visited~negative":0.11672625184308932,"onsel:visited~neutral":0.044980750294297975,"onsel:visited~positive":0.09013700224556137,"onsel:negative~neutral":0.10968475574619367,"onsel:negative~positive":0.2044848424431633,"onsel:neutral~positive":0.10313623637292434,"selection-alt:selection_alt~selection_bg":0.038970080478553534,"comment-recedes":0.014439334287876249,"cvd-protan:error~success":0.19450248346641555,"cvd-protan:diff_added~diff_removed":0.19450248346641555,"cvd-protan:success~warning":0.01949454310800334,"cvd-deutan:error~success":0.09237135677486705,"cvd-deutan:diff_added~diff_removed":0.09237135677486705,"cvd-deutan:success~warning":0.06563513367063632,"cvd-tritan:error~success":0.24293474377118987,"cvd-tritan:diff_added~diff_removed":0.24293474377118987,"cvd-tritan:success~warning":0.12856131515504352,"ansi:black/bg":0.025585669113002252,"ansi:blue~cyan":0.04445872356535618,"apca:fg/bg":65.46358661023972,"apca:syntax.comment/bg":63.1188177453866}},{"slug":"ash","name":"Umber Ash","file":"palettes/ash.toml","description":"Warm cream foreground on neutral charcoal \u2014 Umber Ash, the warmest of the cool family.","concept":"","tiers":{"hearth":{"0":"#242424","1":"#2B2B2B","2":"#333333","3":"#444444"},"glow":{"0":"#A6998A","1":"#D0BC95","2":"#DACEB0","3":"#EDE6D6"},"mist":{"0":"#4F7A7E","1":"#7AA8AC","2":"#88A6C5","3":"#A8BDD6"},"spark":{"red":"#E06C75","orange":"#D19A66","amber":"#E5C07B","green":"#98C379","violet":"#C586B0"},"accent":{"highlight":"#D0BC95","highlight_text":"#242424","highlight_link":"#6B4400","highlight_negative":"#8F262C","highlight_neutral":"#6B4400","highlight_positive":"#2D5016","highlight_visited":"#5C4225"},"ansi":{"bright_red":"#EB8590","bright_green":"#B5D690","bright_yellow":"#F0CF8E","bright_magenta":"#D5A0C2","bright_cyan":"#9CC4C7","faint_red":"#A04D54","faint_green":"#6D8C56","faint_yellow":"#A48A58","faint_blue":"#57748F","faint_magenta":"#8D608A","faint_cyan":"#508083"}},"role":{},"audit":{"contrast:fg/bg":8.359643481709387,"contrast:fg/bg_panel":7.625143970468065,"contrast:fg/bg_raised":6.8042140933827895,"contrast:fg_muted/bg":5.577076384170568,"contrast:fg_muted/bg_panel":5.087060286320044,"contrast:fg_muted/bg_raised":4.5393827878035475,"contrast:fg_emphasis/bg_active":6.231840891582186,"contrast:fg_strong/bg_raised":10.162256230596423,"contrast:link/bg_panel":9.059435502688402,"contrast:link_visited/bg_panel":4.9968019733627544,"contrast:fg_on_accent/button_bg":6.140847713641348,"contrast:fg_on_accent/interactive":6.140847713641348,"contrast:error/bg_panel":4.430666263287327,"contrast:warning/bg_panel":8.197045363841724,"contrast:success/bg_panel":7.02369910597142,"contrast:info/bg_panel":5.601297234706969,"contrast:syntax.variable/bg":8.359643481709387,"contrast:syntax.operator/bg":5.577076384170568,"contrast:syntax.comment/bg":8.068226731548755,"contrast:syntax.keyword/bg":5.478123850224225,"contrast:syntax.function/bg":6.140847713641348,"contrast:syntax.type/bg":8.98663384068659,"contrast:syntax.string/bg":7.700263847623824,"contrast:syntax.number/bg":6.301683838217583,"contrast:syntax.regex/bg":5.931436584980967,"contrast:syntax.tag/bg":4.857454559673839,"contrast:on_selection.fg/selection_bg":8.359643481709387,"contrast:on_selection.fg_soft/selection_bg":7.625143970468065,"contrast:on_selection.link/selection_bg":4.612239739794013,"contrast:on_selection.visited/selection_bg":5.00174269791248,"contrast:on_selection.negative/selection_bg":4.557346885775063,"contrast:on_selection.neutral/selection_bg":4.612239739794013,"contrast:on_selection.positive/selection_bg":4.980672786876491,"contrast:on_selection.fg_inactive/selection_bg":5.245214669861383,"contrast:ansi.red/ansi.bg":4.857454559673839,"contrast:ansi.green/ansi.bg":7.700263847623824,"contrast:ansi.yellow/ansi.bg":8.98663384068659,"contrast:ansi.blue/ansi.bg":6.140847713641348,"contrast:ansi.magenta/ansi.bg":5.478123850224225,"contrast:ansi.cyan/ansi.bg":5.931436584980967,"contrast:ansi.white/ansi.bg":8.359643481709387,"contrast:focus_ring/bg":6.140847713641348,"contrast:focus_ring/bg_panel":5.601297234706969,"contrast:decoration_focus/bg_panel":11.38833460552672,"contrast:border/bg":1.5937657479956506,"surface:bg>bg_panel":0.028755237687043966,"surface:bg_panel>bg_raised":0.0320124596619194,"surface:bg_raised>bg_active":0.06556181942917083,"distinct:fg~link":0.05327715468187422,"distinct:fg~accent":0.0,"distinct:fg~syntax.type":0.04596451415243374,"distinct:fg~syntax.keyword":0.16139822166636844,"distinct:fg~syntax.function":0.1432555787559083,"distinct:fg~syntax.string":0.09130561641045712,"distinct:fg~syntax.number":0.0878260345534218,"link:link~link_visited":0.19491535451948755,"link-hue:link~link_visited":108.98541056633502,"syntax:variable~operator":0.11673584221789923,"syntax:variable~comment":0.09970863233257664,"syntax:variable~keyword":0.16139822166636844,"syntax:variable~function":0.1432555787559083,"syntax:variable~type":0.04596451415243374,"syntax:variable~string":0.09130561641045712,"syntax:variable~number":0.0878260345534218,"syntax:variable~regex":0.13739744888477423,"syntax:variable~tag":0.18713175547270103,"syntax:operator~comment":0.1219438490328412,"syntax:operator~keyword":0.09910646401902916,"syntax:operator~function":0.08600948218829671,"syntax:operator~type":0.15258223225789486,"syntax:operator~string":0.1274667122222559,"syntax:operator~number":0.07830873990171051,"syntax:operator~regex":0.07057188957997214,"syntax:operator~tag":0.13255053969047007,"syntax:comment~keyword":0.1386032713427216,"syntax:comment~function":0.07837200912144827,"syntax:comment~type":0.14320664344693598,"syntax:comment~string":0.13835371678731617,"syntax:comment~number":0.15090517119015434,"syntax:comment~regex":0.09875342593517977,"syntax:comment~tag":0.20978565308374592,"syntax:keyword~function":0.11175198286542286,"syntax:keyword~type":0.1970437971614951,"syntax:keyword~string":0.21198641171925214,"syntax:keyword~number":0.13053168111760574,"syntax:keyword~regex":0.13516753060215295,"syntax:keyword~tag":0.09347017945116795,"syntax:function~type":0.1887712833141384,"syntax:function~string":0.15457117549241375,"syntax:function~number":0.151690097201019,"syntax:function~regex":0.04445872356535618,"syntax:function~tag":0.18947091790552534,"syntax:type~string":0.10599348931422892,"syntax:type~number":0.10231299726050198,"syntax:type~regex":0.1797727884863413,"syntax:type~tag":0.2057755328485192,"syntax:string~number":0.12415837623084083,"syntax:string~regex":0.12456572798533005,"syntax:string~tag":0.23799941279992284,"syntax:number~regex":0.13888911567180873,"syntax:number~tag":0.11981090786305924,"syntax:regex~tag":0.1962927634095078,"onsel:fg~link":0.18460672477128415,"onsel:fg~visited":0.15130967988079058,"onsel:fg~negative":0.22550932819851346,"onsel:fg~neutral":0.18460672477128415,"onsel:fg~positive":0.16137751152358532,"onsel:link~visited":0.04001616141488637,"onsel:link~negative":0.108718357834015,"onsel:link~neutral":0.0,"onsel:link~positive":0.10127215041335849,"onsel:visited~negative":0.11457099746676133,"onsel:visited~neutral":0.04001616141488637,"onsel:visited~positive":0.09013700224556137,"onsel:negative~neutral":0.108718357834015,"onsel:negative~positive":0.20288077152498307,"onsel:neutral~positive":0.10127215041335849,"selection-alt:selection_alt~selection_bg":0.04596451415243374,"comment-recedes":0.011671155926657462,"cvd-protan:error~success":0.19450248346641555,"cvd-protan:diff_added~diff_removed":0.19450248346641555,"cvd-protan:success~warning":0.01949454310800334,"cvd-deutan:error~success":0.09237135677486705,"cvd-deutan:diff_added~diff_removed":0.09237135677486705,"cvd-deutan:success~warning":0.06563513367063632,"cvd-tritan:error~success":0.24293474377118987,"cvd-tritan:diff_added~diff_removed":0.24293474377118987,"cvd-tritan:success~warning":0.12856131515504352,"ansi:black/bg":0.028755237687043966,"ansi:blue~cyan":0.04445872356535618,"apca:fg/bg":64.79712273256243,"apca:syntax.comment/bg":62.899009111189386}},{"slug":"slate","name":"Umber Slate","file":"palettes/slate.toml","description":"Cream-on-overcast \u2014 Umber Slate. Neutral-cool charcoal hearths, lightly desaturated cream glow.","concept":"","tiers":{"hearth":{"0":"#232527","1":"#2A2C2F","2":"#323438","3":"#434548"},"glow":{"0":"#A39A8E","1":"#CFBC98","2":"#D8CDB2","3":"#ECE5D7"},"mist":{"0":"#4F7A7E","1":"#7AA8AC","2":"#88A6C5","3":"#A8BDD6"},"spark":{"red":"#E06C75","orange":"#D19A66","amber":"#E5C07B","green":"#98C379","violet":"#C586B0"},"accent":{"highlight":"#88A6C5","highlight_text":"#232527","highlight_link":"#523300","highlight_negative":"#6D1B1F","highlight_neutral":"#523300","highlight_positive":"#244110","highlight_visited":"#4B351D"},"ansi":{"bright_red":"#EB8590","bright_green":"#B5D690","bright_yellow":"#F0CF8E","bright_magenta":"#D5A0C2","bright_cyan":"#9CC4C7","faint_red":"#A04D54","faint_green":"#6D8C56","faint_yellow":"#A48A58","faint_blue":"#57748F","faint_magenta":"#8D608A","faint_cyan":"#508083"}},"role":{},"audit":{"contrast:fg/bg":8.275860488010935,"contrast:fg/bg_panel":7.534342659561313,"contrast:fg/bg_raised":6.710381185694802,"contrast:fg_muted/bg":5.544314802471368,"contrast:fg_muted/bg_panel":5.047543707970019,"contrast:fg_muted/bg_raised":4.495540468809302,"contrast:fg_emphasis/bg_active":6.088980345921719,"contrast:fg_strong/bg_raised":9.950309116892774,"contrast:link/bg_panel":8.864826927722639,"contrast:link_visited/bg_panel":4.94144382429854,"contrast:fg_on_accent/button_bg":6.084405305564384,"contrast:fg_on_accent/interactive":6.084405305564384,"contrast:error/bg_panel":4.381580170869744,"contrast:warning/bg_panel":8.106232627704355,"contrast:success/bg_panel":6.945885539581698,"contrast:info/bg_panel":5.539242054428691,"contrast:syntax.variable/bg":8.275860488010935,"contrast:syntax.operator/bg":5.544314802471368,"contrast:syntax.comment/bg":7.994069193880474,"contrast:syntax.keyword/bg":5.427772739714898,"contrast:syntax.function/bg":6.084405305564384,"contrast:syntax.type/bg":8.90403494259838,"contrast:syntax.string/bg":7.6294883692770155,"contrast:syntax.number/bg":6.2437631361655574,"contrast:syntax.regex/bg":5.876918938586898,"contrast:syntax.tag/bg":4.812808210300384,"contrast:on_selection.fg/selection_bg":6.084405305564384,"contrast:on_selection.fg_soft/selection_bg":5.539242054428691,"contrast:on_selection.link/selection_bg":4.533966514784326,"contrast:on_selection.visited/selection_bg":4.549221326275305,"contrast:on_selection.negative/selection_bg":4.547610206483142,"contrast:on_selection.neutral/selection_bg":4.533966514784326,"contrast:on_selection.positive/selection_bg":4.518391050948158,"contrast:on_selection.fg_inactive/selection_bg":3.8047371117017517,"contrast:ansi.red/ansi.bg":4.812808210300384,"contrast:ansi.green/ansi.bg":7.6294883692770155,"contrast:ansi.yellow/ansi.bg":8.90403494259838,"contrast:ansi.blue/ansi.bg":6.084405305564384,"contrast:ansi.magenta/ansi.bg":5.427772739714898,"contrast:ansi.cyan/ansi.bg":5.876918938586898,"contrast:ansi.white/ansi.bg":8.275860488010935,"contrast:focus_ring/bg":6.084405305564384,"contrast:focus_ring/bg_panel":5.539242054428691,"contrast:decoration_focus/bg_panel":11.172098332512936,"contrast:border/bg":1.599165757563471,"surface:bg>bg_panel":0.0290760709322076,"surface:bg_panel>bg_raised":0.032316787574295236,"surface:bg_raised>bg_active":0.06500925024611731,"distinct:fg~link":0.050439473097885004,"distinct:fg~accent":0.14009642213944773,"distinct:fg~syntax.type":0.04952619337149925,"distinct:fg~syntax.keyword":0.15899923784057418,"distinct:fg~syntax.function":0.14009642213944773,"distinct:fg~syntax.string":0.0924541544267804,"distinct:fg~syntax.number":0.08895107087427709,"link:link~link_visited":0.19073314668840033,"link-hue:link~link_visited":108.6577418821019,"syntax:variable~operator":0.11641587853594877,"syntax:variable~comment":0.09580892865118018,"syntax:variable~keyword":0.15899923784057418,"syntax:variable~function":0.14009642213944773,"syntax:variable~type":0.04952619337149925,"syntax:variable~string":0.0924541544267804,"syntax:variable~number":0.08895107087427709,"syntax:variable~regex":0.13509547845697273,"syntax:variable~tag":0.1866134854491416,"syntax:operator~comment":0.11814555604332673,"syntax:operator~keyword":0.09878405589975128,"syntax:operator~function":0.07988144394314177,"syntax:operator~type":0.15490305240514282,"syntax:operator~string":0.12754090993523792,"syntax:operator~number":0.08374318755619187,"syntax:operator~regex":0.06459406193692278,"syntax:operator~tag":0.13666109357261436,"syntax:comment~keyword":0.1386032713427216,"syntax:comment~function":0.07837200912144827,"syntax:comment~type":0.14320664344693598,"syntax:comment~string":0.13835371678731617,"syntax:comment~number":0.15090517119015434,"syntax:comment~regex":0.09875342593517977,"syntax:comment~tag":0.20978565308374592,"syntax:keyword~function":0.11175198286542286,"syntax:keyword~type":0.1970437971614951,"syntax:keyword~string":0.21198641171925214,"syntax:keyword~number":0.13053168111760574,"syntax:keyword~regex":0.13516753060215295,"syntax:keyword~tag":0.09347017945116795,"syntax:function~type":0.1887712833141384,"syntax:function~string":0.15457117549241375,"syntax:function~number":0.151690097201019,"syntax:function~regex":0.04445872356535618,"syntax:function~tag":0.18947091790552534,"syntax:type~string":0.10599348931422892,"syntax:type~number":0.10231299726050198,"syntax:type~regex":0.1797727884863413,"syntax:type~tag":0.2057755328485192,"syntax:string~number":0.12415837623084083,"syntax:string~regex":0.12456572798533005,"syntax:string~tag":0.23799941279992284,"syntax:number~regex":0.13888911567180873,"syntax:number~tag":0.11981090786305924,"syntax:regex~tag":0.1962927634095078,"onsel:fg~link":0.11784218404650593,"onsel:fg~visited":0.10035632944790569,"onsel:fg~negative":0.15274470611035953,"onsel:fg~neutral":0.11784218404650593,"onsel:fg~positive":0.11441695241711095,"onsel:link~visited":0.026707569912674332,"onsel:link~negative":0.08823362251451239,"onsel:link~neutral":0.0,"onsel:link~positive":0.08265224026871466,"onsel:visited~negative":0.08825498520500429,"onsel:visited~neutral":0.026707569912674332,"onsel:visited~positive":0.07851492715328523,"onsel:negative~neutral":0.08823362251451239,"onsel:negative~positive":0.1662027943702147,"onsel:neutral~positive":0.08265224026871466,"selection-alt:selection_alt~selection_bg":0.1887712833141384,"comment-recedes":0.01143060692463349,"cvd-protan:error~success":0.19450248346641555,"cvd-protan:diff_added~diff_removed":0.19450248346641555,"cvd-protan:success~warning":0.01949454310800334,"cvd-deutan:error~success":0.09237135677486705,"cvd-deutan:diff_added~diff_removed":0.09237135677486705,"cvd-deutan:success~warning":0.06563513367063632,"cvd-tritan:error~success":0.24293474377118987,"cvd-tritan:diff_added~diff_removed":0.24293474377118987,"cvd-tritan:success~warning":0.12856131515504352,"ansi:black/bg":0.0290760709322076,"ansi:blue~cyan":0.04445872356535618,"apca:fg/bg":64.62448714470759,"apca:syntax.comment/bg":62.7749554176126}},{"slug":"tide","name":"Umber Tide","file":"palettes/tide.toml","description":"Cream-on-dusk \u2014 Umber Tide. Teal-cool charcoal hearths, cream glow drifting toward sand.","concept":"","tiers":{"hearth":{"0":"#202629","1":"#272D31","2":"#2F3539","3":"#404648"},"glow":{"0":"#A09A93","1":"#CDBC9A","2":"#D6CCB5","3":"#EAE5D9"},"mist":{"0":"#4F7A7E","1":"#7AA8AC","2":"#88A6C5","3":"#A8BDD6"},"spark":{"red":"#E06C75","orange":"#D19A66","amber":"#E5C07B","green":"#98C379","violet":"#C586B0"},"accent":{"highlight":"#7AA8AC","highlight_text":"#202629","highlight_link":"#4F3100","highlight_negative":"#691A1E","highlight_neutral":"#4F3100","highlight_positive":"#213E0F","highlight_visited":"#49331C"},"ansi":{"bright_red":"#EB8590","bright_green":"#B5D690","bright_yellow":"#F0CF8E","bright_magenta":"#D5A0C2","bright_cyan":"#9CC4C7","faint_red":"#A04D54","faint_green":"#6D8C56","faint_yellow":"#A48A58","faint_blue":"#57748F","faint_magenta":"#8D608A","faint_cyan":"#508083"}},"role":{},"audit":{"contrast:fg/bg":8.211790578934632,"contrast:fg/bg_panel":7.474067705452255,"contrast:fg/bg_raised":6.663390170693387,"contrast:fg_muted/bg":5.499661535776816,"contrast:fg_muted/bg_panel":5.005588279480971,"contrast:fg_muted/bg_raised":4.46265528417678,"contrast:fg_emphasis/bg_active":6.0172745565820716,"contrast:fg_strong/bg_raised":9.891224627082012,"contrast:link/bg_panel":8.740944094571297,"contrast:link_visited/bg_panel":4.921088804437652,"contrast:fg_on_accent/button_bg":6.060919567676635,"contrast:fg_on_accent/interactive":6.060919567676635,"contrast:error/bg_panel":4.36353136680127,"contrast:warning/bg_panel":8.072841066047307,"contrast:success/bg_panel":6.917273732357579,"contrast:info/bg_panel":5.5164245569439005,"contrast:syntax.variable/bg":8.211790578934632,"contrast:syntax.operator/bg":5.499661535776816,"contrast:syntax.comment/bg":7.9632121742844415,"contrast:syntax.keyword/bg":5.4068215963447095,"contrast:syntax.function/bg":6.060919567676635,"contrast:syntax.type/bg":8.869665465171558,"contrast:syntax.string/bg":7.60003862767374,"contrast:syntax.number/bg":6.219662278795806,"contrast:syntax.regex/bg":5.854234095804816,"contrast:syntax.tag/bg":4.79423082328316,"contrast:on_selection.fg/selection_bg":5.854234095804816,"contrast:on_selection.fg_soft/selection_bg":5.328307093930889,"contrast:on_selection.link/selection_bg":4.528941659244037,"contrast:on_selection.visited/selection_bg":4.524309183323822,"contrast:on_selection.negative/selection_bg":4.54078509896865,"contrast:on_selection.neutral/selection_bg":4.528941659244037,"contrast:on_selection.positive/selection_bg":4.557658812744986,"contrast:on_selection.fg_inactive/selection_bg":3.6680118713811067,"contrast:ansi.red/ansi.bg":4.79423082328316,"contrast:ansi.green/ansi.bg":7.60003862767374,"contrast:ansi.yellow/ansi.bg":8.869665465171558,"contrast:ansi.blue/ansi.bg":6.060919567676635,"contrast:ansi.magenta/ansi.bg":5.4068215963447095,"contrast:ansi.cyan/ansi.bg":5.854234095804816,"contrast:ansi.white/ansi.bg":8.211790578934632,"contrast:focus_ring/bg":6.060919567676635,"contrast:focus_ring/bg_panel":5.5164245569439005,"contrast:decoration_focus/bg_panel":11.094605097236087,"contrast:border/bg":1.596023759214426,"surface:bg>bg_panel":0.02902866965765316,"surface:bg_panel>bg_raised":0.03186144036475119,"surface:bg_raised>bg_active":0.06456812979401427,"distinct:fg~link":0.04942059024291721,"distinct:fg~accent":0.13191254097154612,"distinct:fg~syntax.type":0.053073252982867185,"distinct:fg~syntax.keyword":0.15720089652911812,"distinct:fg~syntax.function":0.13665905668753595,"distinct:fg~syntax.string":0.09175768712462598,"distinct:fg~syntax.number":0.08960760137941129,"link:link~link_visited":0.18616196450557165,"link-hue:link~link_visited":107.478933644206,"syntax:variable~operator":0.11774781331281357,"syntax:variable~comment":0.09235091452341714,"syntax:variable~keyword":0.15720089652911812,"syntax:variable~function":0.13665905668753595,"syntax:variable~type":0.053073252982867185,"syntax:variable~string":0.09175768712462598,"syntax:variable~number":0.08960760137941129,"syntax:variable~regex":0.13191254097154612,"syntax:variable~tag":0.18653205771627446,"syntax:operator~comment":0.11524133675782701,"syntax:operator~keyword":0.09611717943426054,"syntax:operator~function":0.07283327531036234,"syntax:operator~type":0.16002624779917948,"syntax:operator~string":0.13141512772815048,"syntax:operator~number":0.09105650358126009,"syntax:operator~regex":0.059338431872466964,"syntax:operator~tag":0.13927560999001795,"syntax:comment~keyword":0.1386032713427216,"syntax:comment~function":0.07837200912144827,"syntax:comment~type":0.14320664344693598,"syntax:comment~string":0.13835371678731617,"syntax:comment~number":0.15090517119015434,"syntax:comment~regex":0.09875342593517977,"syntax:comment~tag":0.20978565308374592,"syntax:keyword~function":0.11175198286542286,"syntax:keyword~type":0.1970437971614951,"syntax:keyword~string":0.21198641171925214,"syntax:keyword~number":0.13053168111760574,"syntax:keyword~regex":0.13516753060215295,"syntax:keyword~tag":0.09347017945116795,"syntax:function~type":0.1887712833141384,"syntax:function~string":0.15457117549241375,"syntax:function~number":0.151690097201019,"syntax:function~regex":0.04445872356535618,"syntax:function~tag":0.18947091790552534,"syntax:type~string":0.10599348931422892,"syntax:type~number":0.10231299726050198,"syntax:type~regex":0.1797727884863413,"syntax:type~tag":0.2057755328485192,"syntax:string~number":0.12415837623084083,"syntax:string~regex":0.12456572798533005,"syntax:string~tag":0.23799941279992284,"syntax:number~regex":0.13888911567180873,"syntax:number~tag":0.11981090786305924,"syntax:regex~tag":0.1962927634095078,"onsel:fg~link":0.11321653010295167,"onsel:fg~visited":0.09612827889202696,"onsel:fg~negative":0.14885329212425452,"onsel:fg~neutral":0.11321653010295167,"onsel:fg~positive":0.10479366322869522,"onsel:link~visited":0.02587889318376532,"onsel:link~negative":0.08590821521479478,"onsel:link~neutral":0.0,"onsel:link~positive":0.0817150944096786,"onsel:visited~negative":0.08447717920935735,"onsel:visited~neutral":0.02587889318376532,"onsel:visited~positive":0.07872603300194056,"onsel:negative~neutral":0.08590821521479478,"onsel:negative~positive":0.16276248913410424,"onsel:neutral~positive":0.0817150944096786,"selection-alt:selection_alt~selection_bg":0.1797727884863413,"comment-recedes":0.010104366921037888,"cvd-protan:error~success":0.19450248346641555,"cvd-protan:diff_added~diff_removed":0.19450248346641555,"cvd-protan:success~warning":0.01949454310800334,"cvd-deutan:error~success":0.09237135677486705,"cvd-deutan:diff_added~diff_removed":0.09237135677486705,"cvd-deutan:success~warning":0.06563513367063632,"cvd-tritan:error~success":0.24293474377118987,"cvd-tritan:diff_added~diff_removed":0.24293474377118987,"cvd-tritan:success~warning":0.12856131515504352,"ansi:black/bg":0.02902866965765316,"ansi:blue~cyan":0.04445872356535618,"apca:fg/bg":64.35405728647338,"apca:syntax.comment/bg":62.71771342464576}},{"slug":"storm","name":"Umber Storm","file":"palettes/storm.toml","description":"Cream-on-night-sea \u2014 Umber Storm. Slate-blue charcoal hearths, sand-cream glow.","concept":"","tiers":{"hearth":{"0":"#1F2530","1":"#262C36","2":"#2E343E","3":"#40454D"},"glow":{"0":"#9D9A96","1":"#CCBC9D","2":"#D4CCB9","3":"#E8E5DC"},"mist":{"0":"#4F7A7E","1":"#7AA8AC","2":"#88A6C5","3":"#A8BDD6"},"spark":{"red":"#E06C75","orange":"#D19A66","amber":"#E5C07B","green":"#98C379","violet":"#C586B0"},"accent":{"highlight":"#88A6C5","highlight_text":"#1F2530","highlight_link":"#523300","highlight_negative":"#6D1B1F","highlight_neutral":"#523300","highlight_positive":"#244110","highlight_visited":"#4B351D"},"ansi":{"bright_red":"#EB8590","bright_green":"#B5D690","bright_yellow":"#F0CF8E","bright_magenta":"#D5A0C2","bright_cyan":"#9CC4C7","faint_red":"#A04D54","faint_green":"#6D8C56","faint_yellow":"#A48A58","faint_blue":"#57748F","faint_magenta":"#8D608A","faint_cyan":"#508083"}},"role":{},"audit":{"contrast:fg/bg":8.236588796914068,"contrast:fg/bg_panel":7.51869271532763,"contrast:fg/bg_raised":6.707291648727113,"contrast:fg_muted/bg":5.489480735971643,"contrast:fg_muted/bg_panel":5.01102092603494,"contrast:fg_muted/bg_raised":4.470242378741285,"contrast:fg_emphasis/bg_active":6.036136195432209,"contrast:fg_strong/bg_raised":9.942213022225324,"contrast:link/bg_panel":8.781756433282455,"contrast:link_visited/bg_panel":4.954039431015802,"contrast:fg_on_accent/button_bg":6.083604729359875,"contrast:fg_on_accent/interactive":6.083604729359875,"contrast:error/bg_panel":4.392748700270209,"contrast:warning/bg_panel":8.12689519552211,"contrast:success/bg_panel":6.963590414041564,"contrast:info/bg_panel":5.553361432673207,"contrast:syntax.variable/bg":8.236588796914068,"contrast:syntax.operator/bg":5.489480735971643,"contrast:syntax.comment/bg":7.9930173471916985,"contrast:syntax.keyword/bg":5.427058562160861,"contrast:syntax.function/bg":6.083604729359875,"contrast:syntax.type/bg":8.902863364088866,"contrast:syntax.string/bg":7.628484493543189,"contrast:syntax.number/bg":6.2429415919155655,"contrast:syntax.regex/bg":5.8761456631028075,"contrast:syntax.tag/bg":4.812174948784009,"contrast:on_selection.fg/selection_bg":6.083604729359875,"contrast:on_selection.fg_soft/selection_bg":5.553361432673207,"contrast:on_selection.link/selection_bg":4.533966514784326,"contrast:on_selection.visited/selection_bg":4.549221326275305,"contrast:on_selection.negative/selection_bg":4.547610206483142,"contrast:on_selection.neutral/selection_bg":4.533966514784326,"contrast:on_selection.positive/selection_bg":4.518391050948158,"contrast:on_selection.fg_inactive/selection_bg":3.817100394977199,"contrast:ansi.red/ansi.bg":4.812174948784009,"contrast:ansi.green/ansi.bg":7.628484493543189,"contrast:ansi.yellow/ansi.bg":8.902863364088866,"contrast:ansi.blue/ansi.bg":6.083604729359875,"contrast:ansi.magenta/ansi.bg":5.427058562160861,"contrast:ansi.cyan/ansi.bg":5.8761456631028075,"contrast:ansi.white/ansi.bg":8.236588796914068,"contrast:focus_ring/bg":6.083604729359875,"contrast:focus_ring/bg_panel":5.553361432673207,"contrast:decoration_focus/bg_panel":11.144952171362236,"contrast:border/bg":1.5937764532903291,"surface:bg>bg_panel":0.028054903660013675,"surface:bg_panel>bg_raised":0.03184187128166516,"surface:bg_raised>bg_active":0.06536829837815988,"distinct:fg~link":0.04962607478857008,"distinct:fg~accent":0.13354087976043338,"distinct:fg~syntax.type":0.05673099926209926,"distinct:fg~syntax.keyword":0.1549150556820009,"distinct:fg~syntax.function":0.13354087976043338,"distinct:fg~syntax.string":0.09325351057805675,"distinct:fg~syntax.number":0.09108566830064209,"link:link~link_visited":0.1839400058830209,"link-hue:link~link_visited":108.04698140567564,"syntax:variable~operator":0.11956149887596709,"syntax:variable~comment":0.0883947032941933,"syntax:variable~keyword":0.1549150556820009,"syntax:variable~function":0.13354087976043338,"syntax:variable~type":0.05673099926209926,"syntax:variable~string":0.09325351057805675,"syntax:variable~number":0.09108566830064209,"syntax:variable~regex":0.12973851698734426,"syntax:variable~tag":0.18619021198785787,"syntax:operator~comment":0.1142406536974299,"syntax:operator~keyword":0.09592617796885135,"syntax:operator~function":0.06823932473498848,"syntax:operator~type":0.16435349537055008,"syntax:operator~string":0.13396494907931678,"syntax:operator~number":0.09681570271872326,"syntax:operator~regex":0.055341309514307754,"syntax:operator~tag":0.14233038080403135,"syntax:comment~keyword":0.1386032713427216,"syntax:comment~function":0.07837200912144827,"syntax:comment~type":0.14320664344693598,"syntax:comment~string":0.13835371678731617,"syntax:comment~number":0.15090517119015434,"syntax:comment~regex":0.09875342593517977,"syntax:comment~tag":0.20978565308374592,"syntax:keyword~function":0.11175198286542286,"syntax:keyword~type":0.1970437971614951,"syntax:keyword~string":0.21198641171925214,"syntax:keyword~number":0.13053168111760574,"syntax:keyword~regex":0.13516753060215295,"syntax:keyword~tag":0.09347017945116795,"syntax:function~type":0.1887712833141384,"syntax:function~string":0.15457117549241375,"syntax:function~number":0.151690097201019,"syntax:function~regex":0.04445872356535618,"syntax:function~tag":0.18947091790552534,"syntax:type~string":0.10599348931422892,"syntax:type~number":0.10231299726050198,"syntax:type~regex":0.1797727884863413,"syntax:type~tag":0.2057755328485192,"syntax:string~number":0.12415837623084083,"syntax:string~regex":0.12456572798533005,"syntax:string~tag":0.23799941279992284,"syntax:number~regex":0.13888911567180873,"syntax:number~tag":0.11981090786305924,"syntax:regex~tag":0.1962927634095078,"onsel:fg~link":0.130032299250153,"onsel:fg~visited":0.11020393304685572,"onsel:fg~negative":0.15991094780253373,"onsel:fg~neutral":0.130032299250153,"onsel:fg~positive":0.12437484449132089,"onsel:link~visited":0.026707569912674332,"onsel:link~negative":0.08823362251451239,"onsel:link~neutral":0.0,"onsel:link~positive":0.08265224026871466,"onsel:visited~negative":0.08825498520500429,"onsel:visited~neutral":0.026707569912674332,"onsel:visited~positive":0.07851492715328523,"onsel:negative~neutral":0.08823362251451239,"onsel:negative~positive":0.1662027943702147,"onsel:neutral~positive":0.08265224026871466,"selection-alt:selection_alt~selection_bg":0.1887712833141384,"comment-recedes":0.009907186313176886,"cvd-protan:error~success":0.19450248346641555,"cvd-protan:diff_added~diff_removed":0.19450248346641555,"cvd-protan:success~warning":0.01949454310800334,"cvd-deutan:error~success":0.09237135677486705,"cvd-deutan:diff_added~diff_removed":0.09237135677486705,"cvd-deutan:success~warning":0.06563513367063632,"cvd-tritan:error~success":0.24293474377118987,"cvd-tritan:diff_added~diff_removed":0.24293474377118987,"cvd-tritan:success~warning":0.12856131515504352,"ansi:black/bg":0.028054903660013675,"ansi:blue~cyan":0.04445872356535618,"apca:fg/bg":64.35412653462154,"apca:syntax.comment/bg":62.75944410189416}}]}}};
+
+</script>
+<script>
+(() => {
+  const E = Engine;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem('umber-lab:' + k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem('umber-lab:' + k, JSON.stringify(v)); } catch { /* storage unavailable */ } },
+  };
+
+  // Working copies of every set; originals kept for reset + parity.
+  const ORIGINAL = structuredClone(DATA.sets);
+  const SETS = structuredClone(DATA.sets);
+  for (const [setName, set] of Object.entries(SETS)) {
+    for (const v of set.variants) {
+      const saved = store.get(`tiers:${setName}:${v.slug}`);
+      if (saved) v.tiers = saved;
+    }
+  }
+  const hasDraft = 'draft' in SETS;
+  const state = {
+    tab: 'lineup', set: hasDraft ? 'split' : 'current', vision: 'color', booth: 'n25', showPassing: false,
+    tuneSet: hasDraft ? 'draft' : 'current', tuneSlug: 'umber', distSlug: 'umber',
+  };
+
+  // ------------------------------------------------------------ prepared palettes
+  let PREP = {};
+  function prepareAll() {
+    PREP = {};
+    for (const [setName, set] of Object.entries(SETS)) {
+      PREP[setName] = set.variants.map(v => {
+        try { return { v, pal: E.prepare(v, DATA.roles), err: null }; }
+        catch (e) { return { v, pal: null, err: e.message }; }
+      });
+    }
+  }
+  const visibleSets = () => state.set === 'split' ? ['current', 'draft'] : [state.set];
+
+  // ------------------------------------------------------------ painting
+  function paint(hex) {
+    switch (state.vision) {
+      case 'value': return E.toGrey(hex);
+      case 'protan': case 'deutan': case 'tritan': return E.simulateCvd(hex, state.vision);
+      default: return hex;
+    }
+  }
+  function blend(top, under, alpha) {
+    const [a, b] = [E.hexRgb(top), E.hexRgb(under)];
+    return E.rgbHex(a.map((c, i) => c * alpha + b[i] * (1 - alpha)));
+  }
+  const R = (pal, key) => paint(E.role(pal, key));
+  const RA = (pal, key, under, alpha) => paint(blend(E.role(pal, key), E.role(pal, under), alpha));
+
+  // ------------------------------------------------------------ audit helpers
+  function auditOf(pal) { return E.auditVariant(pal, DATA.specs); }
+  const failing = checks => checks.filter(c => !c.ok && c.level === 'error');
+  function familyOf(setName) {
+    const entries = PREP[setName].filter(e => e.pal).map(e => ({ slug: e.v.slug, pal: e.pal }));
+    return entries.length > 1 ? E.auditFamily(entries, DATA.familySpecs) : [];
+  }
+  function setScore(setName) {
+    let n = 0;
+    for (const e of PREP[setName]) n += e.pal ? failing(auditOf(e.pal)).length : 0;
+    n += familyOf(setName).filter(c => !c.ok).length;
+    return n;
+  }
+  function renderScore() {
+    const parts = Object.keys(SETS).map(s => {
+      const n = setScore(s);
+      return `${SETS[s].label}: <b class="${n ? 'bad' : 'good'}">${n}</b> failing`;
+    });
+    $('#score').innerHTML = parts.join(' &nbsp;·&nbsp; ') + ' <span>(error-level checks, incl. cross-variant)</span>';
+  }
+
+  // ------------------------------------------------------------ lineup mock
+  const CODE = [
+    [['syntax.decorator', '@dataclass']],
+    [['syntax.storage', 'class'], [null, ' '], ['syntax.class', 'Pigment'], ['syntax.punctuation', '('], ['syntax.type', 'Swatch'], ['syntax.punctuation', '):']],
+    [[null, '    '], ['syntax.string', '"""A tube of paint on the palette."""']],
+    [[null, '    '], ['syntax.property', 'hue'], ['syntax.punctuation', ': '], ['syntax.type', 'float'], ['syntax.operator', ' = '], ['syntax.number', '62.0']],
+    [[null, '    '], ['syntax.constant', 'ROUGH', 'find'], ['syntax.operator', ' = '], ['syntax.variable', 're'], ['syntax.punctuation', '.'], ['syntax.function', 'compile'], ['syntax.punctuation', '('], ['syntax.regex', 'r"#[0-9A-F]{6}"'], ['syntax.punctuation', ')']],
+    [],
+    [[null, '    '], ['syntax.storage', 'def'], [null, ' '], ['syntax.function', 'mix', 'sel'], ['syntax.punctuation', '(', 'sel'], ['syntax.builtin', 'self', 'sel'], ['syntax.punctuation', ', ', 'sel'], ['syntax.parameter', 'other', 'sel'], ['syntax.punctuation', ': '], ['syntax.string', '"Pigment"'], ['syntax.punctuation', ') '], ['syntax.operator', '->'], [null, ' '], ['syntax.type', 'float'], ['syntax.punctuation', ':']],
+    [[null, '        '], ['syntax.comment', '# blend in OKLab, never in sRGB']],
+    [[null, '        '], ['syntax.keyword', 'if'], [null, ' '], ['syntax.keyword', 'not'], [null, ' '], ['syntax.constant', 'ROUGH'], ['syntax.punctuation', '.'], ['syntax.function', 'match'], ['syntax.punctuation', '('], ['syntax.builtin', 'self'], ['syntax.punctuation', '.'], ['syntax.property', 'hex'], ['syntax.punctuation', '):']],
+    [[null, '            '], ['syntax.keyword', 'raise'], [null, ' '], ['syntax.type', 'ValueError'], ['syntax.punctuation', '('], ['syntax.string', 'f"bad {'], ['syntax.builtin', 'self'], ['syntax.punctuation', '.'], ['syntax.property', 'hex'], ['syntax.string', '!r}'], ['syntax.escape', '\\n'], ['syntax.string', '"'], ['syntax.punctuation', ')']],
+    [[null, '        '], ['syntax.keyword', 'return'], ['syntax.punctuation', ' ('], ['syntax.builtin', 'self'], ['syntax.punctuation', '.'], ['syntax.property', 'hue'], ['syntax.operator', ' + '], ['syntax.variable', 'other'], ['syntax.punctuation', '.'], ['syntax.property', 'hue'], ['syntax.punctuation', ')'], ['syntax.operator', ' / '], ['syntax.number', '2']],
+  ];
+  const CURRENT_LINE = 8;
+
+  function mock(pal) {
+    const c = k => R(pal, k);
+    const st = (bg, fg, extra = '') => `style="background:${bg};color:${fg};${extra}"`;
+    const files = [
+      ['palettes', '5 items', 'n'], ['scripts', '12 items', 'a'], ['roles.toml', '4.1 KiB', 'sel'],
+      ['palette.toml', '3.6 KiB', 'selalt'], ['install.sh', '37 KiB', 'n'], ['README.md', '17 KiB', 'a'],
+    ];
+    const fileRows = files.map(([name, size, kind]) => {
+      if (kind === 'sel' || kind === 'selalt') {
+        const bg = c(kind === 'sel' ? 'selection_bg' : 'selection_alt');
+        return `<div class="row" ${st(bg, c('on_selection.fg_soft'))}><span>${name}</span><span style="color:${c('on_selection.fg_inactive')}">${size}</span></div>`;
+      }
+      const bg = kind === 'a' ? c('bg_panel') : c('bg');
+      return `<div class="row" ${st(bg, c('fg'))}><span>${name}</span><span style="color:${c('fg_muted')}">${size}</span></div>`;
+    }).join('');
+    const onsel = [['fg', 'text'], ['link', 'link'], ['visited', 'visited'], ['negative', 'error'], ['neutral', 'warning'], ['positive', 'ok']]
+      .map(([k, w]) => `<span style="color:${c('on_selection.' + k)}">${w}</span>`).join('');
+    const code = CODE.map((line, i) => {
+      const lineBg = i === CURRENT_LINE ? c('line_highlight') : c('bg');
+      const under = i === CURRENT_LINE ? 'line_highlight' : 'bg';
+      const spans = line.map(([role, text, mark]) => {
+        let bg = '';
+        if (mark === 'sel') bg = `background:${RA(pal, 'selection_bg', under, 0x2E / 255)};`;
+        if (mark === 'find') bg = `background:${RA(pal, 'attention', under, 0x66 / 255)};`;
+        return `<span style="${bg}color:${c(role || 'fg')}">${esc(text)}</span>`;
+      }).join('');
+      return `<span class="ln" style="background:${lineBg}">${spans || ' '}</span>`;
+    }).join('');
+    const gutter = CODE.map((_, i) => `<span style="color:${i === CURRENT_LINE ? c('fg') : c('fg_muted')}">${i + 1}</span>`).join('\n');
+    const A = k => c('ansi.' + k);
+    const term = [
+      `<span style="color:${A('green')}">ash@hearth</span> <span style="color:${A('blue')}">~/umber</span> <span style="color:${A('magenta')}">(main)</span> $ ls`,
+      `<span style="color:${A('blue')};font-weight:600">palettes</span>  <span style="color:${A('blue')};font-weight:600">scripts</span>  <span style="color:${A('green')}">install.sh</span>  <span style="color:${A('red')}">umber.xpi</span>  <span style="color:${A('cyan')}">docs -&gt; README.md</span>`,
+      `<span style="color:${A('yellow')}">warning</span> kded not running · <span style="color:${A('red')}">error</span> no sudo · <span style="color:${A('green')}">ok</span> 13 files`,
+      `<span style="color:${A('fg_faint')}">faint</span> <span style="color:${A('fg_intense')};font-weight:600">intense</span> <span style="color:${A('bright_black')}">bright-black</span> <span style="background:${A('black')};color:${A('fg')}"> black </span>`,
+    ].join('\n');
+    const ansiNames = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
+    const brightKey = n => ({ black: 'bright_black', white: 'bright_white' }[n] || ('bright_' + n));
+    const ansi = [...ansiNames.map(n => A(n)), ...ansiNames.map(n => {
+      try { return A(brightKey(n)); } catch { return A(n); }
+    })].map(h => `<i style="background:${h}"></i>`).join('');
+
+    return `<div class="mock" style="background:${c('bg_panel')};color:${c('fg')}">
+      <div class="row titlebar" ${st(c('bg_raised'), c('fg'))}><span>palettes — Dolphin</span>
+        <span class="dots"><i style="background:${c('fg_muted')}"></i><i style="background:${c('fg_muted')}"></i><i style="background:${c('fg_muted')}"></i></span></div>
+      <div class="split">
+        <div class="side" ${st(c('bg_panel'), c('fg'))}>
+          <div class="cap" style="color:${c('fg_muted')}">Places</div>
+          <div class="it">Home</div>
+          <div class="it" style="border-color:${c('decoration_hover')}">Documents</div>
+          <div class="it" style="border-color:${c('decoration_focus')};color:${c('fg_strong')}">umber</div>
+          <div class="it" style="color:${c('fg_muted')}">Trash</div>
+        </div>
+        <div class="files">
+          <div class="row" ${st(c('bg_raised'), c('fg'))}><span>Name</span><span>Size</span></div>
+          ${fileRows}
+        </div>
+      </div>
+      <div class="onsel" ${st(c('selection_bg'), c('on_selection.fg'))}>${onsel}</div>
+      <div class="controls" style="background:${c('bg_panel')}">
+        <span class="btn" ${st(c('bg_raised'), c('fg'), 'border-color:' + c('border'))}>Cancel</span>
+        <span class="btn" ${st(c('button_bg'), c('fg_on_accent'), 'border-color:' + c('button_bg'))}>Apply</span>
+        <span class="field" ${st(c('bg'), c('fg'), 'border-color:' + c('decoration_focus'))}>umber-tide</span>
+        <a style="color:${c('link')}">docs</a><a style="color:${c('link_visited')}">visited</a>
+        <span class="tip" ${st(c('bg_overlay'), c('fg'), 'border-color:' + c('border'))}>Tooltip</span>
+      </div>
+      <div class="status" style="background:${c('bg_panel')}">
+        <span style="color:${c('error')}">error</span><span style="color:${c('warning')}">warning</span>
+        <span style="color:${c('success')}">success</span><span style="color:${c('info')}">info</span>
+        <span style="color:${c('fg_muted')}">muted</span>
+      </div>
+      <div class="tabsrow" style="background:${c('bg_panel')}">
+        <span class="tab" ${st(c('bg'), c('fg_emphasis'), 'border-top-color:' + c('accent'))}>pigment.py</span>
+        <span class="tab" style="color:${c('fg_muted')}">roles.toml</span>
+      </div>
+      <div class="code" style="background:${c('bg')}"><pre class="gut" style="background:${c('bg')}">${gutter}</pre><pre>${code}</pre></div>
+      <div class="sbar" ${st(c('bg_raised'), c('fg'))}><span>main · Ln 9, Col 18</span><span class="rem" ${st(c('interactive'), c('fg_on_accent'))}>remote</span></div>
+      <div class="term" ${st(c('ansi.bg'), c('ansi.fg'))}>${term}</div>
+      <div class="ansi" style="background:${c('ansi.bg')}">${ansi}</div>
+    </div>`;
+  }
+
+  function strip(pal) {
+    const keys = ['bg', 'bg_panel', 'bg_raised', 'bg_active', '|', 'fg_muted', 'fg', 'fg_emphasis', 'fg_strong', '|',
+      'accent', 'selection_bg', 'link', 'link_visited', '|', 'syntax.keyword', 'syntax.function', 'syntax.type',
+      'syntax.string', 'syntax.number', 'syntax.comment'];
+    return `<div class="strip">${keys.map(k => k === '|' ? '<i class="gap"></i>' : `<i title="${k}" style="background:${R(pal, k)}"></i>`).join('')}</div>`;
+  }
+
+  function renderLineup() {
+    const sets = visibleSets();
+    const slugs = [...new Set(sets.flatMap(s => SETS[s].variants.map(v => v.slug)))];
+    $('#lineup').innerHTML = slugs.map(slug => {
+      const blocks = sets.map(setName => {
+        const e = PREP[setName].find(x => x.v.slug === slug);
+        if (!e) return `<div class="setlabel">${SETS[setName].label}: not in this set</div>`;
+        if (!e.pal) return `<div class="setlabel">${SETS[setName].label}: invalid — ${esc(e.err)}</div>`;
+        const n = failing(auditOf(e.pal)).length;
+        return `<div class="vmeta"><span class="setlabel">${sets.length > 1 ? SETS[setName].label : esc(e.v.file)}</span>
+                  <span class="chip ${n ? 'bad' : 'good'}">${n ? n + ' failing' : 'all pass'}</span></div>
+                ${strip(e.pal)}${mock(e.pal)}`;
+      }).join('');
+      const first = sets.map(s => PREP[s].find(x => x.v.slug === slug)).find(Boolean);
+      const concept = sets.map(s => PREP[s].find(x => x.v.slug === slug)?.v).filter(Boolean)
+        .map(v => v.concept || v.description).filter(Boolean).pop() || '';
+      return `<article class="vcard"><div class="vhead"><div class="vname">${esc(first.v.name)}</div>
+        <div class="vconcept">${esc(concept)}</div></div>${blocks}</article>`;
+    }).join('');
+  }
+
+  // ------------------------------------------------------------ value ladder
+  const LADDER_SURF = ['bg', 'bg_panel', 'bg_raised', 'bg_active', 'border', 'selection_bg'];
+  const LADDER_TEXT = ['fg_muted', 'fg', 'fg_emphasis', 'fg_strong', 'syntax.comment', 'link', 'link_visited', 'accent',
+    'syntax.keyword', 'syntax.function', 'syntax.type', 'syntax.string', 'syntax.number', 'error', 'warning', 'success'];
+  function greyAtL(L) { return E.oklchToHex(L, 0, 0).hex; }
+  function minLForContrast(bg, ratio) {
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; (E.contrast(greyAtL(m), bg) >= ratio && E.luminance(greyAtL(m)) > E.luminance(bg)) ? hi = m : lo = m; }
+    return hi;
+  }
+  function deadZone(darkText, lightText, ratio) {
+    // L range for a background that clears `ratio` with neither text color.
+    const ok = L => E.contrast(greyAtL(L), darkText) >= ratio || E.contrast(greyAtL(L), lightText) >= ratio;
+    let start = null, end = null;
+    for (let L = 0.2; L <= 1.0001; L += 0.0025) {
+      if (!ok(L)) { if (start === null) start = L; end = L; }
+    }
+    return start === null ? null : [start, end];
+  }
+  function placeLabels(items, y, minGap) {
+    const sorted = items.map(it => ({ ...it, y: y(it.L) })).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < sorted.length; i++) if (sorted[i].y - sorted[i - 1].y < minGap) sorted[i].ly = (sorted[i - 1].ly ?? sorted[i - 1].y) + minGap;
+    for (const s of sorted) s.ly = s.ly ?? s.y;
+    for (let i = 1; i < sorted.length; i++) if (sorted[i].ly - sorted[i - 1].ly < minGap) sorted[i].ly = sorted[i - 1].ly + minGap;
+    return sorted;
+  }
+  function ladder(pal, title) {
+    const W = 300, H = 470, top = 14, bottom = H - 22, Lmin = 0.15, Lmax = 1.0;
+    const y = L => bottom - (L - Lmin) / (Lmax - Lmin) * (bottom - top);
+    const bg = E.role(pal, 'bg');
+    const aa = minLForContrast(bg, DATA.thresholds.text_contrast);
+    const dz = deadZone(E.role(pal, 'on_selection.fg'), E.role(pal, 'fg_strong'), DATA.thresholds.text_contrast);
+    const item = k => ({ k, hex: E.role(pal, k), L: E.oklch(E.role(pal, k))[0] });
+    const surf = placeLabels(LADDER_SURF.map(item), y, 12);
+    const text = placeLabels(LADDER_TEXT.map(item), y, 12);
+    const axisX = 150;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Lightness ladder for ${esc(title)}">
+      <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="none"/><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.2" opacity="0.35"/></pattern></defs>
+      <rect class="lane" x="0" y="${y(1)}" width="${W}" height="${y(aa) - y(1)}"/>
+      <text class="lanelbl" x="${W - 4}" y="${y(aa) - 3}" text-anchor="end">AA text ≥ ${DATA.thresholds.text_contrast}:1 · L ${aa.toFixed(2)}</text>`;
+    if (dz) s += `<rect class="dead" style="color:var(--ink)" x="${axisX - 26}" y="${y(dz[1])}" width="52" height="${y(dz[0]) - y(dz[1])}"/>
+      <text class="lanelbl" x="${axisX}" y="${y(dz[0]) + 10}" text-anchor="middle">dead zone</text>`;
+    s += `<line class="axis" x1="${axisX}" x2="${axisX}" y1="${top}" y2="${bottom}"/>`;
+    for (const L of [0.2, 0.4, 0.6, 0.8, 1.0]) s += `<text x="${axisX}" y="${y(L) + 3}" text-anchor="middle" style="fill:var(--ink-3)">${L.toFixed(1)}</text>`;
+    const mark = (it, side) => {
+      const x0 = side < 0 ? axisX - 24 : axisX + 6, lx = side < 0 ? axisX - 30 : axisX + 30;
+      return `<rect x="${x0}" y="${it.y - 3}" width="18" height="6" rx="1" fill="${paint(it.hex)}" stroke="var(--rule)"/>
+        <line x1="${side < 0 ? x0 : x0 + 18}" y1="${it.y}" x2="${lx + (side < 0 ? 2 : -2)}" y2="${it.ly}" stroke="var(--rule)"/>
+        <text x="${lx}" y="${it.ly + 3}" text-anchor="${side < 0 ? 'end' : 'start'}">${it.k.replace('syntax.', '')} ${it.L.toFixed(2)}</text>`;
+    };
+    s += surf.map(it => mark(it, -1)).join('') + text.map(it => mark(it, 1)).join('');
+    return s + `</svg>`;
+  }
+  function renderValue() {
+    const out = [];
+    for (const setName of visibleSets()) for (const e of PREP[setName]) {
+      if (!e.pal) continue;
+      const title = `${e.v.name}${visibleSets().length > 1 ? ' · ' + SETS[setName].label : ''}`;
+      out.push(`<div class="ladder"><div class="vname" style="font-size:16px">${esc(title)}</div>${ladder(e.pal, title)}</div>`);
+    }
+    $('#ladders').innerHTML = out.join('');
+  }
+
+  // ------------------------------------------------------------ hue wheel
+  const WHEEL_ROLES = ['accent', 'link', 'link_visited', 'error', 'warning', 'success', 'info',
+    'syntax.keyword', 'syntax.function', 'syntax.type', 'syntax.string', 'syntax.number', 'syntax.regex', 'syntax.tag', 'syntax.comment', 'fg'];
+  function wheelFrame(label) {
+    const S = 260, c = S / 2, Rmax = 108;
+    let s = `<svg viewBox="0 0 ${S} ${S}" role="img" aria-label="${esc(label)}">`;
+    for (const C of [0.04, 0.08, 0.12, 0.16]) s += `<circle class="ring" cx="${c}" cy="${c}" r="${C / 0.16 * Rmax}"/>`;
+    for (const h of [0, 90, 180, 270]) {
+      const x = c + Math.cos(h * Math.PI / 180) * (Rmax + 6), yy = c - Math.sin(h * Math.PI / 180) * (Rmax + 6);
+      s += `<line class="spoke" x1="${c}" y1="${c}" x2="${x}" y2="${yy}"/><text x="${c + Math.cos(h * Math.PI / 180) * (Rmax + 14)}" y="${c - Math.sin(h * Math.PI / 180) * (Rmax + 14) + 3}" text-anchor="middle" style="fill:var(--ink-3)">${h}°</text>`;
+    }
+    return { s, c, Rmax, pos: (C, h, scale = 1) => [c + Math.cos(h * Math.PI / 180) * Math.min(C * scale, 0.17) / 0.16 * Rmax, c - Math.sin(h * Math.PI / 180) * Math.min(C * scale, 0.17) / 0.16 * Rmax] };
+  }
+  function wheel(pal, title) {
+    const f = wheelFrame(`Hue wheel for ${title}`);
+    let s = f.s;
+    const pts = WHEEL_ROLES.map(k => { const hex = E.role(pal, k); const [, C, h] = E.oklch(hex); const [x, y] = f.pos(C, h); return { k, hex, x, y }; });
+    for (const p of pts) s += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="${paint(p.hex)}" stroke="var(--booth)" stroke-width="1.5"/>`;
+    const labels = placeLabels(pts.map(p => ({ ...p, L: -p.y })), q => -q.L, 11);
+    for (const p of labels) {
+      const right = p.x >= f.c;
+      s += `<text x="${p.x + (right ? 9 : -9)}" y="${p.ly + 3}" text-anchor="${right ? 'start' : 'end'}">${p.k.replace('syntax.', '')}</text>`;
+    }
+    return s + `</svg>`;
+  }
+  function identityWheel(setName) {
+    const f = wheelFrame(`Accents and grounds across ${SETS[setName].label}`);
+    let s = f.s;
+    for (const e of PREP[setName]) {
+      if (!e.pal) continue;
+      const acc = E.role(e.pal, 'accent'), bg = E.role(e.pal, 'bg');
+      const [, Ca, ha] = E.oklch(acc), [, Cb, hb] = E.oklch(bg);
+      const [ax, ay] = f.pos(Ca, ha), [bx, by] = f.pos(Cb, hb, 5);
+      s += `<rect x="${bx - 5}" y="${by - 5}" width="10" height="10" fill="${paint(bg)}" stroke="var(--ink-2)"/>
+        <text x="${bx + 8}" y="${by + 3}">${e.v.slug}</text>
+        <circle cx="${ax}" cy="${ay}" r="7" fill="${paint(acc)}" stroke="var(--booth)" stroke-width="1.5"/>
+        <text x="${ax + 10}" y="${ay + 3}" style="fill:var(--ink)">${e.v.slug}</text>`;
+    }
+    return s + `</svg>`;
+  }
+  function renderHue() {
+    const out = [];
+    for (const setName of visibleSets()) {
+      const multi = visibleSets().length > 1;
+      for (const e of PREP[setName]) if (e.pal) out.push(`<div class="wheel"><div class="vname" style="font-size:16px">${esc(e.v.name)}${multi ? ' · ' + SETS[setName].label : ''}</div>${wheel(e.pal, e.v.name)}</div>`);
+      out.push(`<div class="wheel"><div class="vname" style="font-size:16px">Family identity${multi ? ' · ' + SETS[setName].label : ''}</div>${identityWheel(setName)}</div>`);
+    }
+    $('#wheels').innerHTML = out.join('');
+  }
+
+  // ------------------------------------------------------------ distance
+  const DIST_ROLES = ['fg', 'fg_muted', 'accent', 'link', 'link_visited', ...DATA.syntaxSet.filter(k => k !== 'variable').map(k => 'syntax.' + k), 'error', 'warning', 'success', 'info'];
+  function specThreshold(a, b) {
+    const ids = [`distinct:${a}~${b}`, `distinct:${b}~${a}`, `syntax:${a.replace('syntax.', '')}~${b.replace('syntax.', '')}`,
+      `syntax:${b.replace('syntax.', '')}~${a.replace('syntax.', '')}`, `link:${a}~${b}`, `link:${b}~${a}`];
+    const spec = DATA.specs.find(sp => ids.includes(sp.id) && sp.kind === 'de');
+    return spec ? spec.threshold : null;
+  }
+  function renderDistance() {
+    const sel = $('#dist-variant');
+    const options = visibleSets().flatMap(s => PREP[s].filter(e => e.pal).map(e => ({ key: `${s}:${e.v.slug}`, label: `${e.v.name}${visibleSets().length > 1 ? ' · ' + SETS[s].label : ''}` })));
+    if (!options.some(o => o.key === state.distSlug)) state.distSlug = options[0]?.key;
+    sel.innerHTML = options.map(o => `<option value="${o.key}" ${o.key === state.distSlug ? 'selected' : ''}>${esc(o.label)}</option>`).join('');
+    const [setName, slug] = (state.distSlug || '').split(':');
+    const e = PREP[setName]?.find(x => x.v.slug === slug);
+    if (!e) { $('#dist-matrix').innerHTML = ''; return; }
+    const short = k => k.replace('syntax.', '');
+    let t = `<table class="grid"><thead><tr><th></th>${DIST_ROLES.map(k => `<th><span class="swatch" style="background:${R(e.pal, k)}"></span><br>${short(k)}</th>`).join('')}</tr></thead><tbody>`;
+    for (const a of DIST_ROLES) {
+      t += `<tr><th><span class="swatch" style="background:${R(e.pal, a)}"></span>${short(a)}</th>`;
+      for (const b of DIST_ROLES) {
+        if (a === b) { t += '<td class="d">·</td>'; continue; }
+        const d = E.deltaE(E.role(e.pal, a), E.role(e.pal, b));
+        const th = specThreshold(a, b);
+        const cls = th !== null && d < th ? 'f' : d < 0.06 ? 'w' : d >= 0.15 ? 'd' : '';
+        t += `<td class="${cls}">${d.toFixed(3)}</td>`;
+      }
+      t += '</tr>';
+    }
+    $('#dist-matrix').innerHTML = t + '</tbody></table>';
+
+    let x = '';
+    for (const sName of visibleSets()) {
+      const entries = PREP[sName].filter(q => q.pal);
+      const pairs = [];
+      for (let i = 0; i < entries.length; i++) for (let j = i + 1; j < entries.length; j++) pairs.push([entries[i], entries[j]]);
+      const rows = [...DATA.fingerprint, 'mean'];
+      x += `<table class="grid" style="margin-bottom:18px"><thead><tr><th>${esc(SETS[sName].label)}</th>${pairs.map(([p, q]) => `<th>${p.v.slug}<br>${q.v.slug}</th>`).join('')}</tr></thead><tbody>`;
+      for (const k of rows) {
+        x += `<tr><th>${k === 'mean' ? '<b>fingerprint</b>' : short(k)}</th>`;
+        for (const [p, q] of pairs) {
+          const d = k === 'mean'
+            ? DATA.fingerprint.reduce((s, r) => s + E.deltaE(E.role(p.pal, r), E.role(q.pal, r)), 0) / DATA.fingerprint.length
+            : E.deltaE(E.role(p.pal, k), E.role(q.pal, k));
+          const th = k === 'mean' ? DATA.thresholds.cross_fingerprint : k === 'bg' ? DATA.thresholds.cross_ground_de : k === 'accent' ? DATA.thresholds.cross_accent_de : null;
+          const cls = th !== null && d < th ? 'f' : d < 0.02 ? 'w' : '';
+          x += `<td class="${cls}">${d.toFixed(3)}</td>`;
+        }
+        x += '</tr>';
+      }
+      x += '</tbody></table>';
+    }
+    $('#dist-cross').innerHTML = x;
+  }
+
+  // ------------------------------------------------------------ audit
+  function fmt(c) { return c.kind === 'contrast' ? c.value.toFixed(2) + ':1' : c.value.toFixed(3); }
+  function auditTable(checks, title) {
+    const order = c => (c.ok ? 2 : c.level === 'error' ? 0 : 1);
+    const shown = checks.filter(c => c.level !== 'info' && (state.showPassing || !c.ok)).sort((a, b) => order(a) - order(b));
+    const fails = checks.filter(c => !c.ok && c.level === 'error').length;
+    const warns = checks.filter(c => !c.ok && c.level === 'warn').length;
+    let t = `<div><h2>${esc(title)} <span class="chip ${fails ? 'bad' : 'good'}">${fails} failing${warns ? ' · ' + warns + ' advisory' : ''}</span></h2><div class="scroll"><table class="grid"><tbody>`;
+    for (const c of shown) {
+      const mk = c.ok ? '<span class="mk p">ok</span>' : c.level === 'error' ? '<span class="mk f">!!</span>' : '<span class="mk w">~~</span>';
+      t += `<tr><td>${mk}</td><td class="d">${c.group}</td><td>${esc(c.id)}</td><td class="${c.ok ? '' : c.level === 'error' ? 'f' : 'w'}">${fmt(c)}</td><td class="d">${c.op} ${c.threshold}</td></tr>`;
+    }
+    if (!shown.length) t += `<tr><td colspan="5" class="d">No checks below threshold.</td></tr>`;
+    return t + `</tbody></table></div></div>`;
+  }
+  function renderAudit() {
+    const out = [];
+    for (const setName of visibleSets()) {
+      const multi = visibleSets().length > 1;
+      for (const e of PREP[setName]) {
+        const title = `${e.v.name}${multi ? ' · ' + SETS[setName].label : ''}`;
+        out.push(e.pal ? auditTable(auditOf(e.pal), title) : `<div><h2>${esc(title)}</h2><p class="note">Invalid palette: ${esc(e.err)}</p></div>`);
+      }
+      out.push(auditTable(familyOf(setName), `Family${multi ? ' · ' + SETS[setName].label : ''}`));
+    }
+    $('#audit').innerHTML = out.join('');
+  }
+
+  // ------------------------------------------------------------ tune
+  const LCH_CACHE = {};  // keeps hue while chroma passes through 0
+  function lchOf(key, hex) {
+    const cached = LCH_CACHE[key];
+    if (cached && E.oklchToHex(...cached).hex === hex) return cached;
+    const v = E.oklch(hex);
+    if (cached && v[1] < 0.002) v[2] = cached[2];
+    return (LCH_CACHE[key] = v);
+  }
+  function tuneVariant() { return SETS[state.tuneSet].variants.find(v => v.slug === state.tuneSlug) || SETS[state.tuneSet].variants[0]; }
+  function renderTune() {
+    $('#tune-set').innerHTML = Object.keys(SETS).map(s => `<option value="${s}" ${s === state.tuneSet ? 'selected' : ''}>${SETS[s].label}</option>`).join('');
+    const v = tuneVariant();
+    state.tuneSlug = v.slug;
+    $('#tune-variant').innerHTML = SETS[state.tuneSet].variants.map(x => `<option value="${x.slug}" ${x.slug === v.slug ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
+    let h = '';
+    for (const [tier, colors] of Object.entries(v.tiers)) {
+      h += `<div class="tier"><h3>[${tier}]</h3>`;
+      for (const [k, hex] of Object.entries(colors)) {
+        const key = `${state.tuneSet}:${v.slug}:${tier}.${k}`;
+        const [L, C, H] = lchOf(key, hex);
+        const id = `t-${tier}-${k}`.replace(/[^\w-]/g, '_');
+        h += `<div class="trow" data-tier="${tier}" data-k="${esc(k)}">
+          <span class="sw" style="background:${paint(hex)}"></span>
+          <span>${tier}.${esc(k)}</span>
+          <input type="text" id="${id}-hex" value="${hex}" aria-label="${tier}.${esc(k)} hex" maxlength="7">
+          <label for="${id}-L">L ${L.toFixed(3)}<input type="range" id="${id}-L" data-ch="L" min="0" max="1" step="0.001" value="${L}"></label>
+          <label for="${id}-C">C ${C.toFixed(3)}<input type="range" id="${id}-C" data-ch="C" min="0" max="0.3" step="0.001" value="${C}"></label>
+          <label for="${id}-H">h ${H.toFixed(1)}°<input type="range" id="${id}-H" data-ch="H" min="0" max="360" step="0.5" value="${H}"></label>
+        </div>`;
+      }
+      h += '</div>';
+    }
+    $('#tiers').innerHTML = h;
+    renderTuneScore();
+  }
+  function renderTuneScore() {
+    const e = PREP[state.tuneSet].find(x => x.v.slug === state.tuneSlug);
+    if (!e || !e.pal) { $('#tune-score').textContent = e ? 'Invalid: ' + e.err : ''; return; }
+    const checks = auditOf(e.pal);
+    const fails = failing(checks);
+    $('#tune-score').innerHTML = `${esc(e.v.name)} · ${SETS[state.tuneSet].label}: <b class="${fails.length ? 'bad' : 'good'}">${fails.length}</b> failing` +
+      (fails.length ? `<br>${fails.slice(0, 8).map(c => esc(c.id)).join('<br>')}${fails.length > 8 ? '<br>…' : ''}` : '');
+  }
+  function setTier(tier, k, hex) {
+    const v = tuneVariant();
+    v.tiers[tier][k] = hex;
+    store.set(`tiers:${state.tuneSet}:${v.slug}`, v.tiers);
+    prepareAll();
+    renderScore();
+    renderTuneScore();
+    $('#tune-note').textContent = '';
+  }
+  function tomlKey(k) { return /^[A-Za-z_][\w-]*$/.test(k) ? k : `"${k}"`; }
+  function toToml(v) {
+    let out = `# ${v.name} — tiers exported from the Palette Lab\n`;
+    for (const [tier, colors] of Object.entries(v.tiers)) {
+      out += `\n[${tier}]\n` + Object.entries(colors).map(([k, hex]) => {
+        const [L, C, H] = E.oklch(hex);
+        return `${tomlKey(k).padEnd(18)} = "${hex}"   # L ${L.toFixed(3)} C ${C.toFixed(3)} h ${H.toFixed(0)}`;
+      }).join('\n') + '\n';
+    }
+    const emit = (obj, path) => {
+      const scalars = Object.entries(obj).filter(([, x]) => typeof x === 'string');
+      const tables = Object.entries(obj).filter(([, x]) => typeof x === 'object');
+      let s = scalars.length ? `\n[${path}]\n` + scalars.map(([k, x]) => `${tomlKey(k)} = "${x}"`).join('\n') + '\n' : '';
+      for (const [k, x] of tables) s += emit(x, `${path}.${tomlKey(k)}`);
+      return s;
+    };
+    if (v.role && Object.keys(v.role).length) out += emit(v.role, 'role');
+    return out;
+  }
+
+  // ------------------------------------------------------------ wiring
+  const RENDER = { lineup: renderLineup, value: renderValue, hue: renderHue, distance: renderDistance, audit: renderAudit, tune: renderTune };
+  function renderActive() { RENDER[state.tab](); }
+  function press(groupSel, value) { for (const b of document.querySelectorAll(groupSel + ' button')) b.setAttribute('aria-pressed', String(b.dataset.v === value)); }
+  function setTab(tab) {
+    state.tab = tab;
+    for (const b of document.querySelectorAll('#tabs button')) b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+    for (const p of document.querySelectorAll('.panel')) p.hidden = p.id !== 'panel-' + tab;
+    store.set('tab', tab);
+    renderActive();
+  }
+  $('#tabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) { history.replaceState(null, '', '#' + b.dataset.tab); setTab(b.dataset.tab); } });
+  $('#ctl-set').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b || b.disabled) return; state.set = b.dataset.v; press('#ctl-set', state.set); renderActive(); });
+  $('#ctl-vision').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; state.vision = b.dataset.v; press('#ctl-vision', state.vision); renderActive(); });
+  $('#ctl-booth').addEventListener('click', ev => {
+    const b = ev.target.closest('button'); if (!b) return;
+    state.booth = b.dataset.v; press('#ctl-booth', state.booth);
+    document.body.classList.remove('booth-n1', 'booth-n5');
+    if (state.booth !== 'n25') document.body.classList.add('booth-' + state.booth);
+    store.set('booth', state.booth);
+  });
+  $('#toggle-passing').addEventListener('click', ev => {
+    state.showPassing = !state.showPassing;
+    ev.target.setAttribute('aria-pressed', String(state.showPassing));
+    ev.target.textContent = state.showPassing ? 'Hide passing checks' : 'Show passing checks';
+    renderAudit();
+  });
+  $('#dist-variant').addEventListener('change', ev => { state.distSlug = ev.target.value; renderDistance(); });
+  $('#tune-set').addEventListener('change', ev => { state.tuneSet = ev.target.value; renderTune(); });
+  $('#tune-variant').addEventListener('change', ev => { state.tuneSlug = ev.target.value; renderTune(); });
+  $('#tiers').addEventListener('input', ev => {
+    const row = ev.target.closest('.trow'); if (!row) return;
+    const { tier, k } = row.dataset;
+    const key = `${state.tuneSet}:${state.tuneSlug}:${tier}.${k}`;
+    let hex;
+    if (ev.target.type === 'text') {
+      const val = ev.target.value.trim().toUpperCase();
+      if (!/^#[0-9A-F]{6}$/.test(val)) return;
+      hex = val; delete LCH_CACHE[key];
+    } else {
+      const lch = [...row.querySelectorAll('input[type="range"]')].map(i => parseFloat(i.value));
+      const res = E.oklchToHex(...lch);
+      hex = res.hex; LCH_CACHE[key] = lch;
+      row.querySelector('input[type="text"]').value = hex;
+      row.querySelector('input[type="text"]').classList.toggle('oog', !res.inGamut);
+    }
+    const [L, C, H] = lchOf(key, hex);
+    const labels = row.querySelectorAll('label');
+    labels[0].firstChild.textContent = `L ${L.toFixed(3)}`;
+    labels[1].firstChild.textContent = `C ${C.toFixed(3)}`;
+    labels[2].firstChild.textContent = `h ${H.toFixed(1)}°`;
+    if (ev.target.type === 'text') {
+      row.querySelector('[data-ch="L"]').value = L; row.querySelector('[data-ch="C"]').value = C; row.querySelector('[data-ch="H"]').value = H;
+    }
+    row.querySelector('.sw').style.background = paint(hex);
+    setTier(tier, k, hex);
+  });
+  $('#export').addEventListener('click', () => { $('#toml').value = toToml(tuneVariant()); });
+  $('#copy').addEventListener('click', () => {
+    const ta = $('#toml');
+    if (!ta.value) ta.value = toToml(tuneVariant());
+    navigator.clipboard.writeText(ta.value)
+      .then(() => { $('#tune-note').textContent = 'Copied.'; })
+      .catch(() => { ta.select(); $('#tune-note').textContent = 'Copy is blocked here. The text is selected; press Ctrl+C.'; });
+  });
+  $('#reset').addEventListener('click', () => {
+    const v = tuneVariant();
+    v.tiers = structuredClone(ORIGINAL[state.tuneSet].variants.find(x => x.slug === v.slug).tiers);
+    for (const k of Object.keys(LCH_CACHE)) if (k.startsWith(`${state.tuneSet}:${v.slug}:`)) delete LCH_CACHE[k];
+    store.set(`tiers:${state.tuneSet}:${v.slug}`, null);
+    prepareAll(); renderScore(); renderTune();
+    $('#tune-note').textContent = `${v.name} reset to ${SETS[state.tuneSet].label.toLowerCase()} values.`;
+  });
+
+  // Parity: the browser engine must reproduce palette_audit.py's numbers.
+  function parity() {
+    let n = 0, bad = [];
+    for (const [setName, set] of Object.entries(ORIGINAL)) for (const v of set.variants) {
+      let pal; try { pal = E.prepare(v, DATA.roles); } catch (e) { bad.push(`${setName}/${v.slug}: ${e.message}`); continue; }
+      for (const c of auditOf(pal)) {
+        n++;
+        if (Math.abs(c.value - v.audit[c.id]) > 1e-6) bad.push(`${setName}/${v.slug} ${c.id}: js ${c.value} py ${v.audit[c.id]}`);
+      }
+    }
+    if (bad.length) console.warn('[lab] parity FAILED', bad); else console.log(`[lab] parity OK: ${n} checks match palette_audit.py`);
+  }
+
+  // Boot.
+  if (!hasDraft) { $('#set-draft').disabled = true; $('#set-split').disabled = true; $('#set-draft').title = $('#set-split').title = 'No proposals in palettes/next/ yet'; }
+  press('#ctl-set', state.set);
+  const savedBooth = store.get('booth');
+  if (savedBooth && savedBooth !== 'n25') document.querySelector(`#booth-${savedBooth}`)?.click();
+  prepareAll();
+  parity();
+  renderScore();
+  const hashTab = location.hash.slice(1);
+  setTab(RENDER[hashTab] ? hashTab : (RENDER[store.get('tab')] ? store.get('tab') : 'lineup'));
+})();
+</script>
