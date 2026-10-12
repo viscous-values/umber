@@ -154,6 +154,15 @@ class EngineParityTest(unittest.TestCase):
                     got, want = palette_lib.prepare(path), palette_lib.prepare(REPO / entries[key]["file"])
                     self.assertEqual(got, want)
 
+    def test_js_hue_delta_with_a_grey_is_zero(self):
+        js = """
+        const E = require(process.argv[1]);
+        console.log(JSON.stringify([E.hueDelta('#808080', '#FF0000'), E.hueDelta('#FF0000', '#FF00FF')]));
+        """
+        grey, wrap = self._node(js, {})
+        self.assertEqual(grey, 0)
+        self.assertAlmostEqual(wrap, palette_audit.hue_delta("#FF0000", "#FF00FF"), places=9)
+
     def test_js_oklch_round_trips_palette_hexes(self):
         data = render_lab.build_data(next_dir=NOWHERE)
         hexes = sorted({h for v in data["sets"]["current"]["variants"]

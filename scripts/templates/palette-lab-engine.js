@@ -61,8 +61,11 @@ const Engine = (() => {
     const [a, b] = [oklab(x), oklab(y)];
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
+  const ACHROMATIC_C = 0.02;  // below this chroma a color has no meaningful hue
   function hueDelta(x, y) {
-    const d = Math.abs(oklch(x)[2] - oklch(y)[2]) % 360;
+    const [, cx, hx] = oklch(x), [, cy, hy] = oklch(y);
+    if (Math.min(cx, cy) < ACHROMATIC_C) return 0;
+    const d = Math.abs(hx - hy) % 360;
     return Math.min(d, 360 - d);
   }
   function luminance(h) {

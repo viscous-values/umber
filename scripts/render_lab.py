@@ -70,7 +70,6 @@ def build_data(next_dir=NEXT_DIR):
         "familySpecs": palette_audit.family_specs(),
         "thresholds": palette_audit.THRESHOLDS,
         "syntaxSet": palette_audit.SYNTAX_SET,
-        "fingerprint": palette_audit.FINGERPRINT,
         "sets": sets,
     }
 
