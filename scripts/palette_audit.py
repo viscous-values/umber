@@ -39,6 +39,7 @@ THRESHOLDS = {
     "onsel_pair_de":      0.08,
     "comment_recede_dl":  0.10,   # comment at least this much darker than body text
     "accent_vs_fg_de":    0.10,
+    "accent_vs_status_de": 0.08,  # focus/selection accent must not read as an error/warning
     "cvd_pair_de":        0.05,
     "ansi_black_dl":      0.10,
     "ansi_blue_cyan_de":  0.08,
@@ -218,6 +219,11 @@ def check_specs():
                   "syntax.string", "syntax.number"):
         minimum = t["accent_vs_fg_de"] if other == "accent" else t["distinct_from_fg"]
         specs.append(_spec(f"distinct:fg~{other}", "distinct", "de", "fg", other, minimum))
+
+    # The signature accent must not be mistaken for a status color.
+    for status in ("error", "warning", "success", "info"):
+        specs.append(_spec(f"accent-vs-status:accent~{status}", "distinct", "de", "accent", status,
+                           t["accent_vs_status_de"], level="warn"))
 
     # Links.
     specs.append(_spec("link:link~link_visited", "distinct", "de", "link", "link_visited", t["link_visited_de"]))
