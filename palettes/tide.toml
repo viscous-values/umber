@@ -36,5 +36,10 @@ violet = "#C586B0"
 # Variant-specific UI accent. cool teal (= mist.1) — Tide is teal dusk; teal accent feels native.
 # See palette.toml [accent] for the canonical block.
 [accent]
-highlight      = "#7AA8AC"
-highlight_text = "#202629"
+highlight          = "#7AA8AC"
+highlight_text     = "#202629"
+highlight_link     = "#4F3100"   # 4.52:1 on highlight
+highlight_negative = "#691A1E"   # 4.54:1
+highlight_neutral  = "#4F3100"   # 4.52:1
+highlight_positive = "#213E0F"   # 4.55:1
+highlight_visited  = "#49331C"   # 4.52:1

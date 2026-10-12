@@ -31,7 +31,7 @@ To make a change that should propagate everywhere (e.g. a hex value in the palet
 
 ## Adding a new variant
 
-1. Drop a TOML in `palettes/<name>.toml` with the same shape as `palettes/tide.toml`. Required tiers: `[hearth]` (4 keys 0–3), `[glow]` (4 keys 0–3), `[mist]` (4 keys 0–3), `[spark]` (red/orange/amber/green/violet), `[accent]` (highlight + highlight\_text).
+1. Drop a TOML in `palettes/<name>.toml` with the same shape as `palettes/tide.toml`. Required tiers: `[hearth]` (4 keys 0–3), `[glow]` (4 keys 0–3), `[mist]` (4 keys 0–3), `[spark]` (red/orange/amber/green/violet), `[accent]` (highlight, highlight\_text, and highlight\_link / \_negative / \_neutral / \_positive / \_visited — text colors drawn on the highlight; keep each ≥ 4.5:1 against `highlight` for WCAG AA).
 2. `python3 scripts/render_palette.py render --palette palettes/<name>.toml` — generates every consumer file under `<slug>-firefox/`, `io.github.viscous-values.<slug>/`, etc.
 3. Re-render previews via `scripts/render_previews.py`.
 4. Wire the variant into `install.sh` — add the slug to `VARIANTS_TO_INSTALL` and the `case` validator.

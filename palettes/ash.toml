@@ -40,5 +40,10 @@ violet = "#C586B0"
 # Variant-specific UI accent. warm cream (= glow.1) — Ash sits closest to canonical, keeps the cream signature.
 # See palette.toml [accent] for the canonical block.
 [accent]
-highlight      = "#D0BC95"
-highlight_text = "#242424"
+highlight          = "#D0BC95"
+highlight_text     = "#242424"
+highlight_link     = "#6B4400"   # 4.61:1 on highlight
+highlight_negative = "#8F262C"   # 4.55:1
+highlight_neutral  = "#6B4400"   # 4.61:1
+highlight_positive = "#2D5016"   # 4.98:1
+highlight_visited  = "#5C4225"   # 5.00:1

@@ -15,6 +15,10 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `.github/ISSUE_TEMPLATE/` (bug report skeleton).
 - GitHub repo description, topics (kde, plasma6, theme, dark-theme, sddm, konsole, firefox-theme, vscode-theme).
 
+### Fixed
+- Plasma `[Colors:Selection]` link / negative / neutral / positive / visited text now meets WCAG AA (4.5:1) on every variant's selection highlight. The old hardcoded values measured 3.2–3.9:1 on Umber/Ash and 2.3–3.7:1 on Slate/Storm/Tide. They now live in per-variant `[accent]` keys (`highlight_link`, `highlight_negative`, `highlight_neutral`, `highlight_positive`, `highlight_visited`) instead of raw template literals, each a darkened version of the original hue.
+- `palette.toml` contrast notes corrected: glow.0 on hearth.1 is 5.25:1 (was noted as ≈3.8:1) and spark.red on hearth.0 is 4.94:1 (was ≈4.5:1).
+
 ## [1.0.1] — 2026-05-04
 
 ### Added
