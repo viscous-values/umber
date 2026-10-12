@@ -657,15 +657,17 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
       const entries = PREP[sName].filter(q => q.pal);
       const pairs = [];
       for (let i = 0; i < entries.length; i++) for (let j = i + 1; j < entries.length; j++) pairs.push([entries[i], entries[j]]);
-      const rows = [...DATA.fingerprint, 'mean'];
+      const groups = DATA.familySpecs.filter(sp => sp.roles.length > 1);
+      const rows = [...new Set(groups.flatMap(sp => sp.roles)), ...groups.map(sp => sp.id)];
       x += `<table class="grid" style="margin-bottom:18px"><thead><tr><th>${esc(SETS[sName].label)}</th>${pairs.map(([p, q]) => `<th>${esc(p.v.slug)}<br>${esc(q.v.slug)}</th>`).join('')}</tr></thead><tbody>`;
       for (const k of rows) {
-        x += `<tr><th>${k === 'mean' ? '<b>fingerprint</b>' : short(k)}</th>`;
+        const group = groups.find(sp => sp.id === k);
+        x += `<tr><th>${group ? `<b>${esc(k.replace('cross-', ''))} (mean)</b>` : short(k)}</th>`;
         for (const [p, q] of pairs) {
-          const d = k === 'mean'
-            ? DATA.fingerprint.reduce((s, r) => s + E.deltaE(E.role(p.pal, r), E.role(q.pal, r)), 0) / DATA.fingerprint.length
+          const d = group
+            ? group.roles.reduce((s, r) => s + E.deltaE(E.role(p.pal, r), E.role(q.pal, r)), 0) / group.roles.length
             : E.deltaE(E.role(p.pal, k), E.role(q.pal, k));
-          const th = k === 'mean' ? DATA.thresholds.cross_fingerprint : k === 'bg' ? DATA.thresholds.cross_ground_de : k === 'accent' ? DATA.thresholds.cross_accent_de : null;
+          const th = group ? group.threshold : k === 'bg' ? DATA.thresholds.cross_ground_de : k === 'accent' ? DATA.thresholds.cross_accent_de : null;
           const cls = th !== null && d < th ? 'f' : d < 0.02 ? 'w' : '';
           x += `<td class="${cls}">${d.toFixed(3)}</td>`;
         }

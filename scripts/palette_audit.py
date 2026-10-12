@@ -19,6 +19,7 @@ import argparse
 import itertools
 import math
 import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -32,7 +33,9 @@ THRESHOLDS = {
     "text_contrast":      4.5,    # WCAG 1.4.3 AA body text
     "nontext_contrast":   3.0,    # WCAG 1.4.11 focus indicators / control boundaries
     "surface_step":       {"bg>bg_panel": 0.03, "bg_panel>bg_raised": 0.035, "bg_raised>bg_active": 0.06},
-    "distinct_from_fg":   0.08,   # body text vs link / accent / syntax roles
+    "distinct_from_fg":   0.08,   # body text vs accent / syntax roles
+    "link_vs_fg_de":      0.10,   # links must stand off body text (plan: hue does it, underline backs it)
+    "link_vs_info_de":    0.08,   # info text must not look clickable
     "link_visited_de":    0.10,
     "link_visited_dh":    45.0,   # degrees of hue
     "syntax_pair_de":     0.06,
@@ -46,14 +49,16 @@ THRESHOLDS = {
     "selection_alt_de":   0.10,   # alternate selected row must stay a tint of the selection
     "cross_ground_de":    0.025,
     "cross_accent_de":    0.10,
-    "cross_fingerprint":  0.06,
+    "cross_identity":     0.06,   # mean over IDENTITY: what tells variants apart at a glance
+    "cross_syntax_key":   0.03,   # mean over SYNTAX_KEY: keys may share conventions, not be identical
 }
 
 SYNTAX_SET = ["variable", "operator", "comment", "keyword", "function", "type",
               "string", "number", "regex", "tag"]
-FINGERPRINT = ["bg", "bg_panel", "fg", "fg_muted", "accent", "link",
-               "syntax.keyword", "syntax.function", "syntax.type",
-               "syntax.string", "syntax.number", "syntax.comment"]
+IDENTITY = ["bg", "bg_panel", "fg", "accent", "selection_bg"]
+SYNTAX_KEY = ["syntax.keyword", "syntax.function", "syntax.type",
+              "syntax.string", "syntax.number", "syntax.comment"]
+ACHROMATIC_C = 0.02   # below this chroma a color has no meaningful hue
 
 # --------------------------------------------------------------------------- #
 # color math                                                                  #
@@ -99,7 +104,11 @@ def delta_e(x, y):
 
 
 def hue_delta(x, y):
-    d = abs(oklch(x)[2] - oklch(y)[2]) % 360
+    """Hue angle between two colors; 0 when either is too grey to have a hue."""
+    (_, cx, hx), (_, cy, hy) = oklch(x), oklch(y)
+    if min(cx, cy) < ACHROMATIC_C:
+        return 0.0
+    d = abs(hx - hy) % 360
     return min(d, 360 - d)
 
 
@@ -191,7 +200,8 @@ def check_specs():
         for bg in ("bg", "bg_panel", "bg_raised"):
             contrast_spec(fg, bg)
     for fg, bg in (("fg_emphasis", "bg_active"), ("fg_strong", "bg_raised"), ("link", "bg_panel"),
-                   ("link_visited", "bg_panel"), ("fg_on_accent", "button_bg"), ("fg_on_accent", "interactive")):
+                   ("link_visited", "bg_panel"), ("fg_on_accent", "button_bg"), ("fg_on_accent", "interactive"),
+                   ("fg_on_accent", "error"), ("fg_on_accent", "warning"), ("fg_on_accent", "debug")):
         contrast_spec(fg, bg)
     for status in ("error", "warning", "success", "info"):
         contrast_spec(status, "bg_panel")
@@ -218,8 +228,9 @@ def check_specs():
     # Body text vs everything that has to read as "not body text".
     for other in ("link", "accent", "syntax.type", "syntax.keyword", "syntax.function",
                   "syntax.string", "syntax.number"):
-        minimum = t["accent_vs_fg_de"] if other == "accent" else t["distinct_from_fg"]
+        minimum = {"accent": t["accent_vs_fg_de"], "link": t["link_vs_fg_de"]}.get(other, t["distinct_from_fg"])
         specs.append(_spec(f"distinct:fg~{other}", "distinct", "de", "fg", other, minimum))
+    specs.append(_spec("distinct:link~info", "distinct", "de", "link", "info", t["link_vs_info_de"], level="warn"))
 
     # The signature accent must not be mistaken for a status color.
     for status in ("error", "warning", "success", "info"):
@@ -290,12 +301,13 @@ def audit_variant(pal):
 
 
 def family_specs():
-    """Cross-variant checks: role (or the fingerprint set) compared between two variants."""
+    """Cross-variant checks: one role, or the mean over a role group, compared between two variants."""
     t = THRESHOLDS
     return [
         {"id": "cross-ground", "roles": ["bg"], "threshold": t["cross_ground_de"]},
         {"id": "cross-accent", "roles": ["accent"], "threshold": t["cross_accent_de"]},
-        {"id": "cross-fingerprint", "roles": FINGERPRINT, "threshold": t["cross_fingerprint"]},
+        {"id": "cross-identity", "roles": IDENTITY, "threshold": t["cross_identity"]},
+        {"id": "cross-syntax", "roles": SYNTAX_KEY, "threshold": t["cross_syntax_key"]},
     ]
 
 
@@ -340,10 +352,20 @@ def main(argv=None):
     ap.add_argument("--failures-only", action="store_true", help="print only checks below threshold")
     args = ap.parse_args(argv)
 
-    targets = load_targets(args.dir)
-    if not targets:
+    if args.dir is None:
+        paths = [palette_lib.PALETTE_FILE, *sorted(palette_lib.PALETTES_DIR.glob("*.toml"))]
+    else:
+        paths = sorted(Path(args.dir).glob("*.toml"))
+    if not paths:
         print(f"no palette TOMLs found in {args.dir}", file=sys.stderr)
         return 2
+    targets, invalid = {}, 0
+    for path in paths:
+        try:
+            targets[palette_lib.variant_slug(path)] = (path, palette_lib.prepare(path))
+        except (ValueError, tomllib.TOMLDecodeError) as e:
+            invalid += 1
+            print(f"{path.name}: INVALID — {e}", file=sys.stderr)
 
     errors = 0
     for name, (path, pal) in targets.items():
@@ -356,6 +378,8 @@ def main(argv=None):
         report("family", Path("cross-variant"), fam, args.failures_only)
 
     print(f"\n{errors} error-level check(s) below threshold.")
+    if invalid:
+        return 2
     return 1 if (args.strict and errors) else 0
 
 
