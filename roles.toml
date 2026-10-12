@@ -1,0 +1,151 @@
+# Umber semantic roles — what each color DOES, mapped onto palette tiers.
+#
+# Templates under scripts/templates/ reference role.* only; the pigment
+# tiers (hearth / glow / mist / spark / accent) live in palette.toml and
+# palettes/*.toml. A variant overrides any role in its own [role] table:
+#
+#   [role]
+#   focus_ring = "role.accent"
+#   [role.syntax]
+#   type = "mist.1"
+#
+# Values are a literal "#RRGGBB" or a reference ("glow.2", "role.fg").
+# scripts/palette_lib.py merges these defaults with the variant's overrides
+# (unknown override keys are rejected) and resolves every role to hex.
+#
+# These defaults reproduce the pre-role-layer mapping exactly. Where two
+# consumers used different tiers for the same job (Firefox focus border =
+# accent, VSCode focusBorder = mist.2), they still point at different roles
+# here; unifying them is a palette decision, not a refactor.
+
+[role]
+# Surfaces — deepest to most raised.
+bg             = "hearth.0"   # editor, view, terminal, splash, new-tab page
+bg_panel       = "hearth.1"   # sidebars, menus, widgets, window, inactive tabs
+bg_raised      = "hearth.2"   # status/title bar, hover, section headers, url field
+bg_active      = "hearth.3"   # focused/inactive-selected rows, pressed buttons
+bg_overlay     = "hearth.3"   # tooltips
+line_highlight = "role.bg_panel"   # editor current-line band
+
+# Lines.
+border    = "hearth.3"   # widget, input, menu and popup borders
+divider   = "hearth.1"   # hairlines between same-level panes
+separator = "hearth.2"   # faint rules: indent guides, rulers, toolbar separators
+
+# Text.
+fg           = "glow.1"   # body text
+fg_muted     = "glow.0"   # hints, inactive, line numbers, placeholders
+fg_emphasis  = "glow.2"   # active tab, titles, focused list rows
+fg_strong    = "glow.3"   # brightest text: active foreground, url/popup text
+fg_on_accent = "hearth.0" # text on filled buttons, badges, status items
+cursor       = "glow.3"
+
+# Identity + interaction.
+accent            = "accent.highlight"  # signature color: active tab line, panel title border
+interactive       = "mist.2"            # badges, progress, matches, info-ish fills
+interactive_hover = "mist.3"
+button_bg         = "role.interactive"
+button_hover      = "role.interactive_hover"
+focus_ring        = "role.interactive"  # VSCode focusBorder
+decoration_focus  = "glow.3"            # Plasma DecorationFocus, SDDM/lockscreen accent
+decoration_hover  = "glow.3"            # Plasma DecorationHover
+
+# Links.
+link         = "glow.2"
+link_visited = "spark.violet"
+
+# Selection.
+selection_bg  = "role.accent"
+selection_alt = "spark.amber"   # Plasma [Colors:Selection] BackgroundAlternate
+
+# Status.
+error     = "spark.red"
+warning   = "spark.amber"
+success   = "spark.green"
+info      = "mist.2"
+hint      = "mist.3"
+debug     = "spark.orange"
+attention = "spark.amber"   # find matches, tab/icon attention
+brand     = "spark.amber"   # splash glimmer pip
+
+# Version control.
+diff_added    = "spark.green"
+diff_removed  = "spark.red"
+diff_modified = "spark.amber"
+
+# Text drawn ON the selection background (Plasma [Colors:Selection],
+# VSCode/Firefox selected rows). Keep each >= 4.5:1 against selection_bg.
+[role.on_selection]
+fg          = "accent.highlight_text"
+fg_soft     = "hearth.1"   # Plasma ForegroundNormal
+fg_inactive = "hearth.3"
+decoration  = "hearth.1"
+link        = "accent.highlight_link"
+visited     = "accent.highlight_visited"
+negative    = "accent.highlight_negative"
+neutral     = "accent.highlight_neutral"
+positive    = "accent.highlight_positive"
+
+# Code. VSCode tokenColors + semanticTokenColors.
+[role.syntax]
+comment     = "mist.3"
+keyword     = "spark.violet"
+storage     = "role.syntax.keyword"   # const, let, class, fn
+builtin     = "role.syntax.keyword"   # this, self, super
+macro       = "role.syntax.keyword"
+operator    = "glow.0"
+punctuation = "role.syntax.operator"
+function    = "mist.2"
+namespace   = "role.syntax.function"  # semantic tokens
+type        = "spark.amber"
+class       = "role.syntax.type"
+decorator   = "role.syntax.type"
+attribute   = "role.syntax.type"
+string      = "spark.green"
+number      = "spark.orange"
+constant    = "role.syntax.number"
+escape      = "role.syntax.number"
+regex       = "mist.1"
+variable    = "role.fg"
+parameter   = "role.syntax.variable"
+property    = "role.syntax.variable"
+key         = "mist.2"                # JSON/YAML keys, CSS properties
+tag         = "spark.red"             # HTML/JSX tags, CSS selectors
+heading     = "role.syntax.keyword"   # markdown
+emphasis    = "role.fg_emphasis"      # markdown bold/italic
+markup_link = "mist.2"
+markup_code = "role.syntax.string"
+markup_list = "role.syntax.number"
+quote       = "role.syntax.comment"
+invalid     = "role.error"
+deprecated  = "role.fg_muted"
+
+# Bracket-pair colorization, outermost first.
+[role.bracket]
+"1" = "role.fg"
+"2" = "role.syntax.function"
+"3" = "role.syntax.keyword"
+"4" = "role.syntax.string"
+"5" = "role.syntax.type"
+"6" = "role.syntax.regex"
+
+# Terminal (Konsole + VSCode integrated terminal).
+[role.ansi]
+bg           = "role.bg"
+fg           = "role.fg"
+fg_faint     = "role.fg_muted"
+fg_intense   = "role.fg_strong"
+cursor       = "role.cursor"
+black        = "hearth.1"
+red          = "spark.red"
+green        = "spark.green"
+yellow       = "spark.amber"
+blue         = "mist.2"
+magenta      = "spark.violet"
+cyan         = "mist.1"
+white        = "glow.1"
+bright_black = "glow.0"
+bright_blue  = "mist.3"
+bright_white = "glow.3"
+faint_black  = "hearth.1"
+faint_white  = "glow.0"

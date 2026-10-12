@@ -24,262 +24,262 @@
   },
 
   "colors": {
-    "focusBorder": "{{ mist.2 }}",
-    "foreground": "{{ glow.1 }}",
-    "errorForeground": "{{ spark.red }}",
-    "descriptionForeground": "{{ glow.0 }}",
-    "icon.foreground": "{{ glow.1 }}",
-    "selection.background": "{{ accent.highlight | rgba 33 }}",
+    "focusBorder": "{{ role.focus_ring }}",
+    "foreground": "{{ role.fg }}",
+    "errorForeground": "{{ role.error }}",
+    "descriptionForeground": "{{ role.fg_muted }}",
+    "icon.foreground": "{{ role.fg }}",
+    "selection.background": "{{ role.selection_bg | rgba 33 }}",
 
-    "editor.background": "{{ hearth.0 }}",
-    "editor.foreground": "{{ glow.1 }}",
-    "editor.lineHighlightBackground": "{{ hearth.1 }}",
-    "editor.selectionBackground": "{{ accent.highlight | rgba 2E }}",
-    "editor.selectionHighlightBackground": "{{ accent.highlight | rgba 20 }}",
-    "editor.inactiveSelectionBackground": "{{ accent.highlight | rgba 18 }}",
-    "editor.wordHighlightBackground": "{{ mist.2 | rgba 22 }}",
-    "editor.wordHighlightStrongBackground": "{{ mist.2 | rgba 40 }}",
-    "editor.findMatchBackground": "{{ spark.amber | rgba 66 }}",
-    "editor.findMatchHighlightBackground": "{{ spark.amber | rgba 33 }}",
-    "editor.findRangeHighlightBackground": "{{ spark.amber | rgba 22 }}",
-    "editorCursor.foreground": "{{ glow.3 }}",
-    "editorCursor.background": "{{ hearth.0 }}",
-    "editorWhitespace.foreground": "{{ hearth.3 }}",
-    "editorIndentGuide.background1": "{{ hearth.2 }}",
-    "editorIndentGuide.activeBackground1": "{{ glow.0 }}",
-    "editorRuler.foreground": "{{ hearth.2 }}",
-    "editorBracketMatch.background": "{{ hearth.3 }}",
-    "editorBracketMatch.border": "{{ mist.2 }}",
-    "editorLineNumber.foreground": "{{ glow.0 }}",
-    "editorLineNumber.activeForeground": "{{ glow.1 }}",
-    "editorOverviewRuler.border": "{{ hearth.1 }}",
-    "editorOverviewRuler.findMatchForeground": "{{ spark.amber }}",
-    "editorOverviewRuler.errorForeground": "{{ spark.red }}",
-    "editorOverviewRuler.warningForeground": "{{ spark.amber }}",
-    "editorOverviewRuler.infoForeground": "{{ mist.2 }}",
-    "editorOverviewRuler.modifiedForeground": "{{ spark.amber }}",
-    "editorOverviewRuler.addedForeground": "{{ spark.green }}",
-    "editorOverviewRuler.deletedForeground": "{{ spark.red }}",
+    "editor.background": "{{ role.bg }}",
+    "editor.foreground": "{{ role.fg }}",
+    "editor.lineHighlightBackground": "{{ role.line_highlight }}",
+    "editor.selectionBackground": "{{ role.selection_bg | rgba 2E }}",
+    "editor.selectionHighlightBackground": "{{ role.selection_bg | rgba 20 }}",
+    "editor.inactiveSelectionBackground": "{{ role.selection_bg | rgba 18 }}",
+    "editor.wordHighlightBackground": "{{ role.interactive | rgba 22 }}",
+    "editor.wordHighlightStrongBackground": "{{ role.interactive | rgba 40 }}",
+    "editor.findMatchBackground": "{{ role.attention | rgba 66 }}",
+    "editor.findMatchHighlightBackground": "{{ role.attention | rgba 33 }}",
+    "editor.findRangeHighlightBackground": "{{ role.attention | rgba 22 }}",
+    "editorCursor.foreground": "{{ role.cursor }}",
+    "editorCursor.background": "{{ role.bg }}",
+    "editorWhitespace.foreground": "{{ role.border }}",
+    "editorIndentGuide.background1": "{{ role.separator }}",
+    "editorIndentGuide.activeBackground1": "{{ role.fg_muted }}",
+    "editorRuler.foreground": "{{ role.separator }}",
+    "editorBracketMatch.background": "{{ role.bg_active }}",
+    "editorBracketMatch.border": "{{ role.interactive }}",
+    "editorLineNumber.foreground": "{{ role.fg_muted }}",
+    "editorLineNumber.activeForeground": "{{ role.fg }}",
+    "editorOverviewRuler.border": "{{ role.divider }}",
+    "editorOverviewRuler.findMatchForeground": "{{ role.attention }}",
+    "editorOverviewRuler.errorForeground": "{{ role.error }}",
+    "editorOverviewRuler.warningForeground": "{{ role.warning }}",
+    "editorOverviewRuler.infoForeground": "{{ role.info }}",
+    "editorOverviewRuler.modifiedForeground": "{{ role.diff_modified }}",
+    "editorOverviewRuler.addedForeground": "{{ role.diff_added }}",
+    "editorOverviewRuler.deletedForeground": "{{ role.diff_removed }}",
 
-    "editorError.foreground": "{{ spark.red }}",
-    "editorWarning.foreground": "{{ spark.amber }}",
-    "editorInfo.foreground": "{{ mist.2 }}",
-    "editorHint.foreground": "{{ mist.3 }}",
-    "editorGutter.modifiedBackground": "{{ spark.amber }}",
-    "editorGutter.addedBackground": "{{ spark.green }}",
-    "editorGutter.deletedBackground": "{{ spark.red }}",
+    "editorError.foreground": "{{ role.error }}",
+    "editorWarning.foreground": "{{ role.warning }}",
+    "editorInfo.foreground": "{{ role.info }}",
+    "editorHint.foreground": "{{ role.hint }}",
+    "editorGutter.modifiedBackground": "{{ role.diff_modified }}",
+    "editorGutter.addedBackground": "{{ role.diff_added }}",
+    "editorGutter.deletedBackground": "{{ role.diff_removed }}",
 
-    "editorBracketHighlight.foreground1": "{{ glow.1 }}",
-    "editorBracketHighlight.foreground2": "{{ mist.2 }}",
-    "editorBracketHighlight.foreground3": "{{ spark.violet }}",
-    "editorBracketHighlight.foreground4": "{{ spark.green }}",
-    "editorBracketHighlight.foreground5": "{{ spark.amber }}",
-    "editorBracketHighlight.foreground6": "{{ mist.1 }}",
+    "editorBracketHighlight.foreground1": "{{ role.bracket.1 }}",
+    "editorBracketHighlight.foreground2": "{{ role.bracket.2 }}",
+    "editorBracketHighlight.foreground3": "{{ role.bracket.3 }}",
+    "editorBracketHighlight.foreground4": "{{ role.bracket.4 }}",
+    "editorBracketHighlight.foreground5": "{{ role.bracket.5 }}",
+    "editorBracketHighlight.foreground6": "{{ role.bracket.6 }}",
 
-    "diffEditor.insertedTextBackground": "{{ spark.green | rgba 22 }}",
-    "diffEditor.removedTextBackground": "{{ spark.red | rgba 22 }}",
-    "diffEditor.insertedLineBackground": "{{ spark.green | rgba 1A }}",
-    "diffEditor.removedLineBackground": "{{ spark.red | rgba 1A }}",
+    "diffEditor.insertedTextBackground": "{{ role.diff_added | rgba 22 }}",
+    "diffEditor.removedTextBackground": "{{ role.diff_removed | rgba 22 }}",
+    "diffEditor.insertedLineBackground": "{{ role.diff_added | rgba 1A }}",
+    "diffEditor.removedLineBackground": "{{ role.diff_removed | rgba 1A }}",
 
-    "editorWidget.background": "{{ hearth.1 }}",
-    "editorWidget.foreground": "{{ glow.1 }}",
-    "editorWidget.border": "{{ hearth.3 }}",
-    "editorSuggestWidget.background": "{{ hearth.1 }}",
-    "editorSuggestWidget.foreground": "{{ glow.1 }}",
-    "editorSuggestWidget.highlightForeground": "{{ mist.2 }}",
-    "editorSuggestWidget.selectedBackground": "{{ accent.highlight | rgba 22 }}",
-    "editorSuggestWidget.border": "{{ hearth.3 }}",
-    "editorHoverWidget.background": "{{ hearth.1 }}",
-    "editorHoverWidget.border": "{{ hearth.3 }}",
+    "editorWidget.background": "{{ role.bg_panel }}",
+    "editorWidget.foreground": "{{ role.fg }}",
+    "editorWidget.border": "{{ role.border }}",
+    "editorSuggestWidget.background": "{{ role.bg_panel }}",
+    "editorSuggestWidget.foreground": "{{ role.fg }}",
+    "editorSuggestWidget.highlightForeground": "{{ role.interactive }}",
+    "editorSuggestWidget.selectedBackground": "{{ role.selection_bg | rgba 22 }}",
+    "editorSuggestWidget.border": "{{ role.border }}",
+    "editorHoverWidget.background": "{{ role.bg_panel }}",
+    "editorHoverWidget.border": "{{ role.border }}",
 
-    "peekView.border": "{{ mist.2 }}",
-    "peekViewEditor.background": "{{ hearth.0 }}",
-    "peekViewEditor.matchHighlightBackground": "{{ spark.amber | rgba 33 }}",
-    "peekViewResult.background": "{{ hearth.1 }}",
-    "peekViewResult.matchHighlightBackground": "{{ spark.amber | rgba 33 }}",
-    "peekViewResult.selectionBackground": "{{ accent.highlight | rgba 33 }}",
-    "peekViewTitle.background": "{{ hearth.2 }}",
-    "peekViewTitleLabel.foreground": "{{ glow.1 }}",
-    "peekViewTitleDescription.foreground": "{{ glow.0 }}",
+    "peekView.border": "{{ role.interactive }}",
+    "peekViewEditor.background": "{{ role.bg }}",
+    "peekViewEditor.matchHighlightBackground": "{{ role.attention | rgba 33 }}",
+    "peekViewResult.background": "{{ role.bg_panel }}",
+    "peekViewResult.matchHighlightBackground": "{{ role.attention | rgba 33 }}",
+    "peekViewResult.selectionBackground": "{{ role.selection_bg | rgba 33 }}",
+    "peekViewTitle.background": "{{ role.bg_raised }}",
+    "peekViewTitleLabel.foreground": "{{ role.fg }}",
+    "peekViewTitleDescription.foreground": "{{ role.fg_muted }}",
 
-    "activityBar.background": "{{ hearth.1 }}",
-    "activityBar.foreground": "{{ glow.1 }}",
-    "activityBar.inactiveForeground": "{{ glow.0 }}",
-    "activityBar.border": "{{ hearth.1 }}",
-    "activityBarBadge.background": "{{ mist.2 }}",
-    "activityBarBadge.foreground": "{{ hearth.0 }}",
-    "activityBar.activeBorder": "{{ accent.highlight }}",
+    "activityBar.background": "{{ role.bg_panel }}",
+    "activityBar.foreground": "{{ role.fg }}",
+    "activityBar.inactiveForeground": "{{ role.fg_muted }}",
+    "activityBar.border": "{{ role.divider }}",
+    "activityBarBadge.background": "{{ role.interactive }}",
+    "activityBarBadge.foreground": "{{ role.fg_on_accent }}",
+    "activityBar.activeBorder": "{{ role.accent }}",
 
-    "sideBar.background": "{{ hearth.1 }}",
-    "sideBar.foreground": "{{ glow.1 }}",
-    "sideBar.border": "{{ hearth.1 }}",
-    "sideBarTitle.foreground": "{{ glow.2 }}",
-    "sideBarSectionHeader.background": "{{ hearth.2 }}",
-    "sideBarSectionHeader.foreground": "{{ glow.1 }}",
-    "sideBarSectionHeader.border": "{{ hearth.1 }}",
+    "sideBar.background": "{{ role.bg_panel }}",
+    "sideBar.foreground": "{{ role.fg }}",
+    "sideBar.border": "{{ role.divider }}",
+    "sideBarTitle.foreground": "{{ role.fg_emphasis }}",
+    "sideBarSectionHeader.background": "{{ role.bg_raised }}",
+    "sideBarSectionHeader.foreground": "{{ role.fg }}",
+    "sideBarSectionHeader.border": "{{ role.divider }}",
 
-    "list.activeSelectionBackground": "{{ accent.highlight }}",
-    "list.activeSelectionForeground": "{{ accent.highlight_text }}",
-    "list.inactiveSelectionBackground": "{{ hearth.3 }}",
-    "list.inactiveSelectionForeground": "{{ glow.2 }}",
-    "list.hoverBackground": "{{ hearth.2 }}",
-    "list.hoverForeground": "{{ glow.1 }}",
-    "list.focusBackground": "{{ hearth.3 }}",
-    "list.focusForeground": "{{ glow.2 }}",
-    "list.highlightForeground": "{{ mist.2 }}",
-    "list.errorForeground": "{{ spark.red }}",
-    "list.warningForeground": "{{ spark.amber }}",
-    "list.dropBackground": "{{ mist.2 | rgba 33 }}",
+    "list.activeSelectionBackground": "{{ role.selection_bg }}",
+    "list.activeSelectionForeground": "{{ role.on_selection.fg }}",
+    "list.inactiveSelectionBackground": "{{ role.bg_active }}",
+    "list.inactiveSelectionForeground": "{{ role.fg_emphasis }}",
+    "list.hoverBackground": "{{ role.bg_raised }}",
+    "list.hoverForeground": "{{ role.fg }}",
+    "list.focusBackground": "{{ role.bg_active }}",
+    "list.focusForeground": "{{ role.fg_emphasis }}",
+    "list.highlightForeground": "{{ role.interactive }}",
+    "list.errorForeground": "{{ role.error }}",
+    "list.warningForeground": "{{ role.warning }}",
+    "list.dropBackground": "{{ role.interactive | rgba 33 }}",
 
-    "tree.indentGuidesStroke": "{{ hearth.3 }}",
-    "tree.inactiveIndentGuidesStroke": "{{ hearth.2 }}",
+    "tree.indentGuidesStroke": "{{ role.border }}",
+    "tree.inactiveIndentGuidesStroke": "{{ role.separator }}",
 
-    "statusBar.background": "{{ hearth.2 }}",
-    "statusBar.foreground": "{{ glow.1 }}",
-    "statusBar.border": "{{ hearth.1 }}",
-    "statusBar.debuggingBackground": "{{ spark.orange }}",
-    "statusBar.debuggingForeground": "{{ hearth.0 }}",
-    "statusBar.noFolderBackground": "{{ hearth.1 }}",
-    "statusBarItem.activeBackground": "{{ hearth.3 }}",
-    "statusBarItem.hoverBackground": "{{ hearth.3 }}",
-    "statusBarItem.prominentBackground": "{{ hearth.3 }}",
-    "statusBarItem.remoteBackground": "{{ mist.2 }}",
-    "statusBarItem.remoteForeground": "{{ hearth.0 }}",
-    "statusBarItem.errorBackground": "{{ spark.red }}",
-    "statusBarItem.errorForeground": "{{ hearth.0 }}",
-    "statusBarItem.warningBackground": "{{ spark.amber }}",
-    "statusBarItem.warningForeground": "{{ hearth.0 }}",
+    "statusBar.background": "{{ role.bg_raised }}",
+    "statusBar.foreground": "{{ role.fg }}",
+    "statusBar.border": "{{ role.divider }}",
+    "statusBar.debuggingBackground": "{{ role.debug }}",
+    "statusBar.debuggingForeground": "{{ role.fg_on_accent }}",
+    "statusBar.noFolderBackground": "{{ role.bg_panel }}",
+    "statusBarItem.activeBackground": "{{ role.bg_active }}",
+    "statusBarItem.hoverBackground": "{{ role.bg_active }}",
+    "statusBarItem.prominentBackground": "{{ role.bg_active }}",
+    "statusBarItem.remoteBackground": "{{ role.interactive }}",
+    "statusBarItem.remoteForeground": "{{ role.fg_on_accent }}",
+    "statusBarItem.errorBackground": "{{ role.error }}",
+    "statusBarItem.errorForeground": "{{ role.fg_on_accent }}",
+    "statusBarItem.warningBackground": "{{ role.warning }}",
+    "statusBarItem.warningForeground": "{{ role.fg_on_accent }}",
 
-    "titleBar.activeBackground": "{{ hearth.2 }}",
-    "titleBar.activeForeground": "{{ glow.1 }}",
-    "titleBar.inactiveBackground": "{{ hearth.1 }}",
-    "titleBar.inactiveForeground": "{{ glow.0 }}",
-    "titleBar.border": "{{ hearth.1 }}",
+    "titleBar.activeBackground": "{{ role.bg_raised }}",
+    "titleBar.activeForeground": "{{ role.fg }}",
+    "titleBar.inactiveBackground": "{{ role.bg_panel }}",
+    "titleBar.inactiveForeground": "{{ role.fg_muted }}",
+    "titleBar.border": "{{ role.divider }}",
 
-    "menubar.selectionBackground": "{{ hearth.3 }}",
-    "menubar.selectionForeground": "{{ glow.2 }}",
-    "menu.background": "{{ hearth.1 }}",
-    "menu.foreground": "{{ glow.1 }}",
-    "menu.selectionBackground": "{{ accent.highlight }}",
-    "menu.selectionForeground": "{{ accent.highlight_text }}",
-    "menu.separatorBackground": "{{ hearth.3 }}",
+    "menubar.selectionBackground": "{{ role.bg_active }}",
+    "menubar.selectionForeground": "{{ role.fg_emphasis }}",
+    "menu.background": "{{ role.bg_panel }}",
+    "menu.foreground": "{{ role.fg }}",
+    "menu.selectionBackground": "{{ role.selection_bg }}",
+    "menu.selectionForeground": "{{ role.on_selection.fg }}",
+    "menu.separatorBackground": "{{ role.border }}",
 
-    "editorGroupHeader.tabsBackground": "{{ hearth.1 }}",
-    "editorGroupHeader.tabsBorder": "{{ hearth.1 }}",
-    "editorGroup.border": "{{ hearth.1 }}",
-    "tab.activeBackground": "{{ hearth.0 }}",
-    "tab.activeForeground": "{{ glow.2 }}",
-    "tab.activeBorderTop": "{{ accent.highlight }}",
-    "tab.inactiveBackground": "{{ hearth.1 }}",
-    "tab.inactiveForeground": "{{ glow.0 }}",
-    "tab.hoverBackground": "{{ hearth.2 }}",
-    "tab.border": "{{ hearth.1 }}",
-    "tab.unfocusedActiveBorderTop": "{{ glow.0 }}",
+    "editorGroupHeader.tabsBackground": "{{ role.bg_panel }}",
+    "editorGroupHeader.tabsBorder": "{{ role.divider }}",
+    "editorGroup.border": "{{ role.divider }}",
+    "tab.activeBackground": "{{ role.bg }}",
+    "tab.activeForeground": "{{ role.fg_emphasis }}",
+    "tab.activeBorderTop": "{{ role.accent }}",
+    "tab.inactiveBackground": "{{ role.bg_panel }}",
+    "tab.inactiveForeground": "{{ role.fg_muted }}",
+    "tab.hoverBackground": "{{ role.bg_raised }}",
+    "tab.border": "{{ role.divider }}",
+    "tab.unfocusedActiveBorderTop": "{{ role.fg_muted }}",
 
-    "breadcrumb.foreground": "{{ glow.0 }}",
-    "breadcrumb.focusForeground": "{{ glow.1 }}",
-    "breadcrumb.activeSelectionForeground": "{{ glow.2 }}",
-    "breadcrumb.background": "{{ hearth.0 }}",
+    "breadcrumb.foreground": "{{ role.fg_muted }}",
+    "breadcrumb.focusForeground": "{{ role.fg }}",
+    "breadcrumb.activeSelectionForeground": "{{ role.fg_emphasis }}",
+    "breadcrumb.background": "{{ role.bg }}",
 
-    "panel.background": "{{ hearth.0 }}",
-    "panel.border": "{{ hearth.1 }}",
-    "panelTitle.activeBorder": "{{ accent.highlight }}",
-    "panelTitle.activeForeground": "{{ glow.2 }}",
-    "panelTitle.inactiveForeground": "{{ glow.0 }}",
+    "panel.background": "{{ role.bg }}",
+    "panel.border": "{{ role.divider }}",
+    "panelTitle.activeBorder": "{{ role.accent }}",
+    "panelTitle.activeForeground": "{{ role.fg_emphasis }}",
+    "panelTitle.inactiveForeground": "{{ role.fg_muted }}",
 
-    "button.background": "{{ mist.2 }}",
-    "button.foreground": "{{ hearth.0 }}",
-    "button.hoverBackground": "{{ mist.3 }}",
-    "button.secondaryBackground": "{{ hearth.3 }}",
-    "button.secondaryForeground": "{{ glow.1 }}",
+    "button.background": "{{ role.button_bg }}",
+    "button.foreground": "{{ role.fg_on_accent }}",
+    "button.hoverBackground": "{{ role.button_hover }}",
+    "button.secondaryBackground": "{{ role.bg_active }}",
+    "button.secondaryForeground": "{{ role.fg }}",
     "button.secondaryHoverBackground": "#555555",
 
-    "checkbox.background": "{{ hearth.0 }}",
-    "checkbox.foreground": "{{ glow.1 }}",
-    "checkbox.border": "{{ hearth.3 }}",
+    "checkbox.background": "{{ role.bg }}",
+    "checkbox.foreground": "{{ role.fg }}",
+    "checkbox.border": "{{ role.border }}",
 
-    "input.background": "{{ hearth.0 }}",
-    "input.foreground": "{{ glow.1 }}",
-    "input.border": "{{ hearth.3 }}",
-    "input.placeholderForeground": "{{ glow.0 }}",
-    "inputOption.activeBackground": "{{ mist.2 | rgba 33 }}",
-    "inputOption.activeBorder": "{{ mist.2 }}",
-    "inputOption.activeForeground": "{{ glow.2 }}",
-    "inputValidation.errorBackground": "{{ spark.red | rgba 22 }}",
-    "inputValidation.errorBorder": "{{ spark.red }}",
-    "inputValidation.warningBackground": "{{ spark.amber | rgba 22 }}",
-    "inputValidation.warningBorder": "{{ spark.amber }}",
-    "inputValidation.infoBackground": "{{ mist.2 | rgba 22 }}",
-    "inputValidation.infoBorder": "{{ mist.2 }}",
+    "input.background": "{{ role.bg }}",
+    "input.foreground": "{{ role.fg }}",
+    "input.border": "{{ role.border }}",
+    "input.placeholderForeground": "{{ role.fg_muted }}",
+    "inputOption.activeBackground": "{{ role.interactive | rgba 33 }}",
+    "inputOption.activeBorder": "{{ role.interactive }}",
+    "inputOption.activeForeground": "{{ role.fg_emphasis }}",
+    "inputValidation.errorBackground": "{{ role.error | rgba 22 }}",
+    "inputValidation.errorBorder": "{{ role.error }}",
+    "inputValidation.warningBackground": "{{ role.warning | rgba 22 }}",
+    "inputValidation.warningBorder": "{{ role.warning }}",
+    "inputValidation.infoBackground": "{{ role.info | rgba 22 }}",
+    "inputValidation.infoBorder": "{{ role.info }}",
 
-    "dropdown.background": "{{ hearth.1 }}",
-    "dropdown.foreground": "{{ glow.1 }}",
-    "dropdown.border": "{{ hearth.3 }}",
-    "dropdown.listBackground": "{{ hearth.1 }}",
+    "dropdown.background": "{{ role.bg_panel }}",
+    "dropdown.foreground": "{{ role.fg }}",
+    "dropdown.border": "{{ role.border }}",
+    "dropdown.listBackground": "{{ role.bg_panel }}",
 
-    "badge.background": "{{ mist.2 }}",
-    "badge.foreground": "{{ hearth.0 }}",
+    "badge.background": "{{ role.interactive }}",
+    "badge.foreground": "{{ role.fg_on_accent }}",
 
     "scrollbar.shadow": "#00000080",
-    "scrollbarSlider.background": "{{ hearth.3 | rgba 66 }}",
+    "scrollbarSlider.background": "{{ role.bg_active | rgba 66 }}",
     "scrollbarSlider.hoverBackground": "#55555588",
-    "scrollbarSlider.activeBackground": "{{ glow.0 | rgba AA }}",
+    "scrollbarSlider.activeBackground": "{{ role.fg_muted | rgba AA }}",
 
-    "progressBar.background": "{{ mist.2 }}",
+    "progressBar.background": "{{ role.interactive }}",
 
-    "notificationCenter.border": "{{ hearth.3 }}",
-    "notificationCenterHeader.background": "{{ hearth.2 }}",
-    "notificationCenterHeader.foreground": "{{ glow.1 }}",
-    "notifications.background": "{{ hearth.1 }}",
-    "notifications.foreground": "{{ glow.1 }}",
-    "notifications.border": "{{ hearth.3 }}",
-    "notificationsErrorIcon.foreground": "{{ spark.red }}",
-    "notificationsWarningIcon.foreground": "{{ spark.amber }}",
-    "notificationsInfoIcon.foreground": "{{ mist.2 }}",
+    "notificationCenter.border": "{{ role.border }}",
+    "notificationCenterHeader.background": "{{ role.bg_raised }}",
+    "notificationCenterHeader.foreground": "{{ role.fg }}",
+    "notifications.background": "{{ role.bg_panel }}",
+    "notifications.foreground": "{{ role.fg }}",
+    "notifications.border": "{{ role.border }}",
+    "notificationsErrorIcon.foreground": "{{ role.error }}",
+    "notificationsWarningIcon.foreground": "{{ role.warning }}",
+    "notificationsInfoIcon.foreground": "{{ role.info }}",
 
-    "gitDecoration.modifiedResourceForeground": "{{ spark.amber }}",
-    "gitDecoration.deletedResourceForeground": "{{ spark.red }}",
-    "gitDecoration.untrackedResourceForeground": "{{ spark.green }}",
-    "gitDecoration.ignoredResourceForeground": "{{ glow.0 }}",
-    "gitDecoration.conflictingResourceForeground": "{{ spark.red }}",
-    "gitDecoration.submoduleResourceForeground": "{{ mist.2 }}",
-    "gitDecoration.stageModifiedResourceForeground": "{{ spark.amber }}",
-    "gitDecoration.stageDeletedResourceForeground": "{{ spark.red }}",
+    "gitDecoration.modifiedResourceForeground": "{{ role.diff_modified }}",
+    "gitDecoration.deletedResourceForeground": "{{ role.diff_removed }}",
+    "gitDecoration.untrackedResourceForeground": "{{ role.diff_added }}",
+    "gitDecoration.ignoredResourceForeground": "{{ role.fg_muted }}",
+    "gitDecoration.conflictingResourceForeground": "{{ role.error }}",
+    "gitDecoration.submoduleResourceForeground": "{{ role.info }}",
+    "gitDecoration.stageModifiedResourceForeground": "{{ role.diff_modified }}",
+    "gitDecoration.stageDeletedResourceForeground": "{{ role.diff_removed }}",
 
-    "terminal.background": "{{ hearth.0 }}",
-    "terminal.foreground": "{{ glow.1 }}",
-    "terminal.selectionBackground": "{{ accent.highlight | rgba 33 }}",
-    "terminalCursor.foreground": "{{ glow.3 }}",
-    "terminal.ansiBlack":         "{{ hearth.1 }}",
-    "terminal.ansiRed":           "{{ spark.red }}",
-    "terminal.ansiGreen":         "{{ spark.green }}",
-    "terminal.ansiYellow":        "{{ spark.amber }}",
-    "terminal.ansiBlue":          "{{ mist.2 }}",
-    "terminal.ansiMagenta":       "{{ spark.violet }}",
-    "terminal.ansiCyan":          "{{ mist.1 }}",
-    "terminal.ansiWhite":         "{{ glow.1 }}",
-    "terminal.ansiBrightBlack":   "{{ glow.0 }}",
+    "terminal.background": "{{ role.ansi.bg }}",
+    "terminal.foreground": "{{ role.ansi.fg }}",
+    "terminal.selectionBackground": "{{ role.selection_bg | rgba 33 }}",
+    "terminalCursor.foreground": "{{ role.ansi.cursor }}",
+    "terminal.ansiBlack":         "{{ role.ansi.black }}",
+    "terminal.ansiRed":           "{{ role.ansi.red }}",
+    "terminal.ansiGreen":         "{{ role.ansi.green }}",
+    "terminal.ansiYellow":        "{{ role.ansi.yellow }}",
+    "terminal.ansiBlue":          "{{ role.ansi.blue }}",
+    "terminal.ansiMagenta":       "{{ role.ansi.magenta }}",
+    "terminal.ansiCyan":          "{{ role.ansi.cyan }}",
+    "terminal.ansiWhite":         "{{ role.ansi.white }}",
+    "terminal.ansiBrightBlack":   "{{ role.ansi.bright_black }}",
     "terminal.ansiBrightRed":     "#EB8590",
     "terminal.ansiBrightGreen":   "#B5D690",
     "terminal.ansiBrightYellow":  "#F0CF8E",
-    "terminal.ansiBrightBlue":    "{{ mist.3 }}",
+    "terminal.ansiBrightBlue":    "{{ role.ansi.bright_blue }}",
     "terminal.ansiBrightMagenta": "#D5A0C2",
     "terminal.ansiBrightCyan":    "#9CC4C7",
-    "terminal.ansiBrightWhite":   "{{ glow.3 }}",
+    "terminal.ansiBrightWhite":   "{{ role.ansi.bright_white }}",
 
-    "debugToolBar.background": "{{ hearth.2 }}",
-    "debugIcon.breakpointForeground": "{{ spark.red }}",
-    "debugConsole.errorForeground": "{{ spark.red }}",
-    "debugConsole.warningForeground": "{{ spark.amber }}",
-    "debugConsole.infoForeground": "{{ mist.2 }}",
-    "debugConsole.sourceForeground": "{{ glow.0 }}",
+    "debugToolBar.background": "{{ role.bg_raised }}",
+    "debugIcon.breakpointForeground": "{{ role.error }}",
+    "debugConsole.errorForeground": "{{ role.error }}",
+    "debugConsole.warningForeground": "{{ role.warning }}",
+    "debugConsole.infoForeground": "{{ role.info }}",
+    "debugConsole.sourceForeground": "{{ role.fg_muted }}",
 
-    "merge.currentHeaderBackground": "{{ mist.2 | rgba 66 }}",
-    "merge.currentContentBackground": "{{ mist.2 | rgba 22 }}",
-    "merge.incomingHeaderBackground": "{{ spark.green | rgba 66 }}",
-    "merge.incomingContentBackground": "{{ spark.green | rgba 22 }}",
-    "merge.commonHeaderBackground": "{{ glow.0 | rgba 66 }}",
-    "merge.commonContentBackground": "{{ glow.0 | rgba 22 }}"
+    "merge.currentHeaderBackground": "{{ role.info | rgba 66 }}",
+    "merge.currentContentBackground": "{{ role.info | rgba 22 }}",
+    "merge.incomingHeaderBackground": "{{ role.diff_added | rgba 66 }}",
+    "merge.incomingContentBackground": "{{ role.diff_added | rgba 22 }}",
+    "merge.commonHeaderBackground": "{{ role.fg_muted | rgba 66 }}",
+    "merge.commonContentBackground": "{{ role.fg_muted | rgba 22 }}"
   },
 
   "tokenColors": [
@@ -290,7 +290,7 @@
         "punctuation.definition.comment",
         "string.comment"
       ],
-      "settings": { "foreground": "{{ mist.3 }}", "fontStyle": "italic" }
+      "settings": { "foreground": "{{ role.syntax.comment }}", "fontStyle": "italic" }
     },
     {
       "name": "Strings",
@@ -300,7 +300,7 @@
         "string.template",
         "punctuation.definition.string"
       ],
-      "settings": { "foreground": "{{ spark.green }}" }
+      "settings": { "foreground": "{{ role.syntax.string }}" }
     },
     {
       "name": "String escape sequences",
@@ -308,7 +308,7 @@
         "constant.character.escape",
         "constant.other.placeholder"
       ],
-      "settings": { "foreground": "{{ spark.orange }}" }
+      "settings": { "foreground": "{{ role.syntax.escape }}" }
     },
     {
       "name": "Numbers, booleans, null",
@@ -319,7 +319,7 @@
         "constant.language.null",
         "constant.language.undefined"
       ],
-      "settings": { "foreground": "{{ spark.orange }}" }
+      "settings": { "foreground": "{{ role.syntax.number }}" }
     },
     {
       "name": "Constants",
@@ -328,7 +328,7 @@
         "variable.other.enummember",
         "constant.other"
       ],
-      "settings": { "foreground": "{{ spark.orange }}" }
+      "settings": { "foreground": "{{ role.syntax.constant }}" }
     },
     {
       "name": "Keywords (control flow, async/await, return)",
@@ -341,7 +341,7 @@
         "keyword.operator.logical",
         "keyword.operator.ternary"
       ],
-      "settings": { "foreground": "{{ spark.violet }}" }
+      "settings": { "foreground": "{{ role.syntax.keyword }}" }
     },
     {
       "name": "Storage (const, let, function, class, async)",
@@ -350,7 +350,7 @@
         "storage.type",
         "storage.modifier"
       ],
-      "settings": { "foreground": "{{ spark.violet }}" }
+      "settings": { "foreground": "{{ role.syntax.storage }}" }
     },
     {
       "name": "Operators",
@@ -360,7 +360,7 @@
         "keyword.operator.arithmetic",
         "keyword.operator.comparison"
       ],
-      "settings": { "foreground": "{{ glow.0 }}" }
+      "settings": { "foreground": "{{ role.syntax.operator }}" }
     },
     {
       "name": "Types",
@@ -370,7 +370,7 @@
         "entity.other.inherited-class",
         "meta.type.annotation entity.name.type"
       ],
-      "settings": { "foreground": "{{ spark.amber }}" }
+      "settings": { "foreground": "{{ role.syntax.type }}" }
     },
     {
       "name": "Classes",
@@ -379,7 +379,7 @@
         "entity.name.namespace",
         "support.class"
       ],
-      "settings": { "foreground": "{{ spark.amber }}" }
+      "settings": { "foreground": "{{ role.syntax.class }}" }
     },
     {
       "name": "Functions and methods",
@@ -389,7 +389,7 @@
         "meta.function-call entity.name.function",
         "meta.method.declaration entity.name.function"
       ],
-      "settings": { "foreground": "{{ mist.2 }}" }
+      "settings": { "foreground": "{{ role.syntax.function }}" }
     },
     {
       "name": "Function parameters",
@@ -397,7 +397,7 @@
         "variable.parameter",
         "meta.parameter"
       ],
-      "settings": { "foreground": "{{ glow.1 }}", "fontStyle": "italic" }
+      "settings": { "foreground": "{{ role.syntax.parameter }}", "fontStyle": "italic" }
     },
     {
       "name": "Properties",
@@ -407,7 +407,7 @@
         "support.variable.property",
         "meta.property-name"
       ],
-      "settings": { "foreground": "{{ glow.1 }}" }
+      "settings": { "foreground": "{{ role.syntax.property }}" }
     },
     {
       "name": "Object keys (JSON, YAML)",
@@ -416,7 +416,7 @@
         "string.quoted.double.json support.type.property-name.json",
         "entity.name.tag.yaml"
       ],
-      "settings": { "foreground": "{{ mist.2 }}" }
+      "settings": { "foreground": "{{ role.syntax.key }}" }
     },
     {
       "name": "Variables",
@@ -425,7 +425,7 @@
         "variable.other",
         "variable.other.readwrite"
       ],
-      "settings": { "foreground": "{{ glow.1 }}" }
+      "settings": { "foreground": "{{ role.syntax.variable }}" }
     },
     {
       "name": "Built-in / language variables (this, self, super)",
@@ -435,7 +435,7 @@
         "variable.language.self",
         "variable.language.super"
       ],
-      "settings": { "foreground": "{{ spark.violet }}", "fontStyle": "italic" }
+      "settings": { "foreground": "{{ role.syntax.builtin }}", "fontStyle": "italic" }
     },
     {
       "name": "Decorators",
@@ -444,7 +444,7 @@
         "punctuation.decorator",
         "tag.decorator"
       ],
-      "settings": { "foreground": "{{ spark.amber }}" }
+      "settings": { "foreground": "{{ role.syntax.decorator }}" }
     },
     {
       "name": "Punctuation",
@@ -454,7 +454,7 @@
         "punctuation.separator",
         "punctuation.terminator"
       ],
-      "settings": { "foreground": "{{ glow.0 }}" }
+      "settings": { "foreground": "{{ role.syntax.punctuation }}" }
     },
     {
       "name": "Regex",
@@ -463,7 +463,7 @@
         "constant.other.character-class.regexp",
         "constant.character.escape.regexp"
       ],
-      "settings": { "foreground": "{{ mist.1 }}" }
+      "settings": { "foreground": "{{ role.syntax.regex }}" }
     },
     {
       "name": "HTML/JSX tags",
@@ -473,14 +473,14 @@
         "meta.tag",
         "meta.tag.attributes"
       ],
-      "settings": { "foreground": "{{ spark.red }}" }
+      "settings": { "foreground": "{{ role.syntax.tag }}" }
     },
     {
       "name": "HTML/JSX attributes",
       "scope": [
         "entity.other.attribute-name"
       ],
-      "settings": { "foreground": "{{ spark.amber }}", "fontStyle": "italic" }
+      "settings": { "foreground": "{{ role.syntax.attribute }}", "fontStyle": "italic" }
     },
     {
       "name": "CSS selectors",
@@ -489,14 +489,14 @@
         "entity.other.attribute-name.class.css",
         "entity.other.attribute-name.id.css"
       ],
-      "settings": { "foreground": "{{ spark.red }}" }
+      "settings": { "foreground": "{{ role.syntax.tag }}" }
     },
     {
       "name": "CSS properties",
       "scope": [
         "support.type.property-name.css"
       ],
-      "settings": { "foreground": "{{ mist.2 }}" }
+      "settings": { "foreground": "{{ role.syntax.key }}" }
     },
     {
       "name": "CSS values",
@@ -505,7 +505,7 @@
         "constant.numeric.css",
         "support.constant.color"
       ],
-      "settings": { "foreground": "{{ spark.orange }}" }
+      "settings": { "foreground": "{{ role.syntax.constant }}" }
     },
     {
       "name": "Markdown headings",
@@ -514,7 +514,7 @@
         "entity.name.section.markdown",
         "punctuation.definition.heading.markdown"
       ],
-      "settings": { "foreground": "{{ spark.violet }}", "fontStyle": "bold" }
+      "settings": { "foreground": "{{ role.syntax.heading }}", "fontStyle": "bold" }
     },
     {
       "name": "Markdown bold",
@@ -522,7 +522,7 @@
         "markup.bold",
         "punctuation.definition.bold.markdown"
       ],
-      "settings": { "foreground": "{{ glow.2 }}", "fontStyle": "bold" }
+      "settings": { "foreground": "{{ role.syntax.emphasis }}", "fontStyle": "bold" }
     },
     {
       "name": "Markdown italic",
@@ -530,7 +530,7 @@
         "markup.italic",
         "punctuation.definition.italic.markdown"
       ],
-      "settings": { "foreground": "{{ glow.2 }}", "fontStyle": "italic" }
+      "settings": { "foreground": "{{ role.syntax.emphasis }}", "fontStyle": "italic" }
     },
     {
       "name": "Markdown links",
@@ -539,7 +539,7 @@
         "string.other.link.title.markdown",
         "constant.other.reference.link.markdown"
       ],
-      "settings": { "foreground": "{{ mist.2 }}", "fontStyle": "underline" }
+      "settings": { "foreground": "{{ role.syntax.markup_link }}", "fontStyle": "underline" }
     },
     {
       "name": "Markdown inline code",
@@ -547,7 +547,7 @@
         "markup.inline.raw",
         "markup.fenced_code"
       ],
-      "settings": { "foreground": "{{ spark.green }}" }
+      "settings": { "foreground": "{{ role.syntax.markup_code }}" }
     },
     {
       "name": "Markdown lists",
@@ -555,14 +555,14 @@
         "markup.list",
         "punctuation.definition.list.begin"
       ],
-      "settings": { "foreground": "{{ spark.orange }}" }
+      "settings": { "foreground": "{{ role.syntax.markup_list }}" }
     },
     {
       "name": "Markdown quotes",
       "scope": [
         "markup.quote"
       ],
-      "settings": { "foreground": "{{ mist.3 }}", "fontStyle": "italic" }
+      "settings": { "foreground": "{{ role.syntax.quote }}", "fontStyle": "italic" }
     },
     {
       "name": "Diff inserted",
@@ -570,7 +570,7 @@
         "markup.inserted",
         "punctuation.definition.inserted"
       ],
-      "settings": { "foreground": "{{ spark.green }}" }
+      "settings": { "foreground": "{{ role.diff_added }}" }
     },
     {
       "name": "Diff removed",
@@ -578,7 +578,7 @@
         "markup.deleted",
         "punctuation.definition.deleted"
       ],
-      "settings": { "foreground": "{{ spark.red }}" }
+      "settings": { "foreground": "{{ role.diff_removed }}" }
     },
     {
       "name": "Diff changed",
@@ -586,7 +586,7 @@
         "markup.changed",
         "punctuation.definition.changed"
       ],
-      "settings": { "foreground": "{{ spark.amber }}" }
+      "settings": { "foreground": "{{ role.diff_modified }}" }
     },
     {
       "name": "Invalid / illegal",
@@ -594,44 +594,44 @@
         "invalid",
         "invalid.illegal"
       ],
-      "settings": { "foreground": "{{ spark.red }}", "fontStyle": "underline" }
+      "settings": { "foreground": "{{ role.syntax.invalid }}", "fontStyle": "underline" }
     },
     {
       "name": "Deprecated",
       "scope": [
         "invalid.deprecated"
       ],
-      "settings": { "foreground": "{{ glow.0 }}", "fontStyle": "strikethrough" }
+      "settings": { "foreground": "{{ role.syntax.deprecated }}", "fontStyle": "strikethrough" }
     }
   ],
 
   "semanticTokenColors": {
-    "type":      "{{ spark.amber }}",
-    "class":     "{{ spark.amber }}",
-    "interface": "{{ spark.amber }}",
-    "enum":      "{{ spark.amber }}",
-    "struct":    "{{ spark.amber }}",
-    "typeParameter": { "foreground": "{{ spark.amber }}", "italic": true },
+    "type":      "{{ role.syntax.type }}",
+    "class":     "{{ role.syntax.class }}",
+    "interface": "{{ role.syntax.type }}",
+    "enum":      "{{ role.syntax.type }}",
+    "struct":    "{{ role.syntax.type }}",
+    "typeParameter": { "foreground": "{{ role.syntax.type }}", "italic": true },
 
-    "namespace": "{{ mist.2 }}",
-    "function":  "{{ mist.2 }}",
-    "method":    "{{ mist.2 }}",
-    "macro":     "{{ spark.violet }}",
+    "namespace": "{{ role.syntax.namespace }}",
+    "function":  "{{ role.syntax.function }}",
+    "method":    "{{ role.syntax.function }}",
+    "macro":     "{{ role.syntax.macro }}",
 
-    "property":   "{{ glow.1 }}",
-    "variable":   "{{ glow.1 }}",
-    "parameter":  { "foreground": "{{ glow.1 }}", "italic": true },
-    "enumMember": "{{ spark.orange }}",
+    "property":   "{{ role.syntax.property }}",
+    "variable":   "{{ role.syntax.variable }}",
+    "parameter":  { "foreground": "{{ role.syntax.parameter }}", "italic": true },
+    "enumMember": "{{ role.syntax.constant }}",
 
-    "keyword":  "{{ spark.violet }}",
-    "operator": "{{ glow.0 }}",
-    "comment":  { "foreground": "{{ mist.3 }}", "italic": true },
-    "string":   "{{ spark.green }}",
-    "number":   "{{ spark.orange }}",
-    "regexp":   "{{ mist.1 }}",
+    "keyword":  "{{ role.syntax.keyword }}",
+    "operator": "{{ role.syntax.operator }}",
+    "comment":  { "foreground": "{{ role.syntax.comment }}", "italic": true },
+    "string":   "{{ role.syntax.string }}",
+    "number":   "{{ role.syntax.number }}",
+    "regexp":   "{{ role.syntax.regex }}",
 
     "*.declaration":  { "bold": true },
     "*.deprecated":   { "strikethrough": true },
-    "*.readonly":     "{{ spark.orange }}"
+    "*.readonly":     "{{ role.syntax.constant }}"
   }
 }
