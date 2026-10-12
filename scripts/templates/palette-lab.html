@@ -404,6 +404,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
         <span class="btn" ${st(c('bg_raised'), c('fg'), 'border-color:' + c('border'))}>Cancel</span>
         <span class="btn" ${st(c('button_bg'), c('fg_on_accent'), 'border-color:' + c('button_bg'))}>Apply</span>
         <span class="field" ${st(c('bg'), c('fg'), 'border-color:' + c('decoration_focus'))}>umber-tide</span>
+        <span class="field" ${st(c('bg'), c('fg_muted'), 'border-color:' + c('input_border'))}>Search…</span>
         <a style="color:${c('link')}">docs</a><a style="color:${c('link_visited')}">visited</a>
         <span class="tip" ${st(c('bg_overlay'), c('fg'), 'border-color:' + c('border'))}>Tooltip</span>
       </div>
@@ -452,7 +453,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   }
 
   // ------------------------------------------------------------ value ladder
-  const LADDER_SURF = ['bg', 'bg_panel', 'bg_raised', 'bg_active', 'border', 'selection_bg'];
+  const LADDER_SURF = ['bg', 'bg_panel', 'bg_raised', 'bg_active', 'border', 'input_border', 'selection_bg'];
   const LADDER_TEXT = ['fg_muted', 'fg', 'fg_emphasis', 'fg_strong', 'syntax.comment', 'link', 'link_visited', 'accent',
     'syntax.keyword', 'syntax.function', 'syntax.type', 'syntax.string', 'syntax.number', 'error', 'warning', 'success'];
   function greyAtL(L) { return E.oklchToHex(L, 0, 0).hex; }

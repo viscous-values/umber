@@ -94,10 +94,28 @@ class VariantChecksTest(unittest.TestCase):
     def test_focus_is_not_an_accent(self):
         self.assertFalse(self.checks["distinct:fg~accent"].ok)
 
+    def test_input_outline_must_reach_three_to_one(self):
+        for bg in ("bg", "bg_panel"):
+            check = self.checks[f"contrast:input_border/{bg}"]
+            self.assertEqual(check.level, "error")
+            self.assertEqual(check.threshold, pa.THRESHOLDS["nontext_contrast"])
+            self.assertFalse(check.ok)  # hearth.3 on today's grounds: ~1.6:1
+
     def test_accent_vs_status_is_advisory(self):
         check = self.checks["accent-vs-status:accent~error"]
         self.assertEqual(check.level, "warn")
         self.assertEqual(check.threshold, pa.THRESHOLDS["accent_vs_status_de"])
+
+
+@unittest.skipUnless((REPO / "palettes" / "next").is_dir(), "no drafts")
+class DraftChecksTest(unittest.TestCase):
+    """Positive guard: the drafts clear every per-variant error-level check."""
+
+    def test_every_draft_passes_per_variant_errors(self):
+        for name, (_, pal) in pa.load_targets(REPO / "palettes" / "next").items():
+            with self.subTest(draft=name):
+                failing = [c.id for c in pa.audit_variant(pal) if c.level == "error" and not c.ok]
+                self.assertEqual(failing, [])
 
 
 class FamilyChecksTest(unittest.TestCase):

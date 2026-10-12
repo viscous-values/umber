@@ -14,6 +14,7 @@ wallpaper_description = "Procedurally generated palette-tinted gradient — see 
 "1"                 = "#272727"   # L 0.272 C 0.000 h   0  panel bg — sidebar, window
 "2"                 = "#313131"   # L 0.312 C 0.000 h   0  raised — status/title bar, hover
 "3"                 = "#474747"   # L 0.398 C 0.000 h   0  active / border / tooltip
+"4"                 = "#737373"   # L 0.555 C 0.000 h   0  control outline — inputs, checkboxes, dropdowns (>= 3:1)
 
 [glow]
 "0"                 = "#A2A099"   # L 0.705 C 0.010 h  92  muted — hints, line numbers
@@ -81,6 +82,7 @@ selection_alt     = "accent.highlight_alt"
 brand             = "role.accent"
 link_ntp          = "role.link"
 focus_field       = "role.focus_ring"
+input_border      = "hearth.4"
 
 [role.on_selection]
 fg_soft     = "accent.highlight_text"

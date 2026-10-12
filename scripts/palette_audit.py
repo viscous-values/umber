@@ -207,7 +207,8 @@ def check_specs():
     contrast_spec("focus_ring", "bg", nontext)
     contrast_spec("focus_ring", "bg_panel", nontext)
     contrast_spec("decoration_focus", "bg_panel", nontext)
-    contrast_spec("border", "bg", nontext, level="warn")
+    contrast_spec("input_border", "bg", nontext)
+    contrast_spec("input_border", "bg_panel", nontext)
 
     # Surfaces must read as separate planes.
     for pair, minimum in t["surface_step"].items():
