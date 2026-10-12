@@ -79,6 +79,8 @@ link              = "mist.2"
 selection_bg      = "accent.highlight"
 selection_alt     = "accent.highlight_alt"
 brand             = "role.accent"
+link_ntp          = "role.link"
+focus_field       = "role.focus_ring"
 
 [role.on_selection]
 fg_soft     = "accent.highlight_text"

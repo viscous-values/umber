@@ -251,8 +251,15 @@ def check_one(palette, variant):
     return drift
 
 
+DRAFTS_DIR = PALETTES_DIR / "next"
+
+
 def cmd_render(args):
     palette_path = args.palette or PALETTE_FILE
+    if Path(palette_path).resolve().is_relative_to(DRAFTS_DIR.resolve()) and not args.force:
+        sys.exit(f"{palette_path} is a draft: rendering it would overwrite the shipped "
+                 f"{derive_variant(palette_path)} files. Promote it into palettes/ first, "
+                 f"or pass --force.")
     variant = args.variant or derive_variant(palette_path)
     palette = prepare_palette(palette_path, variant)
     written = render_one(palette, variant)
@@ -303,6 +310,8 @@ def main():
                           help="palette TOML (default: palette.toml)")
     render_p.add_argument("--variant", type=str,
                           help="variant slug (default: derived from --palette filename)")
+    render_p.add_argument("--force", action="store_true",
+                          help="allow rendering a draft from palettes/next/ over real outputs")
     render_p.set_defaults(func=cmd_render)
 
     check_p = sub.add_parser("check", help="validate canonical + all palettes/*.toml")
