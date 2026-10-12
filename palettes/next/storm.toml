@@ -30,13 +30,13 @@ wallpaper_description = "Procedurally generated palette-tinted gradient — see 
 [spark]
 red                 = "#EC6771"   # L 0.680 C 0.165 h  18  errors, tags, removed
 orange              = "#FA9259"   # L 0.760 C 0.145 h  48  numbers, constants
-amber               = "#F8AC3D"   # L 0.800 C 0.150 h  72  warnings, find, modified
+amber               = "#FBA541"   # L 0.790 C 0.150 h  66  warnings, find, modified
 green               = "#77DB88"   # L 0.810 C 0.150 h 148  strings, success, added
 violet              = "#BB8AEF"   # L 0.720 C 0.150 h 305  keywords, visited links
 
 [accent]
-signature           = "#EED25B"   # L 0.865 C 0.140 h  96  focus ring, active tab, primary button, progress
-signature_hover     = "#F5E28B"   # L 0.910 C 0.110 h  98
+signature           = "#EBDE77"   # L 0.890 C 0.125 h 102  focus ring, active tab, primary button, progress
+signature_hover     = "#F5EB9C"   # L 0.930 C 0.100 h 102
 on_signature        = "#181A2A"   # L 0.225 C 0.030 h 278  text on the signature
 highlight           = "#DED29D"   # L 0.860 C 0.070 h  96  selection background (light tint of the signature)
 highlight_alt       = "#D3C692"   # L 0.825 C 0.070 h  96  alternate selected row
@@ -55,13 +55,13 @@ blue                = "#72B1F6"   # L 0.745 C 0.120 h 252
 cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
 bright_red          = "#FF8289"   # L 0.750 C 0.151 h  18
 bright_green        = "#87F49A"   # L 0.880 C 0.160 h 148
-bright_yellow       = "#FFC986"   # L 0.870 C 0.104 h  72
+bright_yellow       = "#FFC488"   # L 0.860 C 0.102 h  66
 bright_blue         = "#95C7FF"   # L 0.815 C 0.096 h 252
 bright_magenta      = "#CEA4FF"   # L 0.790 C 0.133 h 305
 bright_cyan         = "#7DE9E8"   # L 0.870 C 0.100 h 195
 faint_red           = "#9D474C"   # L 0.510 C 0.115 h  18
 faint_green         = "#5D9E67"   # L 0.640 C 0.105 h 148
-faint_yellow        = "#B07E3A"   # L 0.630 C 0.105 h  72
+faint_yellow        = "#B1783B"   # L 0.620 C 0.105 h  66
 faint_blue          = "#537CA9"   # L 0.575 C 0.084 h 252
 faint_magenta       = "#8061A3"   # L 0.550 C 0.105 h 305
 faint_cyan          = "#599595"   # L 0.630 C 0.063 h 195
