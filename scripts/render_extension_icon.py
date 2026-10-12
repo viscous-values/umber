@@ -2,9 +2,10 @@
 """Render per-variant browser-extension icons from a palette TOML.
 
 Output: PNG icons at 48/96/128 px under <slug>-firefox/icons/ and
-<slug>-chromium/icons/. The icon is a palette-driven mark — dark hearth.0
-field with a centered hearth.1 "card" tile, an amber spark accent line
-across its top edge, and a glow.1 cream stripe across its bottom third.
+<slug>-chromium/icons/. The icon is a palette-driven mark drawn from
+resolved roles: a role.bg field with a centered role.bg_panel "card" tile,
+a role.brand (signature) accent line across its top edge, and a role.fg
+stripe across its bottom third.
 That mirrors the Firefox/Chromium tab visual idiom (tab_line + tab_text)
 in miniature, so the icon reads as "an Umber-palette-themed browser tab"
 no matter which variant.
@@ -14,7 +15,6 @@ Called by render_palette.py during `render`. Standalone invocation:
 """
 
 import argparse
-import tomllib
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -43,11 +43,12 @@ def derive_variant(palette_path):
 
 def render_icon(palette, size):
     """Return a PIL Image of the variant's icon at `size` px square."""
-    hearth_0 = hex_to_rgb(palette["hearth"]["0"])
-    hearth_1 = hex_to_rgb(palette["hearth"]["1"])
-    hearth_2 = hex_to_rgb(palette["hearth"]["2"])
-    glow_1 = hex_to_rgb(palette["glow"]["1"])
-    spark_amber = hex_to_rgb(palette["spark"]["amber"])
+    role = palette["role"]   # resolved by palette_lib.prepare
+    hearth_0 = hex_to_rgb(role["bg"])
+    hearth_1 = hex_to_rgb(role["bg_panel"])
+    hearth_2 = hex_to_rgb(role["bg_raised"])
+    glow_1 = hex_to_rgb(role["fg"])
+    brand = hex_to_rgb(role["brand"])
 
     # Render at 4x then downscale for crisp anti-aliased edges.
     scale = 4
@@ -65,9 +66,9 @@ def render_icon(palette, size):
     stripe_top = pad + inner_h * 78 // 100
     cdraw.rectangle((0, stripe_top, s, s), fill=glow_1 + (255,))
 
-    # Top accent line — amber spark, mirroring tab_line in the Firefox theme.
+    # Top accent line — the variant's signature, mirroring tab_line in the Firefox theme.
     accent_h = max(2 * scale, s // 24)
-    cdraw.rectangle((0, pad, s, pad + accent_h), fill=spark_amber + (255,))
+    cdraw.rectangle((0, pad, s, pad + accent_h), fill=brand + (255,))
 
     # Two faint "text-line" hints in hearth.2, between the accent line and
     # the cream stripe. Cues that this is a toolbar surface, not flat color.
@@ -113,8 +114,7 @@ def render_for_variant(palette, variant):
 def cmd_render(args):
     palette_path = args.palette or PALETTE_FILE
     variant = args.variant or derive_variant(palette_path)
-    with open(palette_path, "rb") as f:
-        palette = tomllib.load(f)
+    palette = palette_lib.prepare(palette_path)
     written = render_for_variant(palette, variant)
     print(f"[{variant}] wrote {len(written)} icon files:")
     for path in written:

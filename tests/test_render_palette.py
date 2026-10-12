@@ -88,5 +88,16 @@ class ConsumerRolesTest(unittest.TestCase):
         border = json.loads(out)["theme"]["colors"]["toolbar_field_border_focus"]
         self.assertEqual(border, pal["mist"]["1"])
 
+class ExtensionIconTest(unittest.TestCase):
+    def test_icon_accent_line_is_the_brand_color(self):
+        import palette_lib
+        import render_extension_icon
+        pal = palette_lib.prepare(REPO / "palettes" / "tide.toml")
+        img = render_extension_icon.render_icon(pal, 128).convert("RGB")
+        brand = render_extension_icon.hex_to_rgb(pal["role"]["brand"])
+        got = img.getpixel((64, 18))   # middle of the accent line under the card's top edge
+        self.assertTrue(all(abs(a - b) <= 2 for a, b in zip(got, brand)), f"{got} != brand {brand}")
+
+
 if __name__ == "__main__":
     unittest.main()
