@@ -19,6 +19,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+import palette_lib
+
 REPO = Path(__file__).resolve().parent.parent
 PALETTE_FILE = REPO / "palette.toml"
 PALETTES_DIR = REPO / "palettes"
@@ -36,8 +38,7 @@ def derive_slug(variant):
 
 
 def derive_variant(palette_path):
-    stem = Path(palette_path).stem
-    return "umber" if stem == "palette" else stem
+    return palette_lib.variant_slug(palette_path)
 
 
 def render_icon(palette, size):

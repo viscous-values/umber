@@ -51,8 +51,7 @@ TEMPLATE_DIR = REPO / "scripts" / "templates"
 # --------------------------------------------------------------------------- #
 
 def derive_variant(palette_path):
-    stem = Path(palette_path).stem
-    return "umber" if stem == "palette" else stem
+    return palette_lib.variant_slug(palette_path)
 
 
 def compute_var(palette, variant):

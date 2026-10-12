@@ -25,6 +25,20 @@ PALETTES_DIR = REPO / "palettes"
 ROLES_FILE = REPO / "roles.toml"
 
 HEX_RE = re.compile(r"#[0-9A-F]{6}")
+SLUG_RE = re.compile(r"[a-z][a-z0-9-]*")
+
+
+def variant_slug(path):
+    """Variant slug for a palette file: palette.toml is canonical "umber"; others use the stem.
+
+    Slugs become package ids, directory names and page markup, so they are
+    limited to lowercase letters, digits and hyphens.
+    """
+    stem = Path(path).stem
+    slug = "umber" if stem == "palette" else stem
+    if not SLUG_RE.fullmatch(slug):
+        raise ValueError(f"{path}: palette filenames must be lowercase letters, digits and hyphens")
+    return slug
 
 
 def load_toml(path):
