@@ -5,7 +5,7 @@ import QtQuick 2.15
 // beneath in muted glow. No spinner, no progress bar — just a slow draw.
 Rectangle {
     id: root
-    color: "#242424"
+    color: "#1E1E1E"
 
     property int stage
 
@@ -20,8 +20,8 @@ Rectangle {
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#242424" }
-            GradientStop { position: 1.0; color: "#2B2B2B" }
+            GradientStop { position: 0.0; color: "#1E1E1E" }
+            GradientStop { position: 1.0; color: "#272727" }
         }
     }
 
@@ -40,7 +40,7 @@ Rectangle {
             y: 70
             width: parent.width
             height: 1
-            color: "#333333"
+            color: "#313131"
         }
 
         // The drawn portion — a horizontal gradient that fades in/out at the
@@ -54,10 +54,10 @@ Rectangle {
             width: track.width * root.progress
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0;  color: "#00D0BC95" }
-                GradientStop { position: 0.15; color: "#FFD0BC95" }
-                GradientStop { position: 0.85; color: "#FFD0BC95" }
-                GradientStop { position: 1.0;  color: "#FFE5C07B" }
+                GradientStop { position: 0.0;  color: "#00CAC9C4" }
+                GradientStop { position: 0.15; color: "#FFCAC9C4" }
+                GradientStop { position: 0.85; color: "#FFCAC9C4" }
+                GradientStop { position: 1.0;  color: "#FFBD7564" }
             }
             Behavior on width {
                 NumberAnimation { duration: 600; easing.type: Easing.OutCubic }
@@ -84,8 +84,8 @@ Rectangle {
                 border.width: 0
                 opacity: 0.35
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#80E5C07B" }
-                    GradientStop { position: 1.0; color: "#00E5C07B" }
+                    GradientStop { position: 0.0; color: "#80BD7564" }
+                    GradientStop { position: 1.0; color: "#00BD7564" }
                 }
             }
             // Pip
@@ -93,7 +93,7 @@ Rectangle {
                 anchors.centerIn: parent
                 width: 5; height: 5
                 radius: 2.5
-                color: "#E5C07B"
+                color: "#BD7564"
             }
         }
 
@@ -108,7 +108,7 @@ Rectangle {
             font.pointSize: 24
             font.letterSpacing: 8
             font.weight: Font.Thin
-            color: "#A6998A"
+            color: "#A1A09C"
             renderType: Text.NativeRendering
         }
 
@@ -118,7 +118,7 @@ Rectangle {
             y: mark.y + mark.height + 14
             width: 18
             height: 1
-            color: "#444444"
+            color: "#474747"
         }
     }
 

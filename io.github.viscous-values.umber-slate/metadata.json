@@ -7,7 +7,7 @@
             }
         ],
         "Category": "Plasma Look And Feel",
-        "Description": "Cream-on-overcast — Umber Slate. Neutral-cool charcoal hearths, lightly desaturated cream glow.",
+        "Description": "Silver on blue-grey slate with a moss-green signature.",
         "EnabledByDefault": true,
         "Id": "io.github.viscous-values.umber-slate",
         "License": "GPL-3.0-or-later",

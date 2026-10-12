@@ -1,89 +1,89 @@
-# Umber palette — single source of truth.
+# Umber palette — canonical variant.
 #
-# OPEN: the whole scheme is due for a rework (link vs visited, surface
-# steps, accent identity, …). Read PALETTE-REVISIT.md before changing colors.
+# Fireside. Raw-umber ground, cream text, a burnt-sienna signature. Code in earth pigments: madder keywords, terre-verte types, sap-green strings, cadmium numbers, with cerulean as the one cool note.
 #
-# scripts/render_palette.py reads this file and writes the per-consumer
-# palette files (Plasma .colors, Konsole .colorscheme, VSCode theme JSON,
-# Firefox/Chromium manifests, SDDM theme.conf, splash + lockscreen QML)
-# from templates under scripts/templates/. To change a color:
+# This file defines pigments only. What each color is used for lives in
+# roles.toml; scripts/render_palette.py renders every consumer (Plasma,
+# Konsole, VSCode, Firefox, Chromium, SDDM, splash, lockscreen) from the two:
 #
-#   1. Edit the value here
-#   2. Run:  python scripts/render_palette.py render
-#   3. Commit both palette.toml and the regenerated consumer files
+#   1. Edit a value here, or tune it in the Palette Lab
+#      (python3 scripts/render_lab.py) and paste the export
+#   2. python3 scripts/render_palette.py render
+#   3. python3 scripts/palette_audit.py --strict      (must pass)
+#   4. Commit this file together with the regenerated consumer files
 #
-# 17-color palette in 4 tiers. Tier names are component roles, independent
-# of the project name:
-#   hearth — surfaces (deepest bg → border tier; warm-tinted earth pigment)
-#   glow   — warm foregrounds (muted → brightest)
-#   mist   — cool accents (deep teal → soft blue)
-#   spark  — vivid semantic accents
+# Every value carries its OKLCH coordinates. The five variants share one
+# lightness ladder: surfaces L .235 / .272 / .312 / .398, hover .465,
+# control outline .555; text L .705 / .835 / .895 / .950.
 #
-# WCAG 2.x contrast notes (AA = 4.5:1 for text):
-#   glow.0 on hearth.1 ≈ 5.25:1 — passes AA; used for hints/disabled text
-#   spark.red on hearth.0 ≈ 4.94:1 — passes AA with little headroom
-#   accent.highlight_* on accent.highlight ≥ 4.5:1 — see [accent] below
+# WCAG 2.x contrast, measured (palette_audit.py checks all of these):
+#   body text on editor bg 10.0:1, on raised surfaces 7.8:1
+#   muted text on raised surfaces 4.97:1; comments on editor bg 4.73:1
+#   text on selection 8.7:1; text on the signature 7.1:1
+#   focus ring on panels 6.3:1; input outline on panels 3.13:1
+#
+# The pre-redesign palette is archived in palettes/archive/classic/.
 
 [meta]
-description = "Quiet warm peach foreground on neutral charcoal — palette adapted from MarianArlt's Sugar Dark, muted for long sessions."
-wallpaper_description = "Procedurally generated charcoal-to-faint-peach gradient — see scripts/render_wallpaper.py."
+description = "Cream on raw umber with a burnt-sienna signature, the canonical fireside palette."
+concept = "Fireside. Raw-umber ground, cream text, a burnt-sienna signature. Code in earth pigments: madder keywords, terre-verte types, sap-green strings, cadmium numbers, with cerulean as the one cool note."
+wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
 
 [hearth]
-"0" = "#26221E"   # deepest bg     — editor, modals, splash         (warm-tinted)
-"1" = "#2D2823"   # panel bg       — sidebar, header, lockscreen    (warm-tinted)
-"2" = "#363029"   # raised surface — hover, status bar, peek title  (warm-tinted)
-"3" = "#48413A"   # border         — divider, focus, button alt     (warm-tinted)
+"0"                 = "#291B0E"   # L 0.235 C 0.031 h  62  deepest bg — editor, view, terminal
+"1"                 = "#322417"   # L 0.272 C 0.031 h  62  panel bg — sidebar, window
+"2"                 = "#3C2E21"   # L 0.312 C 0.030 h  62  raised — status/title bar, hover
+"3"                 = "#51443A"   # L 0.398 C 0.025 h  62  active / border / tooltip
+"4"                 = "#7E7064"   # L 0.555 C 0.025 h  62  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+hover               = "#64574B"   # L 0.465 C 0.025 h  62  hover on an active surface — secondary button, scrollbar thumb
 
 [glow]
-"0" = "#A89986"   # muted / disabled / hint
-"1" = "#D4BC91"   # primary fg     — body text
-"2" = "#E1CDA5"   # emphasized fg  — active text, selection alt
-"3" = "#F0E5D0"   # brightest fg   — cursor, highlights              (warm cream, was #E1E1E1)
+"0"                 = "#AA9E8B"   # L 0.705 C 0.030 h  80  muted — hints, line numbers
+"1"                 = "#D9C6A8"   # L 0.835 C 0.046 h  80  body text
+"2"                 = "#EBDABF"   # L 0.895 C 0.040 h  80  emphasis — active tab, titles
+"3"                 = "#F7EDDD"   # L 0.950 C 0.024 h  80  strong — cursor, url text
 
 [mist]
-"0" = "#4F7A7E"   # deep teal      — reserved for syntax headroom    (NEW)
-"1" = "#7AA8AC"   # cool teal      — regex, brackets[6]
-"2" = "#88A6C5"   # primary blue   — focus, function names, links
-"3" = "#A8BDD6"   # softer blue    — comments, hints
+"0"                 = "#8CCAAF"   # L 0.790 C 0.075 h 165  types, classes
+"1"                 = "#5DAEAE"   # L 0.700 C 0.080 h 195  regex, ANSI cyan
+"2"                 = "#80BAE4"   # L 0.765 C 0.085 h 240  functions, links, info, ANSI blue
+"3"                 = "#958676"   # L 0.630 C 0.030 h  70  comments, hints
 
 [spark]
-red    = "#E06C75"   # error / negative / delete
-orange = "#D19A66"   # numbers / constants / debug
-amber  = "#E5C07B"   # warning / neutral / pending
-green  = "#98C379"   # success / strings / added
-violet = "#C586B0"   # keyword / visited / control flow
+red                 = "#E66F64"   # L 0.680 C 0.150 h  27  errors, tags, removed
+orange              = "#F2A660"   # L 0.785 C 0.125 h  62  numbers, constants
+amber               = "#EDD473"   # L 0.870 C 0.120 h  95  warnings, find, modified
+green               = "#9FC56B"   # L 0.775 C 0.125 h 128  strings, success, added
+violet              = "#D988A8"   # L 0.720 C 0.105 h 355  keywords, visited links
 
-# Variant-specific UI accent. Drives selection backgrounds, focused-field
-# borders, active-tab lines — anywhere a "highlight" wants to feel native
-# to the variant's mood. Canonical Umber + Ash use the warm glow signature;
-# cool variants (Slate, Storm, Tide) pull from mist so the highlight reads
-# cool on a cool field.
-#
-# highlight_* are semantic text colors drawn ON the highlight (Plasma
-# [Colors:Selection] link / negative / neutral / positive / visited). Each is
-# a darkened spark/brown hue kept at ≥ 4.5:1 against this variant's
-# highlight (WCAG AA), so they differ per variant.
 [accent]
-highlight          = "#D4BC91"   # selection bg (= glow.1, warm peach)
-highlight_text     = "#26221E"   # text on highlight bg (= hearth.0)
-highlight_link     = "#6D4600"   # 4.51:1 on highlight
-highlight_negative = "#91272C"   # 4.50:1
-highlight_neutral  = "#6D4600"   # 4.51:1
-highlight_positive = "#2D5016"   # 5.02:1
-highlight_visited  = "#5C4225"   # 5.04:1
+signature           = "#EB9251"   # L 0.740 C 0.135 h  55  focus ring, active tab, primary button, progress
+signature_hover     = "#F4A76A"   # L 0.790 C 0.120 h  58
+on_signature        = "#26190D"   # L 0.225 C 0.030 h  62  text on the signature
+highlight           = "#E3B492"   # L 0.805 C 0.072 h  58  selection background (light tint of the signature)
+highlight_alt       = "#D8A987"   # L 0.770 C 0.072 h  58  alternate selected row
+highlight_text      = "#2E1C0B"   # L 0.245 C 0.040 h  60  text on selection
+highlight_inactive  = "#534336"   # L 0.395 C 0.030 h  60  secondary text on selection
+highlight_link      = "#18467D"   # L 0.395 C 0.105 h 255  on selection
+highlight_visited   = "#603067"   # L 0.395 C 0.105 h 322  on selection
+highlight_negative  = "#7C2121"   # L 0.395 C 0.125 h  25  on selection
+highlight_neutral   = "#5C4102"   # L 0.395 C 0.080 h  82  on selection
+highlight_positive  = "#1C5421"   # L 0.395 C 0.100 h 145  on selection
 
-# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
-# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
-# roles.toml [role.ansi].
+# Terminal: normal colors map from spark/mist; these are the extras.
 [ansi]
-bright_red     = "#EB8590"
-bright_green   = "#B5D690"
-bright_yellow  = "#F0CF8E"
-bright_magenta = "#D5A0C2"
-bright_cyan    = "#9CC4C7"
-faint_red      = "#A04D54"
-faint_green    = "#6D8C56"
-faint_yellow   = "#A48A58"
-faint_blue     = "#57748F"
-faint_magenta  = "#8D608A"
-faint_cyan     = "#508083"
+black               = "#5D4A3A"   # L 0.425 C 0.036 h  62
+blue                = "#80B0E7"   # L 0.745 C 0.095 h 252
+cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
+bright_red          = "#FF8579"   # L 0.750 C 0.151 h  27
+bright_green        = "#B3DD7A"   # L 0.845 C 0.135 h 128
+bright_yellow       = "#FFEBA1"   # L 0.940 C 0.096 h  95
+bright_blue         = "#95C7FF"   # L 0.815 C 0.096 h 252
+bright_magenta      = "#F59BBE"   # L 0.790 C 0.115 h 355
+bright_cyan         = "#7DE9E8"   # L 0.870 C 0.100 h 195
+faint_red           = "#994C44"   # L 0.510 C 0.105 h  27
+faint_green         = "#728C52"   # L 0.605 C 0.087 h 128
+faint_yellow        = "#AF9E60"   # L 0.700 C 0.084 h  95
+faint_blue          = "#5C7C9F"   # L 0.575 C 0.066 h 252
+faint_magenta       = "#945F74"   # L 0.550 C 0.073 h 355
+faint_cyan          = "#599595"   # L 0.630 C 0.063 h 195

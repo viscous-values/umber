@@ -14,31 +14,31 @@
 
   "theme": {
     "colors": {
-      "frame":                          [32, 38, 41],
-      "frame_inactive":                 [39, 45, 49],
-      "frame_incognito":                [32, 38, 41],
-      "frame_incognito_inactive":       [39, 45, 49],
+      "frame":                          [9, 35, 33],
+      "frame_inactive":                 [18, 44, 42],
+      "frame_incognito":                [9, 35, 33],
+      "frame_incognito_inactive":       [18, 44, 42],
 
-      "toolbar":                        [39, 45, 49],
-      "toolbar_text":                   [234, 229, 217],
-      "toolbar_button_icon":            [160, 154, 147],
-      "omnibox_background":             [47, 53, 57],
-      "omnibox_text":                   [234, 229, 217],
+      "toolbar":                        [18, 44, 42],
+      "toolbar_text":                   [236, 240, 231],
+      "toolbar_button_icon":            [157, 162, 150],
+      "omnibox_background":             [28, 54, 52],
+      "omnibox_text":                   [236, 240, 231],
 
-      "tab_text":                       [214, 204, 181],
-      "tab_background_text":            [160, 154, 147],
-      "tab_background_text_inactive":   [160, 154, 147],
-      "background_tab":                 [39, 45, 49],
-      "background_tab_inactive":        [39, 45, 49],
+      "tab_text":                       [217, 223, 209],
+      "tab_background_text":            [157, 162, 150],
+      "tab_background_text_inactive":   [157, 162, 150],
+      "background_tab":                 [18, 44, 42],
+      "background_tab_inactive":        [18, 44, 42],
 
-      "bookmark_text":                  [214, 204, 181],
-      "ntp_background":                 [32, 38, 41],
-      "ntp_text":                       [214, 204, 181],
-      "ntp_link":                       [122, 168, 172],
-      "ntp_header":                     [214, 204, 181],
+      "bookmark_text":                  [217, 223, 209],
+      "ntp_background":                 [9, 35, 33],
+      "ntp_text":                       [217, 223, 209],
+      "ntp_link":                       [124, 192, 227],
+      "ntp_header":                     [217, 223, 209],
 
-      "control_background":             [47, 53, 57],
-      "button_background":              [47, 53, 57]
+      "control_background":             [28, 54, 52],
+      "button_background":              [28, 54, 52]
     },
     "tints": {
       "buttons":      [-1, -1, 0.78],

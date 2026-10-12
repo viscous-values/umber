@@ -1,22 +1,25 @@
 # Umber semantic roles — what each color DOES, mapped onto palette tiers.
 #
 # Templates under scripts/templates/ reference role.* only; the pigment
-# tiers (hearth / glow / mist / spark / accent) live in palette.toml and
-# palettes/*.toml. A variant overrides any role in its own [role] table:
+# tiers (hearth / glow / mist / spark / accent / ansi) live in palette.toml
+# and palettes/*.toml. A variant overrides any role in its own [role] table:
 #
-#   [role]
-#   focus_ring = "role.accent"
 #   [role.syntax]
-#   type = "mist.1"
+#   string = "spark.amber"
 #
 # Values are a literal "#RRGGBB" or a reference ("glow.2", "role.fg").
 # scripts/palette_lib.py merges these defaults with the variant's overrides
 # (unknown override keys are rejected) and resolves every role to hex.
 #
-# These defaults reproduce the pre-role-layer mapping exactly. Where two
-# consumers used different tiers for the same job (Firefox focus border =
-# accent, VSCode focusBorder = mist.2), they still point at different roles
-# here; unifying them is a palette decision, not a refactor.
+# Mapping principles (2026-10 redesign, see PALETTE-REVISIT.md):
+# - accent is the variant's signature; focus, active indicators, primary
+#   buttons, progress and the splash all use it.
+# - selection is a light tint derived from the signature (accent.highlight),
+#   with its own hue-distinct set of colors for text drawn on it.
+# - links are the blue pigment (mist.2), visited links the violet (spark.violet);
+#   info uses the cyan (mist.1) so it never looks clickable.
+# - input outlines get their own step (hearth.4) so controls reach 3:1;
+#   decorative lines (border) stay faint.
 
 [role]
 # Surfaces — deepest to most raised.
@@ -29,7 +32,7 @@ line_highlight = "role.bg_panel"   # editor current-line band
 
 # Lines.
 border    = "hearth.3"   # popup/widget frames, menu separators, guides (may stay faint)
-input_border = "role.border"   # outline that identifies a control: text field, checkbox, dropdown (>= 3:1)
+input_border = "hearth.4"   # outline that identifies a control: text field, checkbox, dropdown (>= 3:1)
 divider   = "hearth.1"   # hairlines between same-level panes
 separator = "hearth.2"   # faint rules: indent guides, rulers, toolbar separators
 
@@ -38,46 +41,41 @@ fg           = "glow.1"   # body text
 fg_muted     = "glow.0"   # hints, inactive, line numbers, placeholders
 fg_emphasis  = "glow.2"   # active tab, titles, focused list rows
 fg_strong    = "glow.3"   # brightest text: active foreground, url/popup text
-fg_on_accent = "hearth.0" # text on filled buttons, badges, status items
+fg_on_accent = "accent.on_signature" # text on filled buttons, badges, status items
 cursor       = "glow.3"
 
 # Neutrals that do not come from a tier.
-bg_active_hover = "#555555"   # hover on bg_active: secondary button, scrollbar thumb
+bg_active_hover = "hearth.hover"   # hover on bg_active: secondary button, scrollbar thumb
 shadow          = "#000000"   # drop shadows and scrims (alpha set in templates)
 
 # Identity + interaction.
-accent            = "accent.highlight"  # signature color: active tab line, panel title border
-interactive       = "mist.2"            # badges, progress, matches, info-ish fills
-interactive_hover = "mist.3"
+accent            = "accent.signature"  # the variant's signature: active tab line, focus, primary buttons
+interactive       = "role.accent"       # badges, progress, matches
+interactive_hover = "accent.signature_hover"
 button_bg         = "role.interactive"
 button_hover      = "role.interactive_hover"
-focus_ring        = "role.interactive"  # VSCode focusBorder
-decoration_focus  = "glow.3"            # Plasma DecorationFocus, SDDM/lockscreen accent
-decoration_hover  = "glow.3"            # Plasma DecorationHover
+focus_ring        = "role.accent"       # VSCode focusBorder, Firefox url-field focus
+decoration_focus  = "role.accent"       # Plasma DecorationFocus, SDDM/lockscreen accent
+decoration_hover  = "role.fg_muted"     # Plasma DecorationHover: quieter than focus
 
 # Links.
-link         = "glow.2"
+link         = "mist.2"
 link_visited = "spark.violet"
 
-# Browser sites that drew these jobs with the accent before the role layer.
-# The defaults keep v1.0.1 output; the drafts point them at role.link and
-# role.focus_ring, and promotion makes that the default.
-link_ntp    = "role.accent"   # Chromium new-tab page links
-focus_field = "role.accent"   # Firefox url-field focus border
 
 # Selection.
-selection_bg  = "role.accent"
-selection_alt = "spark.amber"   # Plasma [Colors:Selection] BackgroundAlternate
+selection_bg  = "accent.highlight"       # light tint of the signature
+selection_alt = "accent.highlight_alt"   # Plasma [Colors:Selection] BackgroundAlternate
 
 # Status.
 error     = "spark.red"
 warning   = "spark.amber"
 success   = "spark.green"
-info      = "mist.2"
+info      = "mist.1"
 hint      = "mist.3"
 debug     = "spark.orange"
 attention = "spark.amber"   # find matches, tab/icon attention
-brand     = "spark.amber"   # splash glimmer pip
+brand     = "role.accent"   # splash glimmer pip, extension icon
 
 # Version control.
 diff_added    = "spark.green"
@@ -88,9 +86,9 @@ diff_modified = "spark.amber"
 # VSCode/Firefox selected rows). Keep each >= 4.5:1 against selection_bg.
 [role.on_selection]
 fg          = "accent.highlight_text"
-fg_soft     = "hearth.1"   # Plasma ForegroundNormal
-fg_inactive = "hearth.3"
-decoration  = "hearth.1"
+fg_soft     = "accent.highlight_text"   # Plasma ForegroundNormal
+fg_inactive = "accent.highlight_inactive"
+decoration  = "accent.highlight_text"
 link        = "accent.highlight_link"
 visited     = "accent.highlight_visited"
 negative    = "accent.highlight_negative"
@@ -108,7 +106,7 @@ operator    = "glow.0"
 punctuation = "role.syntax.operator"
 function    = "mist.2"
 namespace   = "role.syntax.function"  # semantic tokens
-type        = "spark.amber"
+type        = "mist.0"
 class       = "role.syntax.type"
 decorator   = "role.syntax.type"
 attribute   = "role.syntax.type"
@@ -124,7 +122,7 @@ key         = "mist.2"                # JSON/YAML keys, CSS properties
 tag         = "spark.red"             # HTML/JSX tags, CSS selectors
 heading     = "role.syntax.keyword"   # markdown
 emphasis    = "role.fg_emphasis"      # markdown bold/italic
-markup_link = "mist.2"
+markup_link = "role.link"
 markup_code = "role.syntax.string"
 markup_list = "role.syntax.number"
 quote       = "role.syntax.comment"
@@ -147,16 +145,16 @@ fg           = "role.fg"
 fg_faint     = "role.fg_muted"
 fg_intense   = "role.fg_strong"
 cursor       = "role.cursor"
-black        = "hearth.1"
+black        = "ansi.black"
 red          = "spark.red"
 green        = "spark.green"
 yellow       = "spark.amber"
-blue         = "mist.2"
+blue         = "ansi.blue"
 magenta      = "spark.violet"
-cyan         = "mist.1"
+cyan         = "ansi.cyan"
 white        = "glow.1"
 bright_black = "glow.0"
-bright_blue  = "mist.3"
+bright_blue  = "ansi.bright_blue"
 bright_white = "glow.3"
 bright_red     = "ansi.bright_red"
 bright_green   = "ansi.bright_green"
