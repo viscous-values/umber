@@ -28,7 +28,8 @@ bg_overlay     = "hearth.3"   # tooltips
 line_highlight = "role.bg_panel"   # editor current-line band
 
 # Lines.
-border    = "hearth.3"   # widget, input, menu and popup borders
+border    = "hearth.3"   # popup/widget frames, menu separators, guides (may stay faint)
+input_border = "role.border"   # outline that identifies a control: text field, checkbox, dropdown (>= 3:1)
 divider   = "hearth.1"   # hairlines between same-level panes
 separator = "hearth.2"   # faint rules: indent guides, rulers, toolbar separators
 
