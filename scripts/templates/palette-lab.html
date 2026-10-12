@@ -1,0 +1,821 @@
+<title>Umber Palette Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@1,400;1,500&family=Noto+Sans:wght@400;600&family=Noto+Sans+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a viewing booth. Neutral (zero-chroma) surround so the chrome never
+   biases color judgment; an instrument bar on top; one panel per question
+   (lineup, value, hue, distance, audit, tune). Single dark look by design —
+   the booth grey is user-selectable because surround changes perception. */
+:root {
+  color-scheme: dark;
+  --booth: #262626;      /* N2.5 neutral surround */
+  --booth-raised: #303030;
+  --rule: #3C3C3C;
+  --ink: #E9E9E9;
+  --ink-2: #ABABAB;
+  --ink-3: #777777;
+  --fail: #EC6A6F;       /* lab semantics, not theme colors */
+  --warn: #D9A540;
+  --pass: #79C27C;
+  --font-ui: "IBM Plex Sans", "Noto Sans", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", "Noto Sans Mono", ui-monospace, monospace;
+  --font-name: "IBM Plex Serif", Georgia, serif;
+  --font-kde: "Noto Sans", "IBM Plex Sans", system-ui, sans-serif;
+  --font-kde-mono: "Noto Sans Mono", "IBM Plex Mono", ui-monospace, monospace;
+}
+body.booth-n1 { --booth: #0E0E0E; --booth-raised: #1A1A1A; --rule: #2E2E2E; }
+body.booth-n5 { --booth: #777777; --booth-raised: #6C6C6C; --rule: #8A8A8A; --ink: #111111; --ink-2: #262626; --ink-3: #3F3F3F; --fail: #8E1218; --warn: #6A4500; --pass: #1F5A22; }
+* { box-sizing: border-box; }
+body { background: var(--booth); color: var(--ink); font: 14px/1.45 var(--font-ui); padding-inline: 16px; padding-block: 0 48px; }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--booth); border-bottom: 1px solid var(--rule); padding-block: 12px 10px; display: grid; gap: 10px; }
+.bar-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+.mark { font-weight: 600; letter-spacing: 0.01em; }
+.mark span { color: var(--ink-3); font-weight: 400; }
+.score { font: 12px var(--font-data); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.score b { font-weight: 500; }
+.score .bad { color: var(--fail); }
+.score .good { color: var(--pass); }
+nav.tabs, .controls { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.seg button { background: none; border: 0; padding: 3px 10px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--booth); }
+.seg button:disabled { opacity: 0.35; cursor: not-allowed; }
+.lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
+nav.tabs button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 4px 2px; color: var(--ink-2); cursor: pointer; font-weight: 500; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+main { padding-top: 18px; }
+.panel[hidden] { display: none; }
+.intro { max-width: 70ch; color: var(--ink-2); margin: 0 0 16px; }
+.intro b { color: var(--ink); font-weight: 500; }
+
+/* ---------- lineup ---------- */
+.lineup { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 282px), 1fr)); gap: 28px 20px; align-items: start; }
+.vcard { min-width: 0; display: grid; gap: 8px; }
+.vhead { display: grid; gap: 2px; }
+.vname { font: italic 500 20px/1.15 var(--font-name); }
+.vconcept { font-size: 12px; color: var(--ink-2); min-height: 2.9em; }
+.vmeta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.chip { font: 11px var(--font-data); padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.chip.bad { color: var(--fail); } .chip.good { color: var(--pass); }
+.strip { display: flex; height: 14px; border-radius: 3px; overflow: hidden; }
+.strip i { flex: 1; }
+.strip i.gap { flex: 0 0 4px; background: transparent; }
+.setlabel { font: 11px var(--font-data); color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+/* the mock desktop: every color comes from inline styles set by JS */
+.mock { font: 11px/1.5 var(--font-kde); border-radius: 6px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
+.mock .row { display: flex; align-items: center; gap: 8px; padding: 0 8px; min-height: 21px; }
+.mock .titlebar { justify-content: space-between; font-weight: 600; min-height: 26px; }
+.mock .dots { display: flex; gap: 6px; } .mock .dots i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.mock .split { display: grid; grid-template-columns: 34% 1fr; }
+.mock .side { padding: 6px 4px; display: grid; gap: 1px; align-content: start; }
+.mock .side .cap { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 6px 2px; }
+.mock .side .it { padding: 1px 6px; border-radius: 3px; border: 1px solid transparent; }
+.mock .files .row { justify-content: space-between; min-height: 19px; }
+.mock .files .row span:last-child { font-variant-numeric: tabular-nums; }
+.mock .onsel { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 4px 8px; }
+.mock .controls { display: flex; flex-wrap: wrap; gap: 6px 8px; padding: 8px; align-items: center; }
+.mock .btn { padding: 2px 10px; border-radius: 3px; border: 1px solid; }
+.mock .field { padding: 2px 6px; border-radius: 3px; border: 1px solid; min-width: 90px; }
+.mock .tip { padding: 2px 6px; border-radius: 3px; border: 1px solid; font-size: 10.5px; }
+.mock a { text-decoration: underline; text-underline-offset: 2px; }
+.mock .status { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 0 8px 8px; }
+.mock .tabsrow { display: flex; font-size: 10.5px; }
+.mock .tab { padding: 4px 10px 3px; border-top: 2px solid transparent; }
+.mock pre { margin: 0; font: 10.5px/1.6 var(--font-kde-mono); overflow-x: auto; }
+.mock .code { display: grid; grid-template-columns: 2.6em 1fr; }
+.mock .gut { text-align: right; padding-right: 8px; user-select: none; }
+.mock .ln { display: block; padding-left: 4px; white-space: pre; }
+.mock .sbar { display: flex; justify-content: space-between; font-size: 10px; min-height: 18px; padding: 0 0 0 8px; }
+.mock .sbar .rem { padding: 0 8px; display: flex; align-items: center; }
+.mock .term { padding: 6px 8px; font: 10.5px/1.55 var(--font-kde-mono); white-space: pre-wrap; word-break: break-all; }
+.mock .ansi { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; padding: 0 8px 8px; }
+.mock .ansi i { height: 9px; display: block; border-radius: 1px; }
+
+/* ---------- value ---------- */
+.ladders { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 24px 20px; }
+.ladder svg { width: 100%; height: auto; display: block; }
+.ladder text { font: 10px var(--font-data); fill: var(--ink-2); }
+.ladder .axis { stroke: var(--rule); }
+.ladder .lane { fill: var(--ink); opacity: 0.06; }
+.ladder .dead { fill: url(#hatch); }
+.ladder .lanelbl { fill: var(--ink-3); font-size: 9px; }
+
+/* ---------- hue ---------- */
+.wheels { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 24px 20px; }
+.wheel svg { width: 100%; height: auto; display: block; }
+.wheel text { font: 9.5px var(--font-data); fill: var(--ink-2); }
+.wheel .ring { fill: none; stroke: var(--rule); }
+.wheel .spoke { stroke: var(--rule); stroke-dasharray: 2 3; }
+
+/* ---------- distance / audit tables ---------- */
+.scroll { overflow-x: auto; max-width: 100%; }
+table.grid { border-collapse: collapse; font: 11px var(--font-data); font-variant-numeric: tabular-nums; }
+table.grid th, table.grid td { padding: 3px 6px; text-align: right; white-space: nowrap; }
+table.grid th { color: var(--ink-3); font-weight: 400; }
+table.grid thead th { text-align: center; vertical-align: bottom; }
+table.grid tbody th { text-align: left; }
+table.grid td.f { color: var(--fail); font-weight: 500; }
+table.grid td.w { color: var(--warn); }
+table.grid td.d { color: var(--ink-3); }
+.swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; }
+.picker { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+select { background: var(--booth-raised); border: 1px solid var(--rule); border-radius: 4px; padding: 2px 6px; }
+h2 { font: 600 13px var(--font-ui); letter-spacing: 0.02em; margin: 26px 0 8px; }
+h2:first-child { margin-top: 0; }
+.audit { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 24px 24px; align-items: start; }
+.audit table { width: 100%; }
+.audit td:nth-child(3), .audit th:nth-child(3) { text-align: left; }
+.mk { font-weight: 600; }
+.mk.f { color: var(--fail); } .mk.w { color: var(--warn); } .mk.p { color: var(--pass); }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--ink-2); text-decoration: underline; cursor: pointer; font-size: 12px; }
+
+/* ---------- tune ---------- */
+.tune { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .tune { grid-template-columns: 1fr; } }
+.tiers { display: grid; gap: 18px; }
+.tier h3 { font: 500 12px var(--font-data); color: var(--ink-2); margin: 0 0 6px; }
+.trow { display: grid; grid-template-columns: 28px 74px 78px repeat(3, minmax(60px, 1fr)); gap: 8px; align-items: center; font: 11px var(--font-data); padding: 2px 0; }
+.trow .sw { width: 28px; height: 20px; border-radius: 3px; border: 1px solid var(--rule); }
+.trow input[type="text"] { width: 74px; background: var(--booth-raised); border: 1px solid var(--rule); border-radius: 3px; padding: 1px 4px; font: 11px var(--font-data); }
+.trow input[type="range"] { width: 100%; accent-color: var(--ink-2); }
+.trow .oog { color: var(--warn); }
+.trow label { display: grid; gap: 0; color: var(--ink-3); font-size: 9.5px; }
+@media (max-width: 560px) { .trow { grid-template-columns: 28px 1fr 1fr; } .trow label { grid-column: span 1; } }
+.side-tools { position: sticky; top: 130px; display: grid; gap: 12px; }
+textarea { width: 100%; min-height: 260px; background: var(--booth-raised); border: 1px solid var(--rule); border-radius: 4px; color: var(--ink); font: 11px/1.45 var(--font-data); padding: 8px; resize: vertical; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.action { background: var(--booth-raised); border: 1px solid var(--rule); border-radius: 4px; padding: 3px 12px; cursor: pointer; }
+.note { font-size: 12px; color: var(--ink-3); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="bar">
+  <div class="bar-top">
+    <div class="mark">Umber <span>Palette Lab</span></div>
+    <div class="score" id="score"></div>
+  </div>
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" id="tab-lineup" data-tab="lineup" aria-selected="true">Lineup</button>
+    <button role="tab" id="tab-value" data-tab="value">Value</button>
+    <button role="tab" id="tab-hue" data-tab="hue">Hue</button>
+    <button role="tab" id="tab-distance" data-tab="distance">Distance</button>
+    <button role="tab" id="tab-audit" data-tab="audit">Audit</button>
+    <button role="tab" id="tab-tune" data-tab="tune">Tune</button>
+  </nav>
+  <div class="controls">
+    <span class="lbl">Set</span>
+    <span class="seg" id="ctl-set">
+      <button id="set-current" data-v="current" aria-pressed="true">Current</button>
+      <button id="set-draft" data-v="draft" aria-pressed="false">Draft</button>
+      <button id="set-split" data-v="split" aria-pressed="false">Both</button>
+    </span>
+    <span class="lbl">See</span>
+    <span class="seg" id="ctl-vision">
+      <button id="vis-color" data-v="color" aria-pressed="true">Color</button>
+      <button id="vis-value" data-v="value" aria-pressed="false" title="OKLab lightness only">Value</button>
+      <button id="vis-protan" data-v="protan" aria-pressed="false">Protan</button>
+      <button id="vis-deutan" data-v="deutan" aria-pressed="false">Deutan</button>
+      <button id="vis-tritan" data-v="tritan" aria-pressed="false">Tritan</button>
+    </span>
+    <span class="lbl">Booth</span>
+    <span class="seg" id="ctl-booth">
+      <button id="booth-n1" data-v="n1" aria-pressed="false" title="Near-black surround">N1</button>
+      <button id="booth-n25" data-v="n25" aria-pressed="true" title="Dark neutral surround">N2.5</button>
+      <button id="booth-n5" data-v="n5" aria-pressed="false" title="Mid-grey surround">N5</button>
+    </span>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="panel-lineup" role="tabpanel" aria-labelledby="tab-lineup">
+    <p class="intro">Each variant as it renders in Plasma (window, Dolphin list, selection), VSCode (editor, tabs, status bar) and Konsole. Every color is a <b>resolved role</b> from <code>roles.toml</code>, the same values the templates write. Switch <b>See → Value</b> to strip hue: if two roles merge in grey, only hue is holding them apart.</p>
+    <div class="lineup" id="lineup"></div>
+  </section>
+
+  <section class="panel" id="panel-value" role="tabpanel" aria-labelledby="tab-value" hidden>
+    <p class="intro">OKLab lightness of every surface (left) and text role (right). The shaded band is where text clears <b>4.5:1</b> on the editor background. The hatched band is the <b>selection dead zone</b>: a selection background there can't carry either dark or light text at 4.5:1.</p>
+    <div class="ladders" id="ladders"></div>
+  </section>
+
+  <section class="panel" id="panel-hue" role="tabpanel" aria-labelledby="tab-hue" hidden>
+    <p class="intro">Hue angle and chroma (distance from center) of the signal roles. Rings mark chroma 0.04 / 0.08 / 0.12 / 0.16. The last wheel overlays every variant's <b>accent</b> (circles) and <b>ground</b> (squares, chroma ×5 so the tint is visible).</p>
+    <div class="wheels" id="wheels"></div>
+  </section>
+
+  <section class="panel" id="panel-distance" role="tabpanel" aria-labelledby="tab-distance" hidden>
+    <p class="intro">ΔE in OKLab between roles. About <b>0.02</b> is the smallest difference most people notice side by side; roles that must read differently need far more. Red cells are below the audit threshold for that pair.</p>
+    <div class="picker"><span class="lbl">Variant</span><select id="dist-variant"></select></div>
+    <div class="scroll" id="dist-matrix"></div>
+    <h2>Between variants</h2>
+    <div class="scroll" id="dist-cross"></div>
+  </section>
+
+  <section class="panel" id="panel-audit" role="tabpanel" aria-labelledby="tab-audit" hidden>
+    <p class="intro">The same checks <code>scripts/palette_audit.py</code> runs, evaluated live. <b>!!</b> error-level (WCAG AA or a separation the redesign exists for), <b>~~</b> advisory.</p>
+    <div class="picker"><button class="linkbtn" id="toggle-passing" aria-pressed="false">Show passing checks</button></div>
+    <div class="audit" id="audit"></div>
+  </section>
+
+  <section class="panel" id="panel-tune" role="tabpanel" aria-labelledby="tab-tune" hidden>
+    <p class="intro">Adjust any pigment in OKLCH. Every view and the audit update live. Edits stay in this browser only; <b>Export TOML</b> gives you the tier tables to paste into the palette file.</p>
+    <div class="picker">
+      <span class="lbl">Set</span><select id="tune-set"></select>
+      <span class="lbl">Variant</span><select id="tune-variant"></select>
+    </div>
+    <div class="tune">
+      <div class="tiers" id="tiers"></div>
+      <div class="side-tools">
+        <div class="score" id="tune-score"></div>
+        <div class="btnrow">
+          <button class="action" id="export">Export TOML</button>
+          <button class="action" id="copy">Copy</button>
+          <button class="action" id="reset">Reset variant</button>
+        </div>
+        <textarea id="toml" aria-label="Exported TOML" spellcheck="false" readonly></textarea>
+        <p class="note" id="tune-note"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/*__ENGINE__*/
+</script>
+<script>
+/*__DATA__*/
+</script>
+<script>
+(() => {
+  const E = Engine;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem('umber-lab:' + k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem('umber-lab:' + k, JSON.stringify(v)); } catch { /* storage unavailable */ } },
+  };
+
+  // Working copies of every set; originals kept for reset + parity.
+  const ORIGINAL = structuredClone(DATA.sets);
+  const SETS = structuredClone(DATA.sets);
+  for (const [setName, set] of Object.entries(SETS)) {
+    for (const v of set.variants) {
+      const saved = store.get(`tiers:${setName}:${v.slug}`);
+      if (saved) v.tiers = saved;
+    }
+  }
+  const hasDraft = 'draft' in SETS;
+  const state = {
+    tab: 'lineup', set: hasDraft ? 'split' : 'current', vision: 'color', booth: 'n25', showPassing: false,
+    tuneSet: hasDraft ? 'draft' : 'current', tuneSlug: 'umber', distSlug: 'umber',
+  };
+
+  // ------------------------------------------------------------ prepared palettes
+  let PREP = {};
+  function prepareAll() {
+    PREP = {};
+    for (const [setName, set] of Object.entries(SETS)) {
+      PREP[setName] = set.variants.map(v => {
+        try { return { v, pal: E.prepare(v, DATA.roles), err: null }; }
+        catch (e) { return { v, pal: null, err: e.message }; }
+      });
+    }
+  }
+  const visibleSets = () => state.set === 'split' ? ['current', 'draft'] : [state.set];
+
+  // ------------------------------------------------------------ painting
+  function paint(hex) {
+    switch (state.vision) {
+      case 'value': return E.toGrey(hex);
+      case 'protan': case 'deutan': case 'tritan': return E.simulateCvd(hex, state.vision);
+      default: return hex;
+    }
+  }
+  function blend(top, under, alpha) {
+    const [a, b] = [E.hexRgb(top), E.hexRgb(under)];
+    return E.rgbHex(a.map((c, i) => c * alpha + b[i] * (1 - alpha)));
+  }
+  const R = (pal, key) => paint(E.role(pal, key));
+  const RA = (pal, key, under, alpha) => paint(blend(E.role(pal, key), E.role(pal, under), alpha));
+
+  // ------------------------------------------------------------ audit helpers
+  function auditOf(pal) { return E.auditVariant(pal, DATA.specs); }
+  const failing = checks => checks.filter(c => !c.ok && c.level === 'error');
+  function familyOf(setName) {
+    const entries = PREP[setName].filter(e => e.pal).map(e => ({ slug: e.v.slug, pal: e.pal }));
+    return entries.length > 1 ? E.auditFamily(entries, DATA.familySpecs) : [];
+  }
+  function setScore(setName) {
+    let n = 0;
+    for (const e of PREP[setName]) n += e.pal ? failing(auditOf(e.pal)).length : 0;
+    n += familyOf(setName).filter(c => !c.ok).length;
+    return n;
+  }
+  function renderScore() {
+    const parts = Object.keys(SETS).map(s => {
+      const n = setScore(s);
+      return `${SETS[s].label}: <b class="${n ? 'bad' : 'good'}">${n}</b> failing`;
+    });
+    $('#score').innerHTML = parts.join(' &nbsp;·&nbsp; ') + ' <span>(error-level checks, incl. cross-variant)</span>';
+  }
+
+  // ------------------------------------------------------------ lineup mock
+  const CODE = [
+    [['syntax.decorator', '@dataclass']],
+    [['syntax.storage', 'class'], [null, ' '], ['syntax.class', 'Pigment'], ['syntax.punctuation', '('], ['syntax.type', 'Swatch'], ['syntax.punctuation', '):']],
+    [[null, '    '], ['syntax.string', '"""A tube of paint on the palette."""']],
+    [[null, '    '], ['syntax.property', 'hue'], ['syntax.punctuation', ': '], ['syntax.type', 'float'], ['syntax.operator', ' = '], ['syntax.number', '62.0']],
+    [[null, '    '], ['syntax.constant', 'ROUGH', 'find'], ['syntax.operator', ' = '], ['syntax.variable', 're'], ['syntax.punctuation', '.'], ['syntax.function', 'compile'], ['syntax.punctuation', '('], ['syntax.regex', 'r"#[0-9A-F]{6}"'], ['syntax.punctuation', ')']],
+    [],
+    [[null, '    '], ['syntax.storage', 'def'], [null, ' '], ['syntax.function', 'mix', 'sel'], ['syntax.punctuation', '(', 'sel'], ['syntax.builtin', 'self', 'sel'], ['syntax.punctuation', ', ', 'sel'], ['syntax.parameter', 'other', 'sel'], ['syntax.punctuation', ': '], ['syntax.string', '"Pigment"'], ['syntax.punctuation', ') '], ['syntax.operator', '->'], [null, ' '], ['syntax.type', 'float'], ['syntax.punctuation', ':']],
+    [[null, '        '], ['syntax.comment', '# blend in OKLab, never in sRGB']],
+    [[null, '        '], ['syntax.keyword', 'if'], [null, ' '], ['syntax.keyword', 'not'], [null, ' '], ['syntax.constant', 'ROUGH'], ['syntax.punctuation', '.'], ['syntax.function', 'match'], ['syntax.punctuation', '('], ['syntax.builtin', 'self'], ['syntax.punctuation', '.'], ['syntax.property', 'hex'], ['syntax.punctuation', '):']],
+    [[null, '            '], ['syntax.keyword', 'raise'], [null, ' '], ['syntax.type', 'ValueError'], ['syntax.punctuation', '('], ['syntax.string', 'f"bad {'], ['syntax.builtin', 'self'], ['syntax.punctuation', '.'], ['syntax.property', 'hex'], ['syntax.string', '!r}'], ['syntax.escape', '\\n'], ['syntax.string', '"'], ['syntax.punctuation', ')']],
+    [[null, '        '], ['syntax.keyword', 'return'], ['syntax.punctuation', ' ('], ['syntax.builtin', 'self'], ['syntax.punctuation', '.'], ['syntax.property', 'hue'], ['syntax.operator', ' + '], ['syntax.variable', 'other'], ['syntax.punctuation', '.'], ['syntax.property', 'hue'], ['syntax.punctuation', ')'], ['syntax.operator', ' / '], ['syntax.number', '2']],
+  ];
+  const CURRENT_LINE = 8;
+
+  function mock(pal) {
+    const c = k => R(pal, k);
+    const st = (bg, fg, extra = '') => `style="background:${bg};color:${fg};${extra}"`;
+    const files = [
+      ['palettes', '5 items', 'n'], ['scripts', '12 items', 'a'], ['roles.toml', '4.1 KiB', 'sel'],
+      ['palette.toml', '3.6 KiB', 'selalt'], ['install.sh', '37 KiB', 'n'], ['README.md', '17 KiB', 'a'],
+    ];
+    const fileRows = files.map(([name, size, kind]) => {
+      if (kind === 'sel' || kind === 'selalt') {
+        const bg = c(kind === 'sel' ? 'selection_bg' : 'selection_alt');
+        return `<div class="row" ${st(bg, c('on_selection.fg_soft'))}><span>${name}</span><span style="color:${c('on_selection.fg_inactive')}">${size}</span></div>`;
+      }
+      const bg = kind === 'a' ? c('bg_panel') : c('bg');
+      return `<div class="row" ${st(bg, c('fg'))}><span>${name}</span><span style="color:${c('fg_muted')}">${size}</span></div>`;
+    }).join('');
+    const onsel = [['fg', 'text'], ['link', 'link'], ['visited', 'visited'], ['negative', 'error'], ['neutral', 'warning'], ['positive', 'ok']]
+      .map(([k, w]) => `<span style="color:${c('on_selection.' + k)}">${w}</span>`).join('');
+    const code = CODE.map((line, i) => {
+      const lineBg = i === CURRENT_LINE ? c('line_highlight') : c('bg');
+      const under = i === CURRENT_LINE ? 'line_highlight' : 'bg';
+      const spans = line.map(([role, text, mark]) => {
+        let bg = '';
+        if (mark === 'sel') bg = `background:${RA(pal, 'selection_bg', under, 0x2E / 255)};`;
+        if (mark === 'find') bg = `background:${RA(pal, 'attention', under, 0x66 / 255)};`;
+        return `<span style="${bg}color:${c(role || 'fg')}">${esc(text)}</span>`;
+      }).join('');
+      return `<span class="ln" style="background:${lineBg}">${spans || ' '}</span>`;
+    }).join('');
+    const gutter = CODE.map((_, i) => `<span style="color:${i === CURRENT_LINE ? c('fg') : c('fg_muted')}">${i + 1}</span>`).join('\n');
+    const A = k => c('ansi.' + k);
+    const term = [
+      `<span style="color:${A('green')}">ash@hearth</span> <span style="color:${A('blue')}">~/umber</span> <span style="color:${A('magenta')}">(main)</span> $ ls`,
+      `<span style="color:${A('blue')};font-weight:600">palettes</span>  <span style="color:${A('blue')};font-weight:600">scripts</span>  <span style="color:${A('green')}">install.sh</span>  <span style="color:${A('red')}">umber.xpi</span>  <span style="color:${A('cyan')}">docs -&gt; README.md</span>`,
+      `<span style="color:${A('yellow')}">warning</span> kded not running · <span style="color:${A('red')}">error</span> no sudo · <span style="color:${A('green')}">ok</span> 13 files`,
+      `<span style="color:${A('fg_faint')}">faint</span> <span style="color:${A('fg_intense')};font-weight:600">intense</span> <span style="color:${A('bright_black')}">bright-black</span> <span style="background:${A('black')};color:${A('fg')}"> black </span>`,
+    ].join('\n');
+    const ansiNames = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
+    const brightKey = n => ({ black: 'bright_black', white: 'bright_white' }[n] || ('bright_' + n));
+    const ansi = [...ansiNames.map(n => A(n)), ...ansiNames.map(n => {
+      try { return A(brightKey(n)); } catch { return A(n); }
+    })].map(h => `<i style="background:${h}"></i>`).join('');
+
+    return `<div class="mock" style="background:${c('bg_panel')};color:${c('fg')}">
+      <div class="row titlebar" ${st(c('bg_raised'), c('fg'))}><span>palettes — Dolphin</span>
+        <span class="dots"><i style="background:${c('fg_muted')}"></i><i style="background:${c('fg_muted')}"></i><i style="background:${c('fg_muted')}"></i></span></div>
+      <div class="split">
+        <div class="side" ${st(c('bg_panel'), c('fg'))}>
+          <div class="cap" style="color:${c('fg_muted')}">Places</div>
+          <div class="it">Home</div>
+          <div class="it" style="border-color:${c('decoration_hover')}">Documents</div>
+          <div class="it" style="border-color:${c('decoration_focus')};color:${c('fg_strong')}">umber</div>
+          <div class="it" style="color:${c('fg_muted')}">Trash</div>
+        </div>
+        <div class="files">
+          <div class="row" ${st(c('bg_raised'), c('fg'))}><span>Name</span><span>Size</span></div>
+          ${fileRows}
+        </div>
+      </div>
+      <div class="onsel" ${st(c('selection_bg'), c('on_selection.fg'))}>${onsel}</div>
+      <div class="controls" style="background:${c('bg_panel')}">
+        <span class="btn" ${st(c('bg_raised'), c('fg'), 'border-color:' + c('border'))}>Cancel</span>
+        <span class="btn" ${st(c('button_bg'), c('fg_on_accent'), 'border-color:' + c('button_bg'))}>Apply</span>
+        <span class="field" ${st(c('bg'), c('fg'), 'border-color:' + c('decoration_focus'))}>umber-tide</span>
+        <a style="color:${c('link')}">docs</a><a style="color:${c('link_visited')}">visited</a>
+        <span class="tip" ${st(c('bg_overlay'), c('fg'), 'border-color:' + c('border'))}>Tooltip</span>
+      </div>
+      <div class="status" style="background:${c('bg_panel')}">
+        <span style="color:${c('error')}">error</span><span style="color:${c('warning')}">warning</span>
+        <span style="color:${c('success')}">success</span><span style="color:${c('info')}">info</span>
+        <span style="color:${c('fg_muted')}">muted</span>
+      </div>
+      <div class="tabsrow" style="background:${c('bg_panel')}">
+        <span class="tab" ${st(c('bg'), c('fg_emphasis'), 'border-top-color:' + c('accent'))}>pigment.py</span>
+        <span class="tab" style="color:${c('fg_muted')}">roles.toml</span>
+      </div>
+      <div class="code" style="background:${c('bg')}"><pre class="gut" style="background:${c('bg')}">${gutter}</pre><pre>${code}</pre></div>
+      <div class="sbar" ${st(c('bg_raised'), c('fg'))}><span>main · Ln 9, Col 18</span><span class="rem" ${st(c('interactive'), c('fg_on_accent'))}>remote</span></div>
+      <div class="term" ${st(c('ansi.bg'), c('ansi.fg'))}>${term}</div>
+      <div class="ansi" style="background:${c('ansi.bg')}">${ansi}</div>
+    </div>`;
+  }
+
+  function strip(pal) {
+    const keys = ['bg', 'bg_panel', 'bg_raised', 'bg_active', '|', 'fg_muted', 'fg', 'fg_emphasis', 'fg_strong', '|',
+      'accent', 'selection_bg', 'link', 'link_visited', '|', 'syntax.keyword', 'syntax.function', 'syntax.type',
+      'syntax.string', 'syntax.number', 'syntax.comment'];
+    return `<div class="strip">${keys.map(k => k === '|' ? '<i class="gap"></i>' : `<i title="${k}" style="background:${R(pal, k)}"></i>`).join('')}</div>`;
+  }
+
+  function renderLineup() {
+    const sets = visibleSets();
+    const slugs = [...new Set(sets.flatMap(s => SETS[s].variants.map(v => v.slug)))];
+    $('#lineup').innerHTML = slugs.map(slug => {
+      const blocks = sets.map(setName => {
+        const e = PREP[setName].find(x => x.v.slug === slug);
+        if (!e) return `<div class="setlabel">${SETS[setName].label}: not in this set</div>`;
+        if (!e.pal) return `<div class="setlabel">${SETS[setName].label}: invalid — ${esc(e.err)}</div>`;
+        const n = failing(auditOf(e.pal)).length;
+        return `<div class="vmeta"><span class="setlabel">${sets.length > 1 ? SETS[setName].label : esc(e.v.file)}</span>
+                  <span class="chip ${n ? 'bad' : 'good'}">${n ? n + ' failing' : 'all pass'}</span></div>
+                ${strip(e.pal)}${mock(e.pal)}`;
+      }).join('');
+      const first = sets.map(s => PREP[s].find(x => x.v.slug === slug)).find(Boolean);
+      const concept = sets.map(s => PREP[s].find(x => x.v.slug === slug)?.v).filter(Boolean)
+        .map(v => v.concept || v.description).filter(Boolean).pop() || '';
+      return `<article class="vcard"><div class="vhead"><div class="vname">${esc(first.v.name)}</div>
+        <div class="vconcept">${esc(concept)}</div></div>${blocks}</article>`;
+    }).join('');
+  }
+
+  // ------------------------------------------------------------ value ladder
+  const LADDER_SURF = ['bg', 'bg_panel', 'bg_raised', 'bg_active', 'border', 'selection_bg'];
+  const LADDER_TEXT = ['fg_muted', 'fg', 'fg_emphasis', 'fg_strong', 'syntax.comment', 'link', 'link_visited', 'accent',
+    'syntax.keyword', 'syntax.function', 'syntax.type', 'syntax.string', 'syntax.number', 'error', 'warning', 'success'];
+  function greyAtL(L) { return E.oklchToHex(L, 0, 0).hex; }
+  function minLForContrast(bg, ratio) {
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; (E.contrast(greyAtL(m), bg) >= ratio && E.luminance(greyAtL(m)) > E.luminance(bg)) ? hi = m : lo = m; }
+    return hi;
+  }
+  function deadZone(darkText, lightText, ratio) {
+    // L range for a background that clears `ratio` with neither text color.
+    const ok = L => E.contrast(greyAtL(L), darkText) >= ratio || E.contrast(greyAtL(L), lightText) >= ratio;
+    let start = null, end = null;
+    for (let L = 0.2; L <= 1.0001; L += 0.0025) {
+      if (!ok(L)) { if (start === null) start = L; end = L; }
+    }
+    return start === null ? null : [start, end];
+  }
+  function placeLabels(items, y, minGap) {
+    const sorted = items.map(it => ({ ...it, y: y(it.L) })).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < sorted.length; i++) if (sorted[i].y - sorted[i - 1].y < minGap) sorted[i].ly = (sorted[i - 1].ly ?? sorted[i - 1].y) + minGap;
+    for (const s of sorted) s.ly = s.ly ?? s.y;
+    for (let i = 1; i < sorted.length; i++) if (sorted[i].ly - sorted[i - 1].ly < minGap) sorted[i].ly = sorted[i - 1].ly + minGap;
+    return sorted;
+  }
+  function ladder(pal, title) {
+    const W = 300, H = 470, top = 14, bottom = H - 22, Lmin = 0.15, Lmax = 1.0;
+    const y = L => bottom - (L - Lmin) / (Lmax - Lmin) * (bottom - top);
+    const bg = E.role(pal, 'bg');
+    const aa = minLForContrast(bg, DATA.thresholds.text_contrast);
+    const dz = deadZone(E.role(pal, 'on_selection.fg'), E.role(pal, 'fg_strong'), DATA.thresholds.text_contrast);
+    const item = k => ({ k, hex: E.role(pal, k), L: E.oklch(E.role(pal, k))[0] });
+    const surf = placeLabels(LADDER_SURF.map(item), y, 12);
+    const text = placeLabels(LADDER_TEXT.map(item), y, 12);
+    const axisX = 150;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Lightness ladder for ${esc(title)}">
+      <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="none"/><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.2" opacity="0.35"/></pattern></defs>
+      <rect class="lane" x="0" y="${y(1)}" width="${W}" height="${y(aa) - y(1)}"/>
+      <text class="lanelbl" x="${W - 4}" y="${y(aa) - 3}" text-anchor="end">AA text ≥ ${DATA.thresholds.text_contrast}:1 · L ${aa.toFixed(2)}</text>`;
+    if (dz) s += `<rect class="dead" style="color:var(--ink)" x="${axisX - 26}" y="${y(dz[1])}" width="52" height="${y(dz[0]) - y(dz[1])}"/>
+      <text class="lanelbl" x="${axisX}" y="${y(dz[0]) + 10}" text-anchor="middle">dead zone</text>`;
+    s += `<line class="axis" x1="${axisX}" x2="${axisX}" y1="${top}" y2="${bottom}"/>`;
+    for (const L of [0.2, 0.4, 0.6, 0.8, 1.0]) s += `<text x="${axisX}" y="${y(L) + 3}" text-anchor="middle" style="fill:var(--ink-3)">${L.toFixed(1)}</text>`;
+    const mark = (it, side) => {
+      const x0 = side < 0 ? axisX - 24 : axisX + 6, lx = side < 0 ? axisX - 30 : axisX + 30;
+      return `<rect x="${x0}" y="${it.y - 3}" width="18" height="6" rx="1" fill="${paint(it.hex)}" stroke="var(--rule)"/>
+        <line x1="${side < 0 ? x0 : x0 + 18}" y1="${it.y}" x2="${lx + (side < 0 ? 2 : -2)}" y2="${it.ly}" stroke="var(--rule)"/>
+        <text x="${lx}" y="${it.ly + 3}" text-anchor="${side < 0 ? 'end' : 'start'}">${it.k.replace('syntax.', '')} ${it.L.toFixed(2)}</text>`;
+    };
+    s += surf.map(it => mark(it, -1)).join('') + text.map(it => mark(it, 1)).join('');
+    return s + `</svg>`;
+  }
+  function renderValue() {
+    const out = [];
+    for (const setName of visibleSets()) for (const e of PREP[setName]) {
+      if (!e.pal) continue;
+      const title = `${e.v.name}${visibleSets().length > 1 ? ' · ' + SETS[setName].label : ''}`;
+      out.push(`<div class="ladder"><div class="vname" style="font-size:16px">${esc(title)}</div>${ladder(e.pal, title)}</div>`);
+    }
+    $('#ladders').innerHTML = out.join('');
+  }
+
+  // ------------------------------------------------------------ hue wheel
+  const WHEEL_ROLES = ['accent', 'link', 'link_visited', 'error', 'warning', 'success', 'info',
+    'syntax.keyword', 'syntax.function', 'syntax.type', 'syntax.string', 'syntax.number', 'syntax.regex', 'syntax.tag', 'syntax.comment', 'fg'];
+  function wheelFrame(label) {
+    const S = 260, c = S / 2, Rmax = 108;
+    let s = `<svg viewBox="0 0 ${S} ${S}" role="img" aria-label="${esc(label)}">`;
+    for (const C of [0.04, 0.08, 0.12, 0.16]) s += `<circle class="ring" cx="${c}" cy="${c}" r="${C / 0.16 * Rmax}"/>`;
+    for (const h of [0, 90, 180, 270]) {
+      const x = c + Math.cos(h * Math.PI / 180) * (Rmax + 6), yy = c - Math.sin(h * Math.PI / 180) * (Rmax + 6);
+      s += `<line class="spoke" x1="${c}" y1="${c}" x2="${x}" y2="${yy}"/><text x="${c + Math.cos(h * Math.PI / 180) * (Rmax + 14)}" y="${c - Math.sin(h * Math.PI / 180) * (Rmax + 14) + 3}" text-anchor="middle" style="fill:var(--ink-3)">${h}°</text>`;
+    }
+    return { s, c, Rmax, pos: (C, h, scale = 1) => [c + Math.cos(h * Math.PI / 180) * Math.min(C * scale, 0.17) / 0.16 * Rmax, c - Math.sin(h * Math.PI / 180) * Math.min(C * scale, 0.17) / 0.16 * Rmax] };
+  }
+  function wheel(pal, title) {
+    const f = wheelFrame(`Hue wheel for ${title}`);
+    let s = f.s;
+    const pts = WHEEL_ROLES.map(k => { const hex = E.role(pal, k); const [, C, h] = E.oklch(hex); const [x, y] = f.pos(C, h); return { k, hex, x, y }; });
+    for (const p of pts) s += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="${paint(p.hex)}" stroke="var(--booth)" stroke-width="1.5"/>`;
+    const labels = placeLabels(pts.map(p => ({ ...p, L: -p.y })), q => -q.L, 11);
+    for (const p of labels) {
+      const right = p.x >= f.c;
+      s += `<text x="${p.x + (right ? 9 : -9)}" y="${p.ly + 3}" text-anchor="${right ? 'start' : 'end'}">${p.k.replace('syntax.', '')}</text>`;
+    }
+    return s + `</svg>`;
+  }
+  function identityWheel(setName) {
+    const f = wheelFrame(`Accents and grounds across ${SETS[setName].label}`);
+    let s = f.s;
+    for (const e of PREP[setName]) {
+      if (!e.pal) continue;
+      const acc = E.role(e.pal, 'accent'), bg = E.role(e.pal, 'bg');
+      const [, Ca, ha] = E.oklch(acc), [, Cb, hb] = E.oklch(bg);
+      const [ax, ay] = f.pos(Ca, ha), [bx, by] = f.pos(Cb, hb, 5);
+      s += `<rect x="${bx - 5}" y="${by - 5}" width="10" height="10" fill="${paint(bg)}" stroke="var(--ink-2)"/>
+        <text x="${bx + 8}" y="${by + 3}">${e.v.slug}</text>
+        <circle cx="${ax}" cy="${ay}" r="7" fill="${paint(acc)}" stroke="var(--booth)" stroke-width="1.5"/>
+        <text x="${ax + 10}" y="${ay + 3}" style="fill:var(--ink)">${e.v.slug}</text>`;
+    }
+    return s + `</svg>`;
+  }
+  function renderHue() {
+    const out = [];
+    for (const setName of visibleSets()) {
+      const multi = visibleSets().length > 1;
+      for (const e of PREP[setName]) if (e.pal) out.push(`<div class="wheel"><div class="vname" style="font-size:16px">${esc(e.v.name)}${multi ? ' · ' + SETS[setName].label : ''}</div>${wheel(e.pal, e.v.name)}</div>`);
+      out.push(`<div class="wheel"><div class="vname" style="font-size:16px">Family identity${multi ? ' · ' + SETS[setName].label : ''}</div>${identityWheel(setName)}</div>`);
+    }
+    $('#wheels').innerHTML = out.join('');
+  }
+
+  // ------------------------------------------------------------ distance
+  const DIST_ROLES = ['fg', 'fg_muted', 'accent', 'link', 'link_visited', ...DATA.syntaxSet.filter(k => k !== 'variable').map(k => 'syntax.' + k), 'error', 'warning', 'success', 'info'];
+  function specThreshold(a, b) {
+    const ids = [`distinct:${a}~${b}`, `distinct:${b}~${a}`, `syntax:${a.replace('syntax.', '')}~${b.replace('syntax.', '')}`,
+      `syntax:${b.replace('syntax.', '')}~${a.replace('syntax.', '')}`, `link:${a}~${b}`, `link:${b}~${a}`];
+    const spec = DATA.specs.find(sp => ids.includes(sp.id) && sp.kind === 'de');
+    return spec ? spec.threshold : null;
+  }
+  function renderDistance() {
+    const sel = $('#dist-variant');
+    const options = visibleSets().flatMap(s => PREP[s].filter(e => e.pal).map(e => ({ key: `${s}:${e.v.slug}`, label: `${e.v.name}${visibleSets().length > 1 ? ' · ' + SETS[s].label : ''}` })));
+    if (!options.some(o => o.key === state.distSlug)) state.distSlug = options[0]?.key;
+    sel.innerHTML = options.map(o => `<option value="${o.key}" ${o.key === state.distSlug ? 'selected' : ''}>${esc(o.label)}</option>`).join('');
+    const [setName, slug] = (state.distSlug || '').split(':');
+    const e = PREP[setName]?.find(x => x.v.slug === slug);
+    if (!e) { $('#dist-matrix').innerHTML = ''; return; }
+    const short = k => k.replace('syntax.', '');
+    let t = `<table class="grid"><thead><tr><th></th>${DIST_ROLES.map(k => `<th><span class="swatch" style="background:${R(e.pal, k)}"></span><br>${short(k)}</th>`).join('')}</tr></thead><tbody>`;
+    for (const a of DIST_ROLES) {
+      t += `<tr><th><span class="swatch" style="background:${R(e.pal, a)}"></span>${short(a)}</th>`;
+      for (const b of DIST_ROLES) {
+        if (a === b) { t += '<td class="d">·</td>'; continue; }
+        const d = E.deltaE(E.role(e.pal, a), E.role(e.pal, b));
+        const th = specThreshold(a, b);
+        const cls = th !== null && d < th ? 'f' : d < 0.06 ? 'w' : d >= 0.15 ? 'd' : '';
+        t += `<td class="${cls}">${d.toFixed(3)}</td>`;
+      }
+      t += '</tr>';
+    }
+    $('#dist-matrix').innerHTML = t + '</tbody></table>';
+
+    let x = '';
+    for (const sName of visibleSets()) {
+      const entries = PREP[sName].filter(q => q.pal);
+      const pairs = [];
+      for (let i = 0; i < entries.length; i++) for (let j = i + 1; j < entries.length; j++) pairs.push([entries[i], entries[j]]);
+      const rows = [...DATA.fingerprint, 'mean'];
+      x += `<table class="grid" style="margin-bottom:18px"><thead><tr><th>${esc(SETS[sName].label)}</th>${pairs.map(([p, q]) => `<th>${p.v.slug}<br>${q.v.slug}</th>`).join('')}</tr></thead><tbody>`;
+      for (const k of rows) {
+        x += `<tr><th>${k === 'mean' ? '<b>fingerprint</b>' : short(k)}</th>`;
+        for (const [p, q] of pairs) {
+          const d = k === 'mean'
+            ? DATA.fingerprint.reduce((s, r) => s + E.deltaE(E.role(p.pal, r), E.role(q.pal, r)), 0) / DATA.fingerprint.length
+            : E.deltaE(E.role(p.pal, k), E.role(q.pal, k));
+          const th = k === 'mean' ? DATA.thresholds.cross_fingerprint : k === 'bg' ? DATA.thresholds.cross_ground_de : k === 'accent' ? DATA.thresholds.cross_accent_de : null;
+          const cls = th !== null && d < th ? 'f' : d < 0.02 ? 'w' : '';
+          x += `<td class="${cls}">${d.toFixed(3)}</td>`;
+        }
+        x += '</tr>';
+      }
+      x += '</tbody></table>';
+    }
+    $('#dist-cross').innerHTML = x;
+  }
+
+  // ------------------------------------------------------------ audit
+  function fmt(c) { return c.kind === 'contrast' ? c.value.toFixed(2) + ':1' : c.value.toFixed(3); }
+  function auditTable(checks, title) {
+    const order = c => (c.ok ? 2 : c.level === 'error' ? 0 : 1);
+    const shown = checks.filter(c => c.level !== 'info' && (state.showPassing || !c.ok)).sort((a, b) => order(a) - order(b));
+    const fails = checks.filter(c => !c.ok && c.level === 'error').length;
+    const warns = checks.filter(c => !c.ok && c.level === 'warn').length;
+    let t = `<div><h2>${esc(title)} <span class="chip ${fails ? 'bad' : 'good'}">${fails} failing${warns ? ' · ' + warns + ' advisory' : ''}</span></h2><div class="scroll"><table class="grid"><tbody>`;
+    for (const c of shown) {
+      const mk = c.ok ? '<span class="mk p">ok</span>' : c.level === 'error' ? '<span class="mk f">!!</span>' : '<span class="mk w">~~</span>';
+      t += `<tr><td>${mk}</td><td class="d">${c.group}</td><td>${esc(c.id)}</td><td class="${c.ok ? '' : c.level === 'error' ? 'f' : 'w'}">${fmt(c)}</td><td class="d">${c.op} ${c.threshold}</td></tr>`;
+    }
+    if (!shown.length) t += `<tr><td colspan="5" class="d">No checks below threshold.</td></tr>`;
+    return t + `</tbody></table></div></div>`;
+  }
+  function renderAudit() {
+    const out = [];
+    for (const setName of visibleSets()) {
+      const multi = visibleSets().length > 1;
+      for (const e of PREP[setName]) {
+        const title = `${e.v.name}${multi ? ' · ' + SETS[setName].label : ''}`;
+        out.push(e.pal ? auditTable(auditOf(e.pal), title) : `<div><h2>${esc(title)}</h2><p class="note">Invalid palette: ${esc(e.err)}</p></div>`);
+      }
+      out.push(auditTable(familyOf(setName), `Family${multi ? ' · ' + SETS[setName].label : ''}`));
+    }
+    $('#audit').innerHTML = out.join('');
+  }
+
+  // ------------------------------------------------------------ tune
+  const LCH_CACHE = {};  // keeps hue while chroma passes through 0
+  function lchOf(key, hex) {
+    const cached = LCH_CACHE[key];
+    if (cached && E.oklchToHex(...cached).hex === hex) return cached;
+    const v = E.oklch(hex);
+    if (cached && v[1] < 0.002) v[2] = cached[2];
+    return (LCH_CACHE[key] = v);
+  }
+  function tuneVariant() { return SETS[state.tuneSet].variants.find(v => v.slug === state.tuneSlug) || SETS[state.tuneSet].variants[0]; }
+  function renderTune() {
+    $('#tune-set').innerHTML = Object.keys(SETS).map(s => `<option value="${s}" ${s === state.tuneSet ? 'selected' : ''}>${SETS[s].label}</option>`).join('');
+    const v = tuneVariant();
+    state.tuneSlug = v.slug;
+    $('#tune-variant').innerHTML = SETS[state.tuneSet].variants.map(x => `<option value="${x.slug}" ${x.slug === v.slug ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
+    let h = '';
+    for (const [tier, colors] of Object.entries(v.tiers)) {
+      h += `<div class="tier"><h3>[${tier}]</h3>`;
+      for (const [k, hex] of Object.entries(colors)) {
+        const key = `${state.tuneSet}:${v.slug}:${tier}.${k}`;
+        const [L, C, H] = lchOf(key, hex);
+        const id = `t-${tier}-${k}`.replace(/[^\w-]/g, '_');
+        h += `<div class="trow" data-tier="${tier}" data-k="${esc(k)}">
+          <span class="sw" style="background:${paint(hex)}"></span>
+          <span>${tier}.${esc(k)}</span>
+          <input type="text" id="${id}-hex" value="${hex}" aria-label="${tier}.${esc(k)} hex" maxlength="7">
+          <label for="${id}-L">L ${L.toFixed(3)}<input type="range" id="${id}-L" data-ch="L" min="0" max="1" step="0.001" value="${L}"></label>
+          <label for="${id}-C">C ${C.toFixed(3)}<input type="range" id="${id}-C" data-ch="C" min="0" max="0.3" step="0.001" value="${C}"></label>
+          <label for="${id}-H">h ${H.toFixed(1)}°<input type="range" id="${id}-H" data-ch="H" min="0" max="360" step="0.5" value="${H}"></label>
+        </div>`;
+      }
+      h += '</div>';
+    }
+    $('#tiers').innerHTML = h;
+    renderTuneScore();
+  }
+  function renderTuneScore() {
+    const e = PREP[state.tuneSet].find(x => x.v.slug === state.tuneSlug);
+    if (!e || !e.pal) { $('#tune-score').textContent = e ? 'Invalid: ' + e.err : ''; return; }
+    const checks = auditOf(e.pal);
+    const fails = failing(checks);
+    $('#tune-score').innerHTML = `${esc(e.v.name)} · ${SETS[state.tuneSet].label}: <b class="${fails.length ? 'bad' : 'good'}">${fails.length}</b> failing` +
+      (fails.length ? `<br>${fails.slice(0, 8).map(c => esc(c.id)).join('<br>')}${fails.length > 8 ? '<br>…' : ''}` : '');
+  }
+  function setTier(tier, k, hex) {
+    const v = tuneVariant();
+    v.tiers[tier][k] = hex;
+    store.set(`tiers:${state.tuneSet}:${v.slug}`, v.tiers);
+    prepareAll();
+    renderScore();
+    renderTuneScore();
+    $('#tune-note').textContent = '';
+  }
+  function tomlKey(k) { return /^[A-Za-z_][\w-]*$/.test(k) ? k : `"${k}"`; }
+  function toToml(v) {
+    let out = `# ${v.name} — tiers exported from the Palette Lab\n`;
+    for (const [tier, colors] of Object.entries(v.tiers)) {
+      out += `\n[${tier}]\n` + Object.entries(colors).map(([k, hex]) => {
+        const [L, C, H] = E.oklch(hex);
+        return `${tomlKey(k).padEnd(18)} = "${hex}"   # L ${L.toFixed(3)} C ${C.toFixed(3)} h ${H.toFixed(0)}`;
+      }).join('\n') + '\n';
+    }
+    const emit = (obj, path) => {
+      const scalars = Object.entries(obj).filter(([, x]) => typeof x === 'string');
+      const tables = Object.entries(obj).filter(([, x]) => typeof x === 'object');
+      let s = scalars.length ? `\n[${path}]\n` + scalars.map(([k, x]) => `${tomlKey(k)} = "${x}"`).join('\n') + '\n' : '';
+      for (const [k, x] of tables) s += emit(x, `${path}.${tomlKey(k)}`);
+      return s;
+    };
+    if (v.role && Object.keys(v.role).length) out += emit(v.role, 'role');
+    return out;
+  }
+
+  // ------------------------------------------------------------ wiring
+  const RENDER = { lineup: renderLineup, value: renderValue, hue: renderHue, distance: renderDistance, audit: renderAudit, tune: renderTune };
+  function renderActive() { RENDER[state.tab](); }
+  function press(groupSel, value) { for (const b of document.querySelectorAll(groupSel + ' button')) b.setAttribute('aria-pressed', String(b.dataset.v === value)); }
+  function setTab(tab) {
+    state.tab = tab;
+    for (const b of document.querySelectorAll('#tabs button')) b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+    for (const p of document.querySelectorAll('.panel')) p.hidden = p.id !== 'panel-' + tab;
+    store.set('tab', tab);
+    renderActive();
+  }
+  $('#tabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) { history.replaceState(null, '', '#' + b.dataset.tab); setTab(b.dataset.tab); } });
+  $('#ctl-set').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b || b.disabled) return; state.set = b.dataset.v; press('#ctl-set', state.set); renderActive(); });
+  $('#ctl-vision').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; state.vision = b.dataset.v; press('#ctl-vision', state.vision); renderActive(); });
+  $('#ctl-booth').addEventListener('click', ev => {
+    const b = ev.target.closest('button'); if (!b) return;
+    state.booth = b.dataset.v; press('#ctl-booth', state.booth);
+    document.body.classList.remove('booth-n1', 'booth-n5');
+    if (state.booth !== 'n25') document.body.classList.add('booth-' + state.booth);
+    store.set('booth', state.booth);
+  });
+  $('#toggle-passing').addEventListener('click', ev => {
+    state.showPassing = !state.showPassing;
+    ev.target.setAttribute('aria-pressed', String(state.showPassing));
+    ev.target.textContent = state.showPassing ? 'Hide passing checks' : 'Show passing checks';
+    renderAudit();
+  });
+  $('#dist-variant').addEventListener('change', ev => { state.distSlug = ev.target.value; renderDistance(); });
+  $('#tune-set').addEventListener('change', ev => { state.tuneSet = ev.target.value; renderTune(); });
+  $('#tune-variant').addEventListener('change', ev => { state.tuneSlug = ev.target.value; renderTune(); });
+  $('#tiers').addEventListener('input', ev => {
+    const row = ev.target.closest('.trow'); if (!row) return;
+    const { tier, k } = row.dataset;
+    const key = `${state.tuneSet}:${state.tuneSlug}:${tier}.${k}`;
+    let hex;
+    if (ev.target.type === 'text') {
+      const val = ev.target.value.trim().toUpperCase();
+      if (!/^#[0-9A-F]{6}$/.test(val)) return;
+      hex = val; delete LCH_CACHE[key];
+    } else {
+      const lch = [...row.querySelectorAll('input[type="range"]')].map(i => parseFloat(i.value));
+      const res = E.oklchToHex(...lch);
+      hex = res.hex; LCH_CACHE[key] = lch;
+      row.querySelector('input[type="text"]').value = hex;
+      row.querySelector('input[type="text"]').classList.toggle('oog', !res.inGamut);
+    }
+    const [L, C, H] = lchOf(key, hex);
+    const labels = row.querySelectorAll('label');
+    labels[0].firstChild.textContent = `L ${L.toFixed(3)}`;
+    labels[1].firstChild.textContent = `C ${C.toFixed(3)}`;
+    labels[2].firstChild.textContent = `h ${H.toFixed(1)}°`;
+    if (ev.target.type === 'text') {
+      row.querySelector('[data-ch="L"]').value = L; row.querySelector('[data-ch="C"]').value = C; row.querySelector('[data-ch="H"]').value = H;
+    }
+    row.querySelector('.sw').style.background = paint(hex);
+    setTier(tier, k, hex);
+  });
+  $('#export').addEventListener('click', () => { $('#toml').value = toToml(tuneVariant()); });
+  $('#copy').addEventListener('click', () => {
+    const ta = $('#toml');
+    if (!ta.value) ta.value = toToml(tuneVariant());
+    navigator.clipboard.writeText(ta.value)
+      .then(() => { $('#tune-note').textContent = 'Copied.'; })
+      .catch(() => { ta.select(); $('#tune-note').textContent = 'Copy is blocked here. The text is selected; press Ctrl+C.'; });
+  });
+  $('#reset').addEventListener('click', () => {
+    const v = tuneVariant();
+    v.tiers = structuredClone(ORIGINAL[state.tuneSet].variants.find(x => x.slug === v.slug).tiers);
+    for (const k of Object.keys(LCH_CACHE)) if (k.startsWith(`${state.tuneSet}:${v.slug}:`)) delete LCH_CACHE[k];
+    store.set(`tiers:${state.tuneSet}:${v.slug}`, null);
+    prepareAll(); renderScore(); renderTune();
+    $('#tune-note').textContent = `${v.name} reset to ${SETS[state.tuneSet].label.toLowerCase()} values.`;
+  });
+
+  // Parity: the browser engine must reproduce palette_audit.py's numbers.
+  function parity() {
+    let n = 0, bad = [];
+    for (const [setName, set] of Object.entries(ORIGINAL)) for (const v of set.variants) {
+      let pal; try { pal = E.prepare(v, DATA.roles); } catch (e) { bad.push(`${setName}/${v.slug}: ${e.message}`); continue; }
+      for (const c of auditOf(pal)) {
+        n++;
+        if (Math.abs(c.value - v.audit[c.id]) > 1e-6) bad.push(`${setName}/${v.slug} ${c.id}: js ${c.value} py ${v.audit[c.id]}`);
+      }
+    }
+    if (bad.length) console.warn('[lab] parity FAILED', bad); else console.log(`[lab] parity OK: ${n} checks match palette_audit.py`);
+  }
+
+  // Boot.
+  if (!hasDraft) { $('#set-draft').disabled = true; $('#set-split').disabled = true; $('#set-draft').title = $('#set-split').title = 'No proposals in palettes/next/ yet'; }
+  press('#ctl-set', state.set);
+  const savedBooth = store.get('booth');
+  if (savedBooth && savedBooth !== 'n25') document.querySelector(`#booth-${savedBooth}`)?.click();
+  prepareAll();
+  parity();
+  renderScore();
+  const hashTab = location.hash.slice(1);
+  setTab(RENDER[hashTab] ? hashTab : (RENDER[store.get('tab')] ? store.get('tab') : 'lineup'));
+})();
+</script>
