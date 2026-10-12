@@ -57,6 +57,10 @@ main { padding-top: 18px; }
 /* ---------- lineup ---------- */
 .lineup { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 282px), 1fr)); gap: 28px 20px; align-items: start; }
 .vcard { min-width: 0; display: grid; gap: 8px; }
+.lineup.thumbs { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 16px 12px; }
+.lineup.thumbs .mock { zoom: 0.5; }
+.lineup.thumbs .vconcept, .lineup.thumbs .strip { display: none; }
+.lineup.thumbs .vname { font-size: 15px; }
 .vhead { display: grid; gap: 2px; }
 .vname { font: italic 500 20px/1.15 var(--font-name); }
 .vconcept { font-size: 12px; color: var(--ink-2); min-height: 2.9em; }
@@ -187,6 +191,11 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
       <button id="vis-deutan" data-v="deutan" aria-pressed="false">Deutan</button>
       <button id="vis-tritan" data-v="tritan" aria-pressed="false">Tritan</button>
     </span>
+    <span class="lbl">Size</span>
+    <span class="seg" id="ctl-size">
+      <button id="size-full" data-v="full" aria-pressed="true">Full</button>
+      <button id="size-thumb" data-v="thumb" aria-pressed="false" title="Thumbnail test: can you still tell the variants apart?">Thumb</button>
+    </span>
     <span class="lbl">Booth</span>
     <span class="seg" id="ctl-booth">
       <button id="booth-n1" data-v="n1" aria-pressed="false" title="Near-black surround">N1</button>
@@ -216,6 +225,9 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
     <p class="intro">ΔE in OKLab between roles. About <b>0.02</b> is the smallest difference most people notice side by side; roles that must read differently need far more. Red cells are below the audit threshold for that pair.</p>
     <div class="picker"><span class="lbl">Variant</span><select id="dist-variant"></select></div>
     <div class="scroll" id="dist-matrix"></div>
+    <h2>Text on surfaces (WCAG contrast)</h2>
+    <p class="note">Every text role on every surface. Red is below 4.5:1. Not every pair occurs in the interface; the audit checks the ones that do.</p>
+    <div class="scroll" id="dist-contrast"></div>
     <h2>Between variants</h2>
     <div class="scroll" id="dist-cross"></div>
   </section>
@@ -625,6 +637,21 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
     }
     $('#dist-matrix').innerHTML = t + '</tbody></table>';
 
+    const SURF = ['bg', 'bg_panel', 'bg_raised', 'bg_active', 'bg_overlay', 'selection_bg', 'accent'];
+    const TEXT = ['fg', 'fg_muted', 'fg_emphasis', 'fg_strong', 'link', 'link_visited', 'error', 'warning', 'success', 'info',
+      'syntax.comment', 'syntax.keyword', 'syntax.function', 'syntax.type', 'syntax.string', 'syntax.number',
+      'on_selection.fg', 'fg_on_accent'];
+    let g = `<table class="grid"><thead><tr><th></th>${SURF.map(k => `<th><span class="swatch" style="background:${R(e.pal, k)}"></span><br>${k}</th>`).join('')}</tr></thead><tbody>`;
+    for (const fg of TEXT) {
+      g += `<tr><th><span class="swatch" style="background:${R(e.pal, fg)}"></span>${short(fg)}</th>`;
+      for (const bg of SURF) {
+        const r = E.contrast(E.role(e.pal, fg), E.role(e.pal, bg));
+        g += `<td class="${r < DATA.thresholds.text_contrast ? 'f' : r >= 7 ? 'd' : ''}">${r.toFixed(2)}</td>`;
+      }
+      g += '</tr>';
+    }
+    $('#dist-contrast').innerHTML = g + '</tbody></table>';
+
     let x = '';
     for (const sName of visibleSets()) {
       const entries = PREP[sName].filter(q => q.pal);
@@ -747,6 +774,11 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   $('#tabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) { history.replaceState(null, '', '#' + b.dataset.tab); setTab(b.dataset.tab); } });
   $('#ctl-set').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b || b.disabled) return; state.set = b.dataset.v; press('#ctl-set', state.set); renderActive(); });
   $('#ctl-vision').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; state.vision = b.dataset.v; press('#ctl-vision', state.vision); renderActive(); });
+  $('#ctl-size').addEventListener('click', ev => {
+    const b = ev.target.closest('button'); if (!b) return;
+    press('#ctl-size', b.dataset.v);
+    $('#lineup').classList.toggle('thumbs', b.dataset.v === 'thumb');
+  });
   $('#ctl-booth').addEventListener('click', ev => {
     const b = ev.target.closest('button'); if (!b) return;
     state.booth = b.dataset.v; press('#ctl-booth', state.booth);
