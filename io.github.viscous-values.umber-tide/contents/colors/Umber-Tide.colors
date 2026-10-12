@@ -1,10 +1,10 @@
 # Umber — KDE Plasma 6 color scheme
-# Palette: 16 colors in 4 tiers (Hearth, Glow, Mist, Spark). Source of truth: palette-preview.svg in the repo root.
+# Generated from the palette TOML + roles.toml by scripts/render_palette.py — edit those, not this file.
 #   Hearth (surfaces):  #202629 #272D31 #2F3539 #404648
 #   Glow (warm fgs):    #A09A93 #CDBC9A #D6CCB5 #EAE5D9
 #   Mist (cool accents): #4F7A7E #7AA8AC #88A6C5 #A8BDD6
 #   Spark (vivid):       red #E06C75  orange #D19A66  amber #E5C07B  green #98C379  violet #C586B0
-# Negative=spark.red, Neutral=spark.amber, Positive=spark.green, Visited=spark.violet (web-link convention).
+# Every key below is a semantic role (role.link, role.on_selection.fg, ...); see roles.toml for the mapping.
 
 [ColorEffects:Disabled]
 Color=56,56,56

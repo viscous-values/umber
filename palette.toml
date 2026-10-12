@@ -71,3 +71,19 @@ highlight_negative = "#91272C"   # 4.50:1
 highlight_neutral  = "#6D4600"   # 4.51:1
 highlight_positive = "#2D5016"   # 5.02:1
 highlight_visited  = "#5C4225"   # 5.04:1
+
+# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
+# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
+# roles.toml [role.ansi].
+[ansi]
+bright_red     = "#EB8590"
+bright_green   = "#B5D690"
+bright_yellow  = "#F0CF8E"
+bright_magenta = "#D5A0C2"
+bright_cyan    = "#9CC4C7"
+faint_red      = "#A04D54"
+faint_green    = "#6D8C56"
+faint_yellow   = "#A48A58"
+faint_blue     = "#57748F"
+faint_magenta  = "#8D608A"
+faint_cyan     = "#508083"
