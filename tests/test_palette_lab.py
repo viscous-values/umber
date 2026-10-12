@@ -7,6 +7,7 @@ Run: python3 -m unittest discover -s tests
 """
 
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -45,9 +46,12 @@ class BuildDataTest(unittest.TestCase):
         self.assertEqual([v["slug"] for v in data["sets"]["draft"]["variants"]], ["tide"])
 
     def test_variant_carries_raw_tiers_overrides_and_python_audit(self):
+        import palette_lib
+        raw = palette_lib.load_toml(REPO / "palette.toml")
         umber = render_lab.build_data(next_dir=NOWHERE)["sets"]["current"]["variants"][0]
-        self.assertEqual(umber["tiers"]["hearth"]["0"], "#26221E")
-        self.assertEqual(umber["role"], {})
+        self.assertEqual(umber["tiers"]["hearth"], raw["hearth"])
+        self.assertEqual(umber["role"], raw.get("role", {}))
+        self.assertEqual(umber["meta"], raw["meta"])
         self.assertIn("contrast:fg/bg", umber["audit"])
 
 
@@ -66,6 +70,7 @@ class RenderTest(unittest.TestCase):
         hostile = '</script><script>alert(1)</script><!-- & "quotes"'
         with tempfile.TemporaryDirectory() as d:
             text = (REPO / "palettes" / "tide.toml").read_text()
+            text = re.sub(r'(?m)^concept = .*\n', '', text)
             text = text.replace('[meta]\n', '[meta]\nconcept = ' + json.dumps(hostile) + '\n', 1)
             (Path(d) / "tide.toml").write_text(text)
             out = Path(d) / "lab.html"

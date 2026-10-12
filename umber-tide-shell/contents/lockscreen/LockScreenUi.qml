@@ -31,11 +31,11 @@ Pane {
     width: Screen.width
 
     // Umber palette, hardcoded to match umber-sddm/theme.conf.
-    palette.text: "#CDBC9A"        // MainColor
-    palette.highlight: "#EAE5D9"   // AccentColor
-    palette.window: "#272D31"      // BackgroundColor
+    palette.text: "#C5CCBB"        // MainColor
+    palette.highlight: "#FA9BAC"   // AccentColor
+    palette.window: "#122C2A"      // BackgroundColor
     palette.button: "transparent"
-    palette.buttonText: "#CDBC9A"
+    palette.buttonText: "#C5CCBB"
 
     font.family: "Noto Sans"
     font.pointSize: Math.max(11, Math.min(15, Math.round(height / 80)))
@@ -44,7 +44,7 @@ Pane {
     LayoutMirroring.enabled: Application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
 
-    readonly property color umberFloor: "#272D31"
+    readonly property color umberFloor: "#122C2A"
     readonly property real umberScrimOpacity: 0.55
 
     function handleMessage(msg) {

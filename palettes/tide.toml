@@ -1,61 +1,70 @@
-# Umber Tide — dusk variant.
+# Umber Tide — variant palette.
 #
-# Hearth: teal-cool charcoal (G ≈ B > R, B-R ~ 8-10).
-# Glow:   ~12% desaturated from canonical-cool Umber.
-# Mist + Spark: identical to canonical.
+# Sea glass. Deep green-teal ground, pale sea-foam text, a coral signature. Tide-pool code: aqua functions, seafoam types, kelp strings, urchin-violet keywords, sand-gold numbers.
+#
+# Pigments only; roles.toml maps them to UI jobs and palette.toml documents
+# the render workflow. Pre-redesign values: palettes/archive/classic/tide.toml.
 
 [meta]
-description = "Cream-on-dusk — Umber Tide. Teal-cool charcoal hearths, cream glow drifting toward sand."
+description = "Sea-foam on deep sea-glass teal with a coral signature."
+concept = "Sea glass. Deep green-teal ground, pale sea-foam text, a coral signature. Tide-pool code: aqua functions, seafoam types, kelp strings, urchin-violet keywords, sand-gold numbers."
 wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
 
 [hearth]
-"0" = "#202629"   # deepest bg     — teal cool
-"1" = "#272D31"   # panel bg
-"2" = "#2F3539"   # raised surface
-"3" = "#404648"   # border
+"0"                 = "#092321"   # L 0.235 C 0.032 h 190  deepest bg — editor, view, terminal
+"1"                 = "#122C2A"   # L 0.272 C 0.032 h 190  panel bg — sidebar, window
+"2"                 = "#1C3634"   # L 0.312 C 0.032 h 190  raised — status/title bar, hover
+"3"                 = "#364C4A"   # L 0.398 C 0.027 h 190  active / border / tooltip
+"4"                 = "#617876"   # L 0.555 C 0.027 h 190  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+hover               = "#485F5D"   # L 0.465 C 0.027 h 190  hover on an active surface — secondary button, scrollbar thumb
 
 [glow]
-"0" = "#A09A93"   # muted
-"1" = "#CDBC9A"   # primary fg
-"2" = "#D6CCB5"   # emphasized fg
-"3" = "#EAE5D9"   # brightest fg
+"0"                 = "#9DA296"   # L 0.705 C 0.018 h 125  muted — hints, line numbers
+"1"                 = "#C5CCBB"   # L 0.835 C 0.024 h 125  body text
+"2"                 = "#D9DFD1"   # L 0.895 C 0.020 h 125  emphasis — active tab, titles
+"3"                 = "#ECF0E7"   # L 0.950 C 0.012 h 125  strong — cursor, url text
 
 [mist]
-"0" = "#4F7A7E"
-"1" = "#7AA8AC"
-"2" = "#88A6C5"
-"3" = "#A8BDD6"
+"0"                 = "#7DD8B6"   # L 0.815 C 0.100 h 168  types, classes
+"1"                 = "#59B2B5"   # L 0.710 C 0.085 h 198  regex, ANSI cyan
+"2"                 = "#7CC0E3"   # L 0.775 C 0.085 h 232  functions, links, info, ANSI blue
+"3"                 = "#789292"   # L 0.640 C 0.030 h 195  comments, hints
 
 [spark]
-red    = "#E06C75"
-orange = "#D19A66"
-amber  = "#E5C07B"
-green  = "#98C379"
-violet = "#C586B0"
+red                 = "#E66F62"   # L 0.680 C 0.150 h  28  errors, tags, removed
+orange              = "#E5B568"   # L 0.800 C 0.110 h  78  numbers, constants
+amber               = "#E8D579"   # L 0.870 C 0.115 h  98  warnings, find, modified
+green               = "#BCC270"   # L 0.790 C 0.105 h 112  strings, success, added
+violet              = "#BE94D8"   # L 0.730 C 0.105 h 312  keywords, visited links
 
-# Variant-specific UI accent. cool teal (= mist.1) — Tide is teal dusk; teal accent feels native.
-# See palette.toml [accent] for the canonical block.
 [accent]
-highlight          = "#7AA8AC"
-highlight_text     = "#202629"
-highlight_link     = "#4F3100"   # 4.52:1 on highlight
-highlight_negative = "#691A1E"   # 4.54:1
-highlight_neutral  = "#4F3100"   # 4.52:1
-highlight_positive = "#213E0F"   # 4.55:1
-highlight_visited  = "#49331C"   # 4.52:1
+signature           = "#FA9BAC"   # L 0.790 C 0.115 h   8  focus ring, active tab, primary button, progress
+signature_hover     = "#FFADB9"   # L 0.830 C 0.097 h  10
+on_signature        = "#08201F"   # L 0.225 C 0.030 h 190  text on the signature
+highlight           = "#ECBCC2"   # L 0.840 C 0.055 h  10  selection background (light tint of the signature)
+highlight_alt       = "#E0B1B7"   # L 0.805 C 0.055 h  10  alternate selected row
+highlight_text      = "#022625"   # L 0.245 C 0.040 h 190  text on selection
+highlight_inactive  = "#334C4A"   # L 0.395 C 0.030 h 190  secondary text on selection
+highlight_link      = "#18467D"   # L 0.395 C 0.105 h 255  on selection
+highlight_visited   = "#603067"   # L 0.395 C 0.105 h 322  on selection
+highlight_negative  = "#7C2121"   # L 0.395 C 0.125 h  25  on selection
+highlight_neutral   = "#5C4102"   # L 0.395 C 0.080 h  82  on selection
+highlight_positive  = "#1C5421"   # L 0.395 C 0.100 h 145  on selection
 
-# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
-# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
-# roles.toml [role.ansi].
+# Terminal: normal colors map from spark/mist; these are the extras.
 [ansi]
-bright_red     = "#EB8590"
-bright_green   = "#B5D690"
-bright_yellow  = "#F0CF8E"
-bright_magenta = "#D5A0C2"
-bright_cyan    = "#9CC4C7"
-faint_red      = "#A04D54"
-faint_green    = "#6D8C56"
-faint_yellow   = "#A48A58"
-faint_blue     = "#57748F"
-faint_magenta  = "#8D608A"
-faint_cyan     = "#508083"
+black               = "#365553"   # L 0.425 C 0.037 h 190
+blue                = "#80B0E7"   # L 0.745 C 0.095 h 252
+cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
+bright_red          = "#FF8577"   # L 0.750 C 0.151 h  28
+bright_green        = "#D3D97E"   # L 0.860 C 0.115 h 112
+bright_yellow       = "#FFEC92"   # L 0.940 C 0.113 h  98
+bright_blue         = "#95C7FF"   # L 0.815 C 0.096 h 252
+bright_magenta      = "#D7A8F4"   # L 0.800 C 0.115 h 312
+bright_cyan         = "#7DE9E8"   # L 0.870 C 0.100 h 195
+faint_red           = "#994C43"   # L 0.510 C 0.105 h  28
+faint_green         = "#878B56"   # L 0.620 C 0.073 h 112
+faint_yellow        = "#AC9F64"   # L 0.700 C 0.081 h  98
+faint_blue          = "#5C7C9F"   # L 0.575 C 0.066 h 252
+faint_magenta       = "#836894"   # L 0.560 C 0.073 h 312
+faint_cyan          = "#599595"   # L 0.630 C 0.063 h 195

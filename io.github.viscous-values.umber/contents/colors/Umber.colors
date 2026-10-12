@@ -1,9 +1,9 @@
 # Umber — KDE Plasma 6 color scheme
 # Generated from the palette TOML + roles.toml by scripts/render_palette.py — edit those, not this file.
-#   Hearth (surfaces):  #26221E #2D2823 #363029 #48413A
-#   Glow (warm fgs):    #A89986 #D4BC91 #E1CDA5 #F0E5D0
-#   Mist (cool accents): #4F7A7E #7AA8AC #88A6C5 #A8BDD6
-#   Spark (vivid):       red #E06C75  orange #D19A66  amber #E5C07B  green #98C379  violet #C586B0
+#   Hearth (surfaces):  #291B0E #322417 #3C2E21 #51443A
+#   Glow (warm fgs):    #AA9E8B #D9C6A8 #EBDABF #F7EDDD
+#   Mist (cool accents): #8CCAAF #5DAEAE #80BAE4 #958676
+#   Spark (vivid):       red #E66F64  orange #F2A660  amber #EDD473  green #9FC56B  violet #D988A8
 # Every key below is a semantic role (role.link, role.on_selection.fg, ...); see roles.toml for the mapping.
 
 [ColorEffects:Disabled]
@@ -27,116 +27,116 @@ IntensityAmount=0
 IntensityEffect=0
 
 [Colors:Button]
-BackgroundAlternate=72,65,58
-BackgroundNormal=54,48,41
-DecorationFocus=240,229,208
-DecorationHover=240,229,208
-ForegroundActive=240,229,208
-ForegroundInactive=168,153,134
-ForegroundLink=225,205,165
-ForegroundNegative=224,108,117
-ForegroundNeutral=229,192,123
-ForegroundNormal=212,188,145
-ForegroundPositive=152,195,121
-ForegroundVisited=197,134,176
+BackgroundAlternate=81,68,58
+BackgroundNormal=60,46,33
+DecorationFocus=235,146,81
+DecorationHover=170,158,139
+ForegroundActive=247,237,221
+ForegroundInactive=170,158,139
+ForegroundLink=128,186,228
+ForegroundNegative=230,111,100
+ForegroundNeutral=237,212,115
+ForegroundNormal=217,198,168
+ForegroundPositive=159,197,107
+ForegroundVisited=217,136,168
 
 [Colors:Complementary]
-BackgroundAlternate=54,48,41
-BackgroundNormal=38,34,30
-DecorationFocus=240,229,208
-DecorationHover=240,229,208
-ForegroundActive=240,229,208
-ForegroundInactive=168,153,134
-ForegroundLink=225,205,165
-ForegroundNegative=224,108,117
-ForegroundNeutral=229,192,123
-ForegroundNormal=212,188,145
-ForegroundPositive=152,195,121
-ForegroundVisited=197,134,176
+BackgroundAlternate=60,46,33
+BackgroundNormal=41,27,14
+DecorationFocus=235,146,81
+DecorationHover=170,158,139
+ForegroundActive=247,237,221
+ForegroundInactive=170,158,139
+ForegroundLink=128,186,228
+ForegroundNegative=230,111,100
+ForegroundNeutral=237,212,115
+ForegroundNormal=217,198,168
+ForegroundPositive=159,197,107
+ForegroundVisited=217,136,168
 
 [Colors:Header]
-BackgroundAlternate=45,40,35
-BackgroundNormal=54,48,41
-DecorationFocus=240,229,208
-DecorationHover=240,229,208
-ForegroundActive=240,229,208
-ForegroundInactive=168,153,134
-ForegroundLink=225,205,165
-ForegroundNegative=224,108,117
-ForegroundNeutral=229,192,123
-ForegroundNormal=212,188,145
-ForegroundPositive=152,195,121
-ForegroundVisited=197,134,176
+BackgroundAlternate=50,36,23
+BackgroundNormal=60,46,33
+DecorationFocus=235,146,81
+DecorationHover=170,158,139
+ForegroundActive=247,237,221
+ForegroundInactive=170,158,139
+ForegroundLink=128,186,228
+ForegroundNegative=230,111,100
+ForegroundNeutral=237,212,115
+ForegroundNormal=217,198,168
+ForegroundPositive=159,197,107
+ForegroundVisited=217,136,168
 
 [Colors:Header][Inactive]
-BackgroundAlternate=54,48,41
-BackgroundNormal=45,40,35
-DecorationFocus=240,229,208
-DecorationHover=240,229,208
-ForegroundActive=240,229,208
-ForegroundInactive=168,153,134
-ForegroundLink=225,205,165
-ForegroundNegative=224,108,117
-ForegroundNeutral=229,192,123
-ForegroundNormal=212,188,145
-ForegroundPositive=152,195,121
-ForegroundVisited=197,134,176
+BackgroundAlternate=60,46,33
+BackgroundNormal=50,36,23
+DecorationFocus=235,146,81
+DecorationHover=170,158,139
+ForegroundActive=247,237,221
+ForegroundInactive=170,158,139
+ForegroundLink=128,186,228
+ForegroundNegative=230,111,100
+ForegroundNeutral=237,212,115
+ForegroundNormal=217,198,168
+ForegroundPositive=159,197,107
+ForegroundVisited=217,136,168
 
 [Colors:Selection]
-BackgroundAlternate=229,192,123
-BackgroundNormal=212,188,145
-DecorationFocus=45,40,35
-DecorationHover=45,40,35
-ForegroundActive=38,34,30
-ForegroundInactive=72,65,58
-ForegroundLink=109,70,0
-ForegroundNegative=145,39,44
-ForegroundNeutral=109,70,0
-ForegroundNormal=45,40,35
-ForegroundPositive=45,80,22
-ForegroundVisited=92,66,37
+BackgroundAlternate=216,169,135
+BackgroundNormal=227,180,146
+DecorationFocus=46,28,11
+DecorationHover=46,28,11
+ForegroundActive=46,28,11
+ForegroundInactive=83,67,54
+ForegroundLink=24,70,125
+ForegroundNegative=124,33,33
+ForegroundNeutral=92,65,2
+ForegroundNormal=46,28,11
+ForegroundPositive=28,84,33
+ForegroundVisited=96,48,103
 
 [Colors:Tooltip]
-BackgroundAlternate=54,48,41
-BackgroundNormal=72,65,58
-DecorationFocus=240,229,208
-DecorationHover=240,229,208
-ForegroundActive=240,229,208
-ForegroundInactive=168,153,134
-ForegroundLink=225,205,165
-ForegroundNegative=224,108,117
-ForegroundNeutral=229,192,123
-ForegroundNormal=212,188,145
-ForegroundPositive=152,195,121
-ForegroundVisited=197,134,176
+BackgroundAlternate=60,46,33
+BackgroundNormal=81,68,58
+DecorationFocus=235,146,81
+DecorationHover=170,158,139
+ForegroundActive=247,237,221
+ForegroundInactive=170,158,139
+ForegroundLink=128,186,228
+ForegroundNegative=230,111,100
+ForegroundNeutral=237,212,115
+ForegroundNormal=217,198,168
+ForegroundPositive=159,197,107
+ForegroundVisited=217,136,168
 
 [Colors:View]
-BackgroundAlternate=45,40,35
-BackgroundNormal=38,34,30
-DecorationFocus=240,229,208
-DecorationHover=240,229,208
-ForegroundActive=240,229,208
-ForegroundInactive=168,153,134
-ForegroundLink=225,205,165
-ForegroundNegative=224,108,117
-ForegroundNeutral=229,192,123
-ForegroundNormal=212,188,145
-ForegroundPositive=152,195,121
-ForegroundVisited=197,134,176
+BackgroundAlternate=50,36,23
+BackgroundNormal=41,27,14
+DecorationFocus=235,146,81
+DecorationHover=170,158,139
+ForegroundActive=247,237,221
+ForegroundInactive=170,158,139
+ForegroundLink=128,186,228
+ForegroundNegative=230,111,100
+ForegroundNeutral=237,212,115
+ForegroundNormal=217,198,168
+ForegroundPositive=159,197,107
+ForegroundVisited=217,136,168
 
 [Colors:Window]
-BackgroundAlternate=54,48,41
-BackgroundNormal=45,40,35
-DecorationFocus=240,229,208
-DecorationHover=240,229,208
-ForegroundActive=240,229,208
-ForegroundInactive=168,153,134
-ForegroundLink=225,205,165
-ForegroundNegative=224,108,117
-ForegroundNeutral=229,192,123
-ForegroundNormal=212,188,145
-ForegroundPositive=152,195,121
-ForegroundVisited=197,134,176
+BackgroundAlternate=60,46,33
+BackgroundNormal=50,36,23
+DecorationFocus=235,146,81
+DecorationHover=170,158,139
+ForegroundActive=247,237,221
+ForegroundInactive=170,158,139
+ForegroundLink=128,186,228
+ForegroundNegative=230,111,100
+ForegroundNeutral=237,212,115
+ForegroundNormal=217,198,168
+ForegroundPositive=159,197,107
+ForegroundVisited=217,136,168
 
 [General]
 ColorScheme=Umber
@@ -147,9 +147,9 @@ shadeSortColumn=true
 contrast=4
 
 [WM]
-activeBackground=54,48,41
-activeBlend=240,229,208
-activeForeground=212,188,145
-inactiveBackground=45,40,35
-inactiveBlend=168,153,134
-inactiveForeground=168,153,134
+activeBackground=60,46,33
+activeBlend=247,237,221
+activeForeground=217,198,168
+inactiveBackground=50,36,23
+inactiveBlend=170,158,139
+inactiveForeground=170,158,139

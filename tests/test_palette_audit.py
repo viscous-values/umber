@@ -3,6 +3,7 @@
 Run: python3 -m unittest discover -s tests
 """
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -14,6 +15,8 @@ sys.path.insert(0, str(REPO / "scripts"))
 
 import palette_audit as pa  # noqa: E402
 import palette_lib  # noqa: E402
+
+CLASSIC = REPO / "palettes" / "archive" / "classic"   # pre-redesign palettes: the regression fixture
 
 
 class ColorMathTest(unittest.TestCase):
@@ -68,7 +71,7 @@ class MeasureTest(unittest.TestCase):
 
 
 def _canon():
-    return palette_lib.prepare(REPO / "palette.toml")
+    return palette_lib.prepare(CLASSIC / "palette.toml")
 
 
 def _by_id(checks):
@@ -76,7 +79,7 @@ def _by_id(checks):
 
 
 class VariantChecksTest(unittest.TestCase):
-    """Today's canonical palette should reproduce the PALETTE-REVISIT.md table."""
+    """The classic canonical palette must keep reproducing the PALETTE-REVISIT.md table."""
 
     def setUp(self):
         self.checks = _by_id(pa.audit_variant(_canon()))
@@ -140,26 +143,29 @@ class VariantChecksTest(unittest.TestCase):
         self.assertEqual(check.threshold, pa.THRESHOLDS["accent_vs_status_de"])
 
 
-@unittest.skipUnless((REPO / "palettes" / "next").is_dir(), "no drafts")
-class DraftChecksTest(unittest.TestCase):
-    """Positive guard: the drafts clear every per-variant error-level check."""
+class ShippedChecksTest(unittest.TestCase):
+    """Positive guard: the shipped palettes clear every check, advisories included."""
 
-    def test_every_draft_passes_per_variant_errors(self):
-        for name, (_, pal) in pa.load_targets(REPO / "palettes" / "next").items():
-            with self.subTest(draft=name):
-                failing = [c.id for c in pa.audit_variant(pal) if c.level == "error" and not c.ok]
-                self.assertEqual(failing, [])
+    def test_every_shipped_palette_passes_every_check(self):
+        for name, (_, pal) in pa.load_targets().items():
+            with self.subTest(variant=name):
+                below = [c.id for c in pa.audit_variant(pal) if c.level != "info" and not c.ok]
+                self.assertEqual(below, [])
+
+    def test_shipped_family_passes_every_cross_variant_check(self):
+        pals = {name: pal for name, (_, pal) in pa.load_targets().items()}
+        self.assertEqual([c.id for c in pa.audit_family(pals) if not c.ok], [])
 
 
 class FamilyChecksTest(unittest.TestCase):
-    def test_todays_grounds_are_indistinct(self):
-        pals = {name: pal for name, (_, pal) in pa.load_targets().items()}
+    def test_classic_grounds_are_indistinct(self):
+        pals = {name: pal for name, (_, pal) in pa.load_targets(CLASSIC).items()}
         checks = _by_id(pa.audit_family(pals))
         self.assertFalse(checks["cross-ground:ash~slate"].ok)
         self.assertFalse(checks["cross-accent:slate~storm"].ok)
 
-    def test_todays_identity_and_syntax_keys_collapse(self):
-        pals = {name: pal for name, (_, pal) in pa.load_targets().items()}
+    def test_classic_identity_and_syntax_keys_collapse(self):
+        pals = {name: pal for name, (_, pal) in pa.load_targets(CLASSIC).items()}
         checks = _by_id(pa.audit_family(pals))
         self.assertFalse(checks["cross-identity:slate~storm"].ok)   # same ground family, same accent
         syntax = [c for cid, c in checks.items() if cid.startswith("cross-syntax:")]
@@ -173,8 +179,12 @@ class CliTest(unittest.TestCase):
         return subprocess.run([sys.executable, "-B", str(REPO / "scripts" / "palette_audit.py"), *args],
                               capture_output=True, text=True)
 
-    def test_strict_exits_nonzero_on_todays_palettes(self):
-        self.assertEqual(self._run("--strict").returncode, 1)
+    def test_strict_exits_nonzero_on_classic_palettes(self):
+        self.assertEqual(self._run("--strict", "--dir", str(CLASSIC)).returncode, 1)
+
+    def test_strict_passes_shipped_palettes(self):
+        result = self._run("--strict")
+        self.assertEqual(result.returncode, 0, result.stdout[-2000:])
 
     def test_report_without_strict_exits_zero(self):
         result = self._run()
@@ -183,7 +193,7 @@ class CliTest(unittest.TestCase):
 
     def test_invalid_palette_is_reported_not_a_traceback(self):
         with tempfile.TemporaryDirectory() as d:
-            text = (REPO / "palettes" / "tide.toml").read_text().replace('"0" = "#', '"0" = "#zz', 1)
+            text = re.sub(r'= "#([0-9A-F]{6})"', r'= "#zz\1"', (REPO / "palettes" / "tide.toml").read_text(), count=1)
             (Path(d) / "tide.toml").write_text(text)
             result = self._run("--dir", d)
         self.assertEqual(result.returncode, 2)

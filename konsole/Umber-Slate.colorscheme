@@ -15,79 +15,79 @@ WallpaperFlipType=NoFlip
 WallpaperOpacity=1
 
 [Background]
-Color=35,37,39
+Color=19,32,41
 [BackgroundFaint]
-Color=35,37,39
+Color=19,32,41
 [BackgroundIntense]
-Color=35,37,39
+Color=19,32,41
 
 [Foreground]
-Color=207,188,152
+Color=198,202,203
 [ForegroundFaint]
-Color=163,154,142
+Color=157,160,162
 [ForegroundIntense]
-Color=236,229,215
+Color=236,239,240
 
 # 0 — black (role.ansi.black; intense = role.ansi.bright_black)
 [Color0]
-Color=42,44,47
+Color=63,81,93
 [Color0Faint]
-Color=42,44,47
+Color=27,41,50
 [Color0Intense]
-Color=163,154,142
+Color=157,160,162
 
 # 1 — red (role.ansi.red)
 [Color1]
-Color=224,108,117
+Color=223,115,114
 [Color1Faint]
-Color=160,77,84
+Color=149,78,77
 [Color1Intense]
-Color=235,133,144
+Color=252,134,132
 
 # 2 — green (role.ansi.green)
 [Color2]
-Color=152,195,121
+Color=103,190,169
 [Color2Faint]
-Color=109,140,86
+Color=76,132,118
 [Color2Intense]
-Color=181,214,144
+Color=116,214,190
 
 # 3 — yellow (role.ansi.yellow)
 [Color3]
-Color=229,192,123
+Color=242,208,125
 [Color3Faint]
-Color=164,138,88
+Color=178,156,102
 [Color3Intense]
-Color=240,207,142
+Color=255,233,181
 
 # 4 — blue (role.ansi.blue)
 [Color4]
-Color=136,166,197
+Color=128,176,231
 [Color4Faint]
-Color=87,116,143
+Color=92,124,159
 [Color4Intense]
-Color=168,189,214
+Color=149,199,255
 
 # 5 — magenta (role.ansi.magenta)
 [Color5]
-Color=197,134,176
+Color=200,146,202
 [Color5Faint]
-Color=141,96,138
+Color=138,102,139
 [Color5Intense]
-Color=213,160,194
+Color=226,165,229
 
 # 6 — cyan (role.ansi.cyan)
 [Color6]
-Color=122,168,172
+Color=114,208,208
 [Color6Faint]
-Color=80,128,131
+Color=89,149,149
 [Color6Intense]
-Color=156,196,199
+Color=125,233,232
 
 # 7 — white / default text (role.ansi.white)
 [Color7]
-Color=207,188,152
+Color=198,202,203
 [Color7Faint]
-Color=163,154,142
+Color=157,160,162
 [Color7Intense]
-Color=236,229,215
+Color=236,239,240

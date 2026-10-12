@@ -87,3 +87,36 @@ faint_yellow   = "#A48A58"
 faint_blue     = "#57748F"
 faint_magenta  = "#8D608A"
 faint_cyan     = "#508083"
+
+# Role mapping as this palette shipped (roles.toml defaults changed in the
+# 2026-10 redesign). Keeps the archived palette resolvable as it was.
+[role]
+input_border = "role.border"
+fg_on_accent = "hearth.0"
+bg_active_hover = "#555555"
+accent = "accent.highlight"
+interactive = "mist.2"
+interactive_hover = "mist.3"
+focus_ring = "role.interactive"
+decoration_focus = "glow.3"
+decoration_hover = "glow.3"
+link = "glow.2"
+selection_bg = "role.accent"
+selection_alt = "spark.amber"
+info = "mist.2"
+brand = "spark.amber"
+
+[role.on_selection]
+fg_soft = "hearth.1"
+fg_inactive = "hearth.3"
+decoration = "hearth.1"
+
+[role.syntax]
+type = "spark.amber"
+markup_link = "mist.2"
+
+[role.ansi]
+black = "hearth.1"
+blue = "mist.2"
+cyan = "mist.1"
+bright_blue = "mist.3"

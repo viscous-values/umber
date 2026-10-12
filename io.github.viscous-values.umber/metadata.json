@@ -7,7 +7,7 @@
             }
         ],
         "Category": "Plasma Look And Feel",
-        "Description": "Quiet warm peach foreground on neutral charcoal — palette adapted from MarianArlt's Sugar Dark, muted for long sessions.",
+        "Description": "Cream on raw umber with a burnt-sienna signature, the canonical fireside palette.",
         "EnabledByDefault": true,
         "Id": "io.github.viscous-values.umber",
         "License": "GPL-3.0-or-later",

@@ -7,7 +7,7 @@
             }
         ],
         "Category": "Plasma Look And Feel",
-        "Description": "Cream-on-night-sea — Umber Storm. Slate-blue charcoal hearths, sand-cream glow.",
+        "Description": "Moonlit text on deep indigo with a lightning-amber signature.",
         "EnabledByDefault": true,
         "Id": "io.github.viscous-values.umber-storm",
         "License": "GPL-3.0-or-later",

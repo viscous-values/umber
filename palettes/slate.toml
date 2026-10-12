@@ -1,61 +1,70 @@
-# Umber Slate — overcast variant.
+# Umber Slate — variant palette.
 #
-# Hearth: neutral-cool charcoal (B > R by ~4-6 per channel).
-# Glow:   ~6% desaturated from canonical-cool Umber.
-# Mist + Spark: identical to canonical.
+# Pewter overcast. Grey-blue pewter ground, near-neutral silver text, a moss signature. Rain-washed code: heather keywords, slate-blue functions, lichen-teal types, sea-green strings, rust numbers.
+#
+# Pigments only; roles.toml maps them to UI jobs and palette.toml documents
+# the render workflow. Pre-redesign values: palettes/archive/classic/slate.toml.
 
 [meta]
-description = "Cream-on-overcast — Umber Slate. Neutral-cool charcoal hearths, lightly desaturated cream glow."
+description = "Silver on blue-grey slate with a moss-green signature."
+concept = "Pewter overcast. Grey-blue pewter ground, near-neutral silver text, a moss signature. Rain-washed code: heather keywords, slate-blue functions, lichen-teal types, sea-green strings, rust numbers."
 wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
 
 [hearth]
-"0" = "#232527"   # deepest bg     — slight cool wash
-"1" = "#2A2C2F"   # panel bg
-"2" = "#323438"   # raised surface
-"3" = "#434548"   # border
+"0"                 = "#132029"   # L 0.235 C 0.025 h 238  deepest bg — editor, view, terminal
+"1"                 = "#1B2932"   # L 0.272 C 0.025 h 238  panel bg — sidebar, window
+"2"                 = "#25333C"   # L 0.312 C 0.025 h 238  raised — status/title bar, hover
+"3"                 = "#3D4951"   # L 0.398 C 0.021 h 238  active / border / tooltip
+"4"                 = "#68757E"   # L 0.555 C 0.021 h 238  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+hover               = "#4F5B64"   # L 0.465 C 0.021 h 238  hover on an active surface — secondary button, scrollbar thumb
 
 [glow]
-"0" = "#A39A8E"   # muted
-"1" = "#CFBC98"   # primary fg
-"2" = "#D8CDB2"   # emphasized fg
-"3" = "#ECE5D7"   # brightest fg
+"0"                 = "#9DA0A2"   # L 0.705 C 0.004 h 225  muted — hints, line numbers
+"1"                 = "#C6CACB"   # L 0.835 C 0.005 h 225  body text
+"2"                 = "#DADDDE"   # L 0.895 C 0.004 h 225  emphasis — active tab, titles
+"3"                 = "#ECEFF0"   # L 0.950 C 0.003 h 225  strong — cursor, url text
 
 [mist]
-"0" = "#4F7A7E"
-"1" = "#7AA8AC"
-"2" = "#88A6C5"
-"3" = "#A8BDD6"
+"0"                 = "#78CFCC"   # L 0.800 C 0.085 h 192  types, classes
+"1"                 = "#5DACBA"   # L 0.700 C 0.080 h 210  regex, ANSI cyan
+"2"                 = "#94B3E1"   # L 0.760 C 0.075 h 258  functions, links, info, ANSI blue
+"3"                 = "#828E99"   # L 0.640 C 0.022 h 250  comments, hints
 
 [spark]
-red    = "#E06C75"
-orange = "#D19A66"
-amber  = "#E5C07B"
-green  = "#98C379"
-violet = "#C586B0"
+red                 = "#DF7372"   # L 0.680 C 0.135 h  22  errors, tags, removed
+orange              = "#DD9A7D"   # L 0.745 C 0.090 h  45  numbers, constants
+amber               = "#F2D07D"   # L 0.870 C 0.110 h  88  warnings, find, modified
+green               = "#67BEA9"   # L 0.740 C 0.090 h 176  strings, success, added
+violet              = "#C892CA"   # L 0.730 C 0.100 h 325  keywords, visited links
 
-# Variant-specific UI accent. soft cool blue (= mist.2) — Slate's overcast field reads cool, accent matches.
-# See palette.toml [accent] for the canonical block.
 [accent]
-highlight          = "#88A6C5"
-highlight_text     = "#232527"
-highlight_link     = "#523300"   # 4.53:1 on highlight
-highlight_negative = "#6D1B1F"   # 4.54:1
-highlight_neutral  = "#523300"   # 4.53:1
-highlight_positive = "#244110"   # 4.51:1
-highlight_visited  = "#4B351D"   # 4.54:1
+signature           = "#A4C485"   # L 0.780 C 0.092 h 130  focus ring, active tab, primary button, progress
+signature_hover     = "#B6D39A"   # L 0.830 C 0.082 h 130
+on_signature        = "#101D26"   # L 0.225 C 0.025 h 238  text on the signature
+highlight           = "#C0D2AC"   # L 0.840 C 0.055 h 128  selection background (light tint of the signature)
+highlight_alt       = "#B5C7A1"   # L 0.805 C 0.055 h 128  alternate selected row
+highlight_text      = "#132231"   # L 0.245 C 0.035 h 250  text on selection
+highlight_inactive  = "#3A4856"   # L 0.395 C 0.030 h 250  secondary text on selection
+highlight_link      = "#18467D"   # L 0.395 C 0.105 h 255  on selection
+highlight_visited   = "#603067"   # L 0.395 C 0.105 h 322  on selection
+highlight_negative  = "#7C2121"   # L 0.395 C 0.125 h  25  on selection
+highlight_neutral   = "#5C4102"   # L 0.395 C 0.080 h  82  on selection
+highlight_positive  = "#1C5421"   # L 0.395 C 0.100 h 145  on selection
 
-# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
-# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
-# roles.toml [role.ansi].
+# Terminal: normal colors map from spark/mist; these are the extras.
 [ansi]
-bright_red     = "#EB8590"
-bright_green   = "#B5D690"
-bright_yellow  = "#F0CF8E"
-bright_magenta = "#D5A0C2"
-bright_cyan    = "#9CC4C7"
-faint_red      = "#A04D54"
-faint_green    = "#6D8C56"
-faint_yellow   = "#A48A58"
-faint_blue     = "#57748F"
-faint_magenta  = "#8D608A"
-faint_cyan     = "#508083"
+black               = "#3F515D"   # L 0.425 C 0.030 h 238
+blue                = "#80B0E7"   # L 0.745 C 0.095 h 252
+cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
+bright_red          = "#FC8684"   # L 0.750 C 0.145 h  22
+bright_green        = "#74D6BE"   # L 0.810 C 0.100 h 176
+bright_yellow       = "#FFE9B5"   # L 0.940 C 0.071 h  88
+bright_blue         = "#95C7FF"   # L 0.815 C 0.096 h 252
+bright_magenta      = "#E2A5E5"   # L 0.800 C 0.110 h 325
+bright_cyan         = "#7DE9E8"   # L 0.870 C 0.100 h 195
+faint_red           = "#954E4D"   # L 0.510 C 0.095 h  22
+faint_green         = "#4C8476"   # L 0.570 C 0.063 h 176
+faint_yellow        = "#B29C66"   # L 0.700 C 0.077 h  88
+faint_blue          = "#5C7C9F"   # L 0.575 C 0.066 h 252
+faint_magenta       = "#8A668B"   # L 0.560 C 0.070 h 325
+faint_cyan          = "#599595"   # L 0.630 C 0.063 h 195

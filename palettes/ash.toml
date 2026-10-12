@@ -1,65 +1,74 @@
-# Umber Ash — neutral-charcoal variant.
+# Umber Ash — variant palette.
 #
-# Warm cream foreground on neutral charcoal surfaces. Hearths anchor
-# on weave/hush's neutral charcoal quartet (R=G=B); glow shifts
-# ever-so-slightly cool from weave/hush's cream to balance against
-# the now-neutral hearth.
+# Charcoal and sanguine drawing. True-neutral graphite ground, paper-white text, one red-chalk signature; selections are a graphite wash. Code stays inky and low in chroma (blue-black, ink violet, ochre) so the chalk is the one vivid event.
 #
-# The warmest of the cool family. Canonical warm Umber is preserved
-# as-is in palette.toml — Ash sits alongside it as a peer variant.
+# Pigments only; roles.toml maps them to UI jobs and palette.toml documents
+# the render workflow. Pre-redesign values: palettes/archive/classic/ash.toml.
 
 [meta]
-description = "Warm cream foreground on neutral charcoal — Umber Ash, the warmest of the cool family."
+description = "Paper white on neutral graphite with a red-chalk (sanguine) signature."
+concept = "Charcoal and sanguine drawing. True-neutral graphite ground, paper-white text, one red-chalk signature; selections are a graphite wash. Code stays inky and low in chroma (blue-black, ink violet, ochre) so the chalk is the one vivid event."
 wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
 
 [hearth]
-"0" = "#242424"   # deepest bg     — neutral charcoal (R=G=B)
-"1" = "#2B2B2B"   # panel bg
-"2" = "#333333"   # raised surface
-"3" = "#444444"   # border
+"0"                 = "#1E1E1E"   # L 0.235 C 0.000 h   0  deepest bg — editor, view, terminal
+"1"                 = "#272727"   # L 0.272 C 0.000 h   0  panel bg — sidebar, window
+"2"                 = "#313131"   # L 0.312 C 0.000 h   0  raised — status/title bar, hover
+"3"                 = "#474747"   # L 0.398 C 0.000 h   0  active / border / tooltip
+"4"                 = "#737373"   # L 0.555 C 0.000 h   0  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+hover               = "#595959"   # L 0.465 C 0.000 h   0  hover on an active surface — secondary button, scrollbar thumb
 
 [glow]
-"0" = "#A6998A"   # muted / disabled / hint        (was #A89986, slight cool shift)
-"1" = "#D0BC95"   # primary fg / body text         (was #D4BC91, slight cool shift)
-"2" = "#DACEB0"   # emphasized fg / selection alt  (was #E1CDA5, cool-shift + slight desat)
-"3" = "#EDE6D6"   # brightest fg / cursor          (was #F0E5D0, slight cool shift)
+"0"                 = "#A1A09C"   # L 0.705 C 0.006 h  95  muted — hints, line numbers
+"1"                 = "#CAC9C4"   # L 0.835 C 0.007 h  95  body text
+"2"                 = "#DDDCD8"   # L 0.895 C 0.006 h  95  emphasis — active tab, titles
+"3"                 = "#EFEEEB"   # L 0.950 C 0.004 h  95  strong — cursor, url text
 
 [mist]
-"0" = "#4F7A7E"
-"1" = "#7AA8AC"
-"2" = "#88A6C5"
-"3" = "#A8BDD6"
+"0"                 = "#89C8B6"   # L 0.785 C 0.070 h 175  types, classes
+"1"                 = "#71AAAD"   # L 0.700 C 0.060 h 200  regex, ANSI cyan
+"2"                 = "#85B0E1"   # L 0.745 C 0.085 h 252  functions, links, info, ANSI blue
+"3"                 = "#878787"   # L 0.625 C 0.000 h   0  comments, hints
 
 [spark]
-red    = "#E06C75"
-orange = "#D19A66"
-amber  = "#E5C07B"
-green  = "#98C379"
-violet = "#C586B0"
+red                 = "#EF678B"   # L 0.690 C 0.170 h   6  errors, tags, removed
+orange              = "#E1A583"   # L 0.770 C 0.085 h  50  numbers, constants
+amber               = "#E9C87E"   # L 0.845 C 0.100 h  86  warnings, find, modified
+green               = "#8BC392"   # L 0.765 C 0.090 h 148  strings, success, added
+violet              = "#C38DC6"   # L 0.715 C 0.100 h 325  keywords, visited links
 
-# Variant-specific UI accent. warm cream (= glow.1) — Ash sits closest to canonical, keeps the cream signature.
-# See palette.toml [accent] for the canonical block.
 [accent]
-highlight          = "#D0BC95"
-highlight_text     = "#242424"
-highlight_link     = "#6B4400"   # 4.61:1 on highlight
-highlight_negative = "#8F262C"   # 4.55:1
-highlight_neutral  = "#6B4400"   # 4.61:1
-highlight_positive = "#2D5016"   # 4.98:1
-highlight_visited  = "#5C4225"   # 5.00:1
+signature           = "#BD7564"   # L 0.635 C 0.095 h  34  focus ring, active tab, primary button, progress
+signature_hover     = "#CF8A7A"   # L 0.700 C 0.088 h  34
+on_signature        = "#1C1C1C"   # L 0.225 C 0.000 h   0  text on the signature
+highlight           = "#C3C8CE"   # L 0.830 C 0.010 h 250  selection background (light tint of the signature)
+highlight_alt       = "#B7BDC2"   # L 0.795 C 0.010 h 250  alternate selected row
+highlight_text      = "#1D2125"   # L 0.245 C 0.010 h 250  text on selection
+highlight_inactive  = "#42474C"   # L 0.395 C 0.010 h 250  secondary text on selection
+highlight_link      = "#18467D"   # L 0.395 C 0.105 h 255  on selection
+highlight_visited   = "#603067"   # L 0.395 C 0.105 h 322  on selection
+highlight_negative  = "#7C2121"   # L 0.395 C 0.125 h  25  on selection
+highlight_neutral   = "#5C4102"   # L 0.395 C 0.080 h  82  on selection
+highlight_positive  = "#1C5421"   # L 0.395 C 0.100 h 145  on selection
 
-# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
-# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
-# roles.toml [role.ansi].
+# Terminal: normal colors map from spark/mist; these are the extras.
 [ansi]
-bright_red     = "#EB8590"
-bright_green   = "#B5D690"
-bright_yellow  = "#F0CF8E"
-bright_magenta = "#D5A0C2"
-bright_cyan    = "#9CC4C7"
-faint_red      = "#A04D54"
-faint_green    = "#6D8C56"
-faint_yellow   = "#A48A58"
-faint_blue     = "#57748F"
-faint_magenta  = "#8D608A"
-faint_cyan     = "#508083"
+black               = "#514D4E"   # L 0.425 C 0.005 h   0
+blue                = "#80B0E7"   # L 0.745 C 0.095 h 252
+cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
+bright_red          = "#FF85A2"   # L 0.760 C 0.150 h   6
+bright_green        = "#9CDBA4"   # L 0.835 C 0.100 h 148
+bright_yellow       = "#FFDF99"   # L 0.915 C 0.094 h  86
+bright_blue         = "#95C7FF"   # L 0.815 C 0.096 h 252
+bright_magenta      = "#DDA0E0"   # L 0.785 C 0.110 h 325
+bright_cyan         = "#7DE9E8"   # L 0.870 C 0.100 h 195
+faint_red           = "#A0485E"   # L 0.520 C 0.119 h   6
+faint_green         = "#65896A"   # L 0.595 C 0.063 h 148
+faint_yellow        = "#AA9464"   # L 0.675 C 0.070 h  86
+faint_blue          = "#5C7C9F"   # L 0.575 C 0.066 h 252
+faint_magenta       = "#856287"   # L 0.545 C 0.070 h 325
+faint_cyan          = "#599595"   # L 0.630 C 0.063 h 195
+
+# Variant-specific role overrides (defaults live in roles.toml).
+[role.syntax]
+string = "spark.amber"
