@@ -9,6 +9,7 @@ Templates live in scripts/templates/ and use {{ key }} placeholders:
     {{ hearth.0 | py }}         -> 0x24, 0x24, 0x24 (Python hex tuple body)
     {{ glow.1  | rgba 33 }}     -> #D4BC9133 (RGBA: alpha at end — VSCode/CSS)
     {{ glow.1  | argb FF }}     -> #FFD4BC91 (ARGB: alpha at start — Qt/QML)
+    {{ role.link }}             -> semantic role from roles.toml (+ variant [role] overrides)
     {{ var.name }}              -> "Umber" / "Umber Ash"
     {{ var.slug }}              -> "umber" / "umber-ash"
     {{ var.scheme }}            -> "Umber" / "Umber-Ash"  (filename-style)
@@ -23,6 +24,9 @@ Subcommands:
     check  — diff generated vs on-disk for canonical + every palettes/*.toml;
              nonzero exit if any drift
 
+Templates reference role.* for everything they draw; tiers appear only in
+documentation lines. Roles resolve through scripts/palette_lib.py.
+
 The default palette is palette.toml (canonical warm Umber). Pass --palette
 palettes/ash.toml to render a variant; the variant slug is derived from
 the filename unless --variant is given explicitly.
@@ -31,14 +35,14 @@ the filename unless --variant is given explicitly.
 import argparse
 import re
 import sys
-import tomllib
 from pathlib import Path
 
+import palette_lib
 import render_extension_icon
 
-REPO = Path(__file__).resolve().parent.parent
-PALETTE_FILE = REPO / "palette.toml"
-PALETTES_DIR = REPO / "palettes"
+REPO = palette_lib.REPO
+PALETTE_FILE = palette_lib.PALETTE_FILE
+PALETTES_DIR = palette_lib.PALETTES_DIR
 TEMPLATE_DIR = REPO / "scripts" / "templates"
 
 
@@ -125,10 +129,7 @@ def hex_to_rgb(h):
 
 
 def lookup(palette, key):
-    val = palette
-    for p in key.split("."):
-        val = val[p]
-    return val
+    return palette_lib.resolve(palette, key)
 
 
 def fmt_hex(h):
@@ -196,14 +197,9 @@ def render_template(text, palette):
     return TOKEN_RE.sub(repl, text)
 
 
-def load_palette(path):
-    with open(path, "rb") as f:
-        return tomllib.load(f)
-
-
 def prepare_palette(path, variant):
-    """Load + inject `var` namespace, ready to feed to render_template."""
-    palette = load_palette(path)
+    """Load + resolve roles + inject `var` namespace, ready to feed to render_template."""
+    palette = palette_lib.prepare(path)
     palette["var"] = compute_var(palette, variant)
     return palette
 
@@ -275,8 +271,13 @@ def cmd_check(args):
 
     any_drift = False
     for palette_path, variant in targets:
-        palette = prepare_palette(palette_path, variant)
-        drift = check_one(palette, variant)
+        try:
+            palette = prepare_palette(palette_path, variant)
+            drift = check_one(palette, variant)
+        except ValueError as e:
+            any_drift = True
+            print(f"[{variant}] INVALID ({palette_path.name}): {e}", file=sys.stderr)
+            continue
         if drift:
             any_drift = True
             print(f"[{variant}] OUT OF SYNC ({palette_path.name}):", file=sys.stderr)
