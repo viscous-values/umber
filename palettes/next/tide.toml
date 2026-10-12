@@ -15,6 +15,7 @@ wallpaper_description = "Procedurally generated palette-tinted gradient — see 
 "2"                 = "#1C3634"   # L 0.312 C 0.032 h 190  raised — status/title bar, hover
 "3"                 = "#364C4A"   # L 0.398 C 0.027 h 190  active / border / tooltip
 "4"                 = "#617876"   # L 0.555 C 0.027 h 190  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+hover               = "#485F5D"   # L 0.465 C 0.027 h 190  hover on an active surface — secondary button, scrollbar thumb
 
 [glow]
 "0"                 = "#9DA296"   # L 0.705 C 0.018 h 125  muted — hints, line numbers
@@ -77,12 +78,14 @@ focus_ring        = "role.accent"
 decoration_focus  = "role.accent"
 decoration_hover  = "role.fg_muted"
 link              = "mist.2"
+info              = "mist.1"
 selection_bg      = "accent.highlight"
 selection_alt     = "accent.highlight_alt"
 brand             = "role.accent"
 link_ntp          = "role.link"
 focus_field       = "role.focus_ring"
 input_border      = "hearth.4"
+bg_active_hover   = "hearth.hover"
 
 [role.on_selection]
 fg_soft     = "accent.highlight_text"

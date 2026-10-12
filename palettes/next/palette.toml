@@ -10,11 +10,12 @@ concept = "Fireside. Raw-umber ground, cream text, a burnt-sienna signature. Cod
 wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
 
 [hearth]
-"0"                 = "#271B11"   # L 0.235 C 0.026 h  62  deepest bg — editor, view, terminal
-"1"                 = "#30241A"   # L 0.272 C 0.026 h  62  panel bg — sidebar, window
-"2"                 = "#3B2E23"   # L 0.312 C 0.026 h  62  raised — status/title bar, hover
-"3"                 = "#50453B"   # L 0.398 C 0.022 h  62  active / border / tooltip
-"4"                 = "#7D7066"   # L 0.555 C 0.022 h  62  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+"0"                 = "#291B0E"   # L 0.235 C 0.031 h  62  deepest bg — editor, view, terminal
+"1"                 = "#322417"   # L 0.272 C 0.031 h  62  panel bg — sidebar, window
+"2"                 = "#3C2E21"   # L 0.312 C 0.030 h  62  raised — status/title bar, hover
+"3"                 = "#51443A"   # L 0.398 C 0.025 h  62  active / border / tooltip
+"4"                 = "#7E7064"   # L 0.555 C 0.025 h  62  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+hover               = "#64574B"   # L 0.465 C 0.025 h  62  hover on an active surface — secondary button, scrollbar thumb
 
 [glow]
 "0"                 = "#AA9E8B"   # L 0.705 C 0.030 h  80  muted — hints, line numbers
@@ -38,10 +39,10 @@ violet              = "#D988A8"   # L 0.720 C 0.105 h 355  keywords, visited lin
 [accent]
 signature           = "#EB9251"   # L 0.740 C 0.135 h  55  focus ring, active tab, primary button, progress
 signature_hover     = "#F4A76A"   # L 0.790 C 0.120 h  58
-on_signature        = "#25190F"   # L 0.225 C 0.026 h  62  text on the signature
+on_signature        = "#26190D"   # L 0.225 C 0.030 h  62  text on the signature
 highlight           = "#E3B492"   # L 0.805 C 0.072 h  58  selection background (light tint of the signature)
 highlight_alt       = "#D8A987"   # L 0.770 C 0.072 h  58  alternate selected row
-highlight_text      = "#2D1C0E"   # L 0.245 C 0.036 h  60  text on selection
+highlight_text      = "#2E1C0B"   # L 0.245 C 0.040 h  60  text on selection
 highlight_inactive  = "#534336"   # L 0.395 C 0.030 h  60  secondary text on selection
 highlight_link      = "#18467D"   # L 0.395 C 0.105 h 255  on selection
 highlight_visited   = "#603067"   # L 0.395 C 0.105 h 322  on selection
@@ -51,7 +52,7 @@ highlight_positive  = "#1C5421"   # L 0.395 C 0.100 h 145  on selection
 
 # Terminal: normal colors map from spark/mist; these are the extras.
 [ansi]
-black               = "#5B4B3D"   # L 0.425 C 0.031 h  62
+black               = "#5D4A3A"   # L 0.425 C 0.036 h  62
 blue                = "#80B0E7"   # L 0.745 C 0.095 h 252
 cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
 bright_red          = "#FF8579"   # L 0.750 C 0.151 h  27
@@ -77,12 +78,14 @@ focus_ring        = "role.accent"
 decoration_focus  = "role.accent"
 decoration_hover  = "role.fg_muted"
 link              = "mist.2"
+info              = "mist.1"
 selection_bg      = "accent.highlight"
 selection_alt     = "accent.highlight_alt"
 brand             = "role.accent"
 link_ntp          = "role.link"
 focus_field       = "role.focus_ring"
 input_border      = "hearth.4"
+bg_active_hover   = "hearth.hover"
 
 [role.on_selection]
 fg_soft     = "accent.highlight_text"
