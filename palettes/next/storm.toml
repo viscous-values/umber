@@ -10,22 +10,23 @@ concept = "Indigo night. Deep ultramarine ground, cool moonlit text, a lightning
 wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
 
 [hearth]
-"0"                 = "#191B34"   # L 0.235 C 0.048 h 278  deepest bg — editor, view, terminal
-"1"                 = "#21243E"   # L 0.272 C 0.048 h 278  panel bg — sidebar, window
-"2"                 = "#2B2E48"   # L 0.312 C 0.046 h 278  raised — status/title bar, hover
-"3"                 = "#42455C"   # L 0.398 C 0.038 h 278  active / border / tooltip
-"4"                 = "#6D718A"   # L 0.555 C 0.038 h 278  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+"0"                 = "#1A1939"   # L 0.235 C 0.059 h 282  deepest bg — editor, view, terminal
+"1"                 = "#232342"   # L 0.272 C 0.058 h 282  panel bg — sidebar, window
+"2"                 = "#2C2D4C"   # L 0.312 C 0.055 h 282  raised — status/title bar, hover
+"3"                 = "#43445F"   # L 0.398 C 0.044 h 282  active / border / tooltip
+"4"                 = "#6E708D"   # L 0.555 C 0.044 h 282  control outline — inputs, checkboxes, dropdowns (>= 3:1)
+hover               = "#555772"   # L 0.465 C 0.044 h 282  hover on an active surface — secondary button, scrollbar thumb
 
 [glow]
-"0"                 = "#98A1AD"   # L 0.705 C 0.020 h 258  muted — hints, line numbers
-"1"                 = "#BECADC"   # L 0.835 C 0.028 h 258  body text
-"2"                 = "#D4DDEB"   # L 0.895 C 0.022 h 258  emphasis — active tab, titles
-"3"                 = "#EAEFF7"   # L 0.950 C 0.012 h 258  strong — cursor, url text
+"0"                 = "#99A0B1"   # L 0.705 C 0.026 h 268  muted — hints, line numbers
+"1"                 = "#BFC9E0"   # L 0.835 C 0.034 h 268  body text
+"2"                 = "#D5DCEF"   # L 0.895 C 0.027 h 268  emphasis — active tab, titles
+"3"                 = "#EAEEF9"   # L 0.950 C 0.015 h 268  strong — cursor, url text
 
 [mist]
 "0"                 = "#79D8BB"   # L 0.815 C 0.100 h 172  types, classes
 "1"                 = "#41B0BC"   # L 0.700 C 0.100 h 205  regex, ANSI cyan
-"2"                 = "#6BC3F4"   # L 0.780 C 0.110 h 235  functions, links, info, ANSI blue
+"2"                 = "#55C6F4"   # L 0.780 C 0.120 h 228  functions, links, info, ANSI blue
 "3"                 = "#848DAA"   # L 0.645 C 0.045 h 272  comments, hints
 
 [spark]
@@ -38,11 +39,11 @@ violet              = "#BB8AEF"   # L 0.720 C 0.150 h 305  keywords, visited lin
 [accent]
 signature           = "#EBDE77"   # L 0.890 C 0.125 h 102  focus ring, active tab, primary button, progress
 signature_hover     = "#F5EB9C"   # L 0.930 C 0.100 h 102
-on_signature        = "#181A2A"   # L 0.225 C 0.030 h 278  text on the signature
-highlight           = "#DED29D"   # L 0.860 C 0.070 h  96  selection background (light tint of the signature)
-highlight_alt       = "#D3C692"   # L 0.825 C 0.070 h  96  alternate selected row
-highlight_text      = "#1C1E33"   # L 0.245 C 0.040 h 278  text on selection
-highlight_inactive  = "#424557"   # L 0.395 C 0.030 h 278  secondary text on selection
+on_signature        = "#191A29"   # L 0.225 C 0.030 h 282  text on the signature
+highlight           = "#E8CA8D"   # L 0.850 C 0.085 h  84  selection background (light tint of the signature)
+highlight_alt       = "#DDBE82"   # L 0.815 C 0.085 h  84  alternate selected row
+highlight_text      = "#1D1E33"   # L 0.245 C 0.040 h 282  text on selection
+highlight_inactive  = "#434556"   # L 0.395 C 0.030 h 282  secondary text on selection
 highlight_link      = "#18467D"   # L 0.395 C 0.105 h 255  on selection
 highlight_visited   = "#603067"   # L 0.395 C 0.105 h 322  on selection
 highlight_negative  = "#7C2121"   # L 0.395 C 0.125 h  25  on selection
@@ -51,8 +52,8 @@ highlight_positive  = "#1C5421"   # L 0.395 C 0.100 h 145  on selection
 
 # Terminal: normal colors map from spark/mist; these are the extras.
 [ansi]
-black               = "#474C6B"   # L 0.425 C 0.053 h 278
-blue                = "#72B1F6"   # L 0.745 C 0.120 h 252
+black               = "#494A71"   # L 0.425 C 0.064 h 282
+blue                = "#6CB1FC"   # L 0.745 C 0.130 h 252
 cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
 bright_red          = "#FF8289"   # L 0.750 C 0.151 h  18
 bright_green        = "#87F49A"   # L 0.880 C 0.160 h 148
@@ -63,7 +64,7 @@ bright_cyan         = "#7DE9E8"   # L 0.870 C 0.100 h 195
 faint_red           = "#9D474C"   # L 0.510 C 0.115 h  18
 faint_green         = "#5D9E67"   # L 0.640 C 0.105 h 148
 faint_yellow        = "#B1783B"   # L 0.620 C 0.105 h  66
-faint_blue          = "#537CA9"   # L 0.575 C 0.084 h 252
+faint_blue          = "#4F7CAD"   # L 0.575 C 0.091 h 252
 faint_magenta       = "#8061A3"   # L 0.550 C 0.105 h 305
 faint_cyan          = "#599595"   # L 0.630 C 0.063 h 195
 
@@ -77,12 +78,14 @@ focus_ring        = "role.accent"
 decoration_focus  = "role.accent"
 decoration_hover  = "role.fg_muted"
 link              = "mist.2"
+info              = "mist.1"
 selection_bg      = "accent.highlight"
 selection_alt     = "accent.highlight_alt"
 brand             = "role.accent"
 link_ntp          = "role.link"
 focus_field       = "role.focus_ring"
 input_border      = "hearth.4"
+bg_active_hover   = "hearth.hover"
 
 [role.on_selection]
 fg_soft     = "accent.highlight_text"

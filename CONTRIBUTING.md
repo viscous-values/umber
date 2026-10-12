@@ -38,6 +38,10 @@ To make a change that should propagate everywhere (e.g. a hex value in the palet
 4. Wire the variant into `install.sh` — add the slug to `VARIANTS_TO_INSTALL` and the `case` validator.
 5. README's Variants table should pick up the new variant.
 
+## Drafting palette changes
+
+Proposals live in `palettes/next/<variant>.toml` and are compared against the shipped palettes in the Palette Lab (`python3 scripts/render_lab.py`, then open `mockups/palette-lab.html`). `render_palette.py render` refuses files under `palettes/next/`: a draft shares its filename with a real variant and would overwrite that variant's shipped files. Audit drafts with `python3 scripts/palette_audit.py --dir palettes/next`.
+
 ## Adding a new consumer
 
 If you want Umber to also style some new application (e.g., a tmux palette, an Alacritty theme):
@@ -70,7 +74,10 @@ Scopes seen in `git log`: `palette`, `install`, `apply`, `firefox`, `vscode`, `l
 ## Local sanity-check before opening a PR
 
 ```
+python3 -m unittest discover -s tests         # must pass (node needed for the lab engine tests)
 python3 scripts/render_palette.py check       # must pass
+python3 scripts/palette_audit.py              # contrast, role separation, variant identity
+python3 scripts/render_lab.py                 # refresh mockups/palette-lab.html after palette changes
 git grep -nE "com\.user|legacy\.umber"        # only the 3 hush-migration lines should appear
 ./scripts/build-firefox-xpi.sh                # smoke-test xpi packaging if you touched browser themes
 ```
