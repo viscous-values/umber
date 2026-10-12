@@ -356,7 +356,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   function renderScore() {
     const parts = Object.keys(SETS).map(s => {
       const n = setScore(s);
-      return `${SETS[s].label}: <b class="${n ? 'bad' : 'good'}">${n}</b> failing`;
+      return `${esc(SETS[s].label)}: <b class="${n ? 'bad' : 'good'}">${n}</b> failing`;
     });
     const mods = Object.values(MODIFIED).filter(Boolean).length;
     $('#score').innerHTML = parts.join(' &nbsp;·&nbsp; ') + ' <span>(error-level checks, incl. cross-variant)</span>' +
@@ -477,11 +477,11 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
     $('#lineup').innerHTML = slugs.map(slug => {
       const blocks = sets.map(setName => {
         const e = PREP[setName].find(x => x.v.slug === slug);
-        if (!e) return `<div class="setlabel">${SETS[setName].label}: not in this set</div>`;
-        if (!e.pal) return `<div class="setlabel">${SETS[setName].label}: invalid — ${esc(e.err)}</div>`;
+        if (!e) return `<div class="setlabel">${esc(SETS[setName].label)}: not in this set</div>`;
+        if (!e.pal) return `<div class="setlabel">${esc(SETS[setName].label)}: invalid — ${esc(e.err)}</div>`;
         const n = failing(auditOf(e.pal)).length;
         const mod = MODIFIED[`${setName}:${slug}`] ? '<span class="chip mod">locally modified</span>' : '';
-        return `<div class="vmeta"><span class="setlabel">${sets.length > 1 ? SETS[setName].label : esc(e.v.file)}</span>
+        return `<div class="vmeta"><span class="setlabel">${esc(sets.length > 1 ? SETS[setName].label : e.v.file)}</span>
                   <span class="chips">${mod}<span class="chip ${n ? 'bad' : 'good'}">${n ? n + ' failing' : 'all pass'}</span></span></div>
                 ${strip(e.pal)}${mock(e.pal)}`;
       }).join('');
@@ -590,9 +590,9 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
       const [, Ca, ha] = E.oklch(acc), [, Cb, hb] = E.oklch(bg);
       const [ax, ay] = f.pos(Ca, ha), [bx, by] = f.pos(Cb, hb, 5);
       s += `<rect x="${bx - 5}" y="${by - 5}" width="10" height="10" fill="${paint(bg)}" stroke="var(--ink-2)"/>
-        <text x="${bx + 8}" y="${by + 3}">${e.v.slug}</text>
+        <text x="${bx + 8}" y="${by + 3}">${esc(e.v.slug)}</text>
         <circle cx="${ax}" cy="${ay}" r="7" fill="${paint(acc)}" stroke="var(--booth)" stroke-width="1.5"/>
-        <text x="${ax + 10}" y="${ay + 3}" style="fill:var(--ink)">${e.v.slug}</text>`;
+        <text x="${ax + 10}" y="${ay + 3}" style="fill:var(--ink)">${esc(e.v.slug)}</text>`;
     }
     return s + `</svg>`;
   }
@@ -618,7 +618,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
     const sel = $('#dist-variant');
     const options = visibleSets().flatMap(s => PREP[s].filter(e => e.pal).map(e => ({ key: `${s}:${e.v.slug}`, label: `${e.v.name}${visibleSets().length > 1 ? ' · ' + SETS[s].label : ''}` })));
     if (!options.some(o => o.key === state.distSlug)) state.distSlug = options[0]?.key;
-    sel.innerHTML = options.map(o => `<option value="${o.key}" ${o.key === state.distSlug ? 'selected' : ''}>${esc(o.label)}</option>`).join('');
+    sel.innerHTML = options.map(o => `<option value="${esc(o.key)}" ${o.key === state.distSlug ? 'selected' : ''}>${esc(o.label)}</option>`).join('');
     const [setName, slug] = (state.distSlug || '').split(':');
     const e = PREP[setName]?.find(x => x.v.slug === slug);
     if (!e) { $('#dist-matrix').innerHTML = ''; return; }
@@ -658,7 +658,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
       const pairs = [];
       for (let i = 0; i < entries.length; i++) for (let j = i + 1; j < entries.length; j++) pairs.push([entries[i], entries[j]]);
       const rows = [...DATA.fingerprint, 'mean'];
-      x += `<table class="grid" style="margin-bottom:18px"><thead><tr><th>${esc(SETS[sName].label)}</th>${pairs.map(([p, q]) => `<th>${p.v.slug}<br>${q.v.slug}</th>`).join('')}</tr></thead><tbody>`;
+      x += `<table class="grid" style="margin-bottom:18px"><thead><tr><th>${esc(SETS[sName].label)}</th>${pairs.map(([p, q]) => `<th>${esc(p.v.slug)}<br>${esc(q.v.slug)}</th>`).join('')}</tr></thead><tbody>`;
       for (const k of rows) {
         x += `<tr><th>${k === 'mean' ? '<b>fingerprint</b>' : short(k)}</th>`;
         for (const [p, q] of pairs) {
@@ -715,10 +715,10 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   }
   function tuneVariant() { return SETS[state.tuneSet].variants.find(v => v.slug === state.tuneSlug) || SETS[state.tuneSet].variants[0]; }
   function renderTune() {
-    $('#tune-set').innerHTML = Object.keys(SETS).map(s => `<option value="${s}" ${s === state.tuneSet ? 'selected' : ''}>${SETS[s].label}</option>`).join('');
+    $('#tune-set').innerHTML = Object.keys(SETS).map(s => `<option value="${esc(s)}" ${s === state.tuneSet ? 'selected' : ''}>${esc(SETS[s].label)}</option>`).join('');
     const v = tuneVariant();
     state.tuneSlug = v.slug;
-    $('#tune-variant').innerHTML = SETS[state.tuneSet].variants.map(x => `<option value="${x.slug}" ${x.slug === v.slug ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
+    $('#tune-variant').innerHTML = SETS[state.tuneSet].variants.map(x => `<option value="${esc(x.slug)}" ${x.slug === v.slug ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
     let h = '';
     for (const [tier, colors] of Object.entries(v.tiers)) {
       h += `<div class="tier"><h3>[${tier}]</h3>`;

@@ -61,7 +61,26 @@ class RenderTest(unittest.TestCase):
         self.assertIn("function oklchToHex", html)
         self.assertNotIn("/*__DATA__*/", html)
         self.assertNotIn("/*__ENGINE__*/", html)
-        self.assertNotIn("</script><", html.split("const DATA = ")[1].split(";\n")[0])
+
+    def test_hostile_meta_text_cannot_leave_the_data_script(self):
+        hostile = '</script><script>alert(1)</script><!-- & "quotes"'
+        with tempfile.TemporaryDirectory() as d:
+            text = (REPO / "palettes" / "tide.toml").read_text()
+            text = text.replace('[meta]\n', '[meta]\nconcept = ' + json.dumps(hostile) + '\n', 1)
+            (Path(d) / "tide.toml").write_text(text)
+            out = Path(d) / "lab.html"
+            render_lab.render(out=out, next_dir=Path(d))
+            html = out.read_text()
+        payload = html.split("const DATA = ", 1)[1].split(";\n", 1)[0]
+        self.assertNotIn("<", payload)
+        self.assertEqual(json.loads(payload)["sets"]["draft"]["variants"][0]["concept"], hostile)
+
+    def test_committed_lab_page_is_current(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "lab.html"
+            render_lab.render(out=out)
+            self.assertEqual(out.read_text(), render_lab.OUT.read_text(),
+                             "mockups/palette-lab.html is stale: run python3 scripts/render_lab.py")
 
 
 @unittest.skipUnless(shutil.which("node"), "node not installed")
