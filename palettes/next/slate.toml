@@ -22,8 +22,8 @@ wallpaper_description = "Procedurally generated palette-tinted gradient — see 
 "3"                 = "#ECEFF1"   # L 0.950 C 0.004 h 235  strong — cursor, url text
 
 [mist]
-"0"                 = "#77CBCF"   # L 0.790 C 0.082 h 200  types, classes
-"1"                 = "#6DA8BF"   # L 0.700 C 0.070 h 224  regex, ANSI cyan
+"0"                 = "#7ACCE1"   # L 0.800 C 0.085 h 216  types, classes
+"1"                 = "#72A6C4"   # L 0.700 C 0.070 h 234  regex, ANSI cyan
 "2"                 = "#94B3E1"   # L 0.760 C 0.075 h 258  functions, links, info, ANSI blue
 "3"                 = "#828E99"   # L 0.640 C 0.022 h 250  comments, hints
 
@@ -31,15 +31,15 @@ wallpaper_description = "Procedurally generated palette-tinted gradient — see 
 red                 = "#DF7372"   # L 0.680 C 0.135 h  22  errors, tags, removed
 orange              = "#DD9A7D"   # L 0.745 C 0.090 h  45  numbers, constants
 amber               = "#F2D07D"   # L 0.870 C 0.110 h  88  warnings, find, modified
-green               = "#8ECFA9"   # L 0.800 C 0.085 h 158  strings, success, added
+green               = "#7DCCB0"   # L 0.785 C 0.088 h 170  strings, success, added
 violet              = "#C892CA"   # L 0.730 C 0.100 h 325  keywords, visited links
 
 [accent]
-signature           = "#ADBB7A"   # L 0.765 C 0.088 h 118  focus ring, active tab, primary button, progress
-signature_hover     = "#BDCA8F"   # L 0.815 C 0.080 h 118
+signature           = "#C5B973"   # L 0.780 C 0.092 h 100  focus ring, active tab, primary button, progress
+signature_hover     = "#D3C98B"   # L 0.830 C 0.082 h 100
 on_signature        = "#121D28"   # L 0.225 C 0.026 h 250  text on the signature
-highlight           = "#C2CBA5"   # L 0.825 C 0.052 h 118  selection background (light tint of the signature)
-highlight_alt       = "#B7C09A"   # L 0.790 C 0.052 h 118  alternate selected row
+highlight           = "#D1CAA2"   # L 0.835 C 0.054 h 100  selection background (light tint of the signature)
+highlight_alt       = "#C5BF97"   # L 0.800 C 0.054 h 100  alternate selected row
 highlight_text      = "#132231"   # L 0.245 C 0.036 h 250  text on selection
 highlight_inactive  = "#3A4856"   # L 0.395 C 0.030 h 250  secondary text on selection
 highlight_link      = "#18467D"   # L 0.395 C 0.105 h 255  on selection
@@ -54,13 +54,13 @@ black               = "#42505F"   # L 0.425 C 0.031 h 250
 blue                = "#80B0E7"   # L 0.745 C 0.095 h 252
 cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
 bright_red          = "#FC8684"   # L 0.750 C 0.145 h  22
-bright_green        = "#9EE8BD"   # L 0.870 C 0.095 h 158
+bright_green        = "#8AE5C6"   # L 0.855 C 0.098 h 170
 bright_yellow       = "#FFE9B5"   # L 0.940 C 0.071 h  88
 bright_blue         = "#95C7FF"   # L 0.815 C 0.096 h 252
 bright_magenta      = "#E2A5E5"   # L 0.800 C 0.110 h 325
 bright_cyan         = "#7DE9E8"   # L 0.870 C 0.100 h 195
 faint_red           = "#954E4D"   # L 0.510 C 0.095 h  22
-faint_green         = "#6B947B"   # L 0.630 C 0.059 h 158
+faint_green         = "#5E917F"   # L 0.615 C 0.062 h 170
 faint_yellow        = "#B29C66"   # L 0.700 C 0.077 h  88
 faint_blue          = "#5C7C9F"   # L 0.575 C 0.066 h 252
 faint_magenta       = "#8A668B"   # L 0.560 C 0.070 h 325

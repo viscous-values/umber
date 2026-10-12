@@ -28,15 +28,15 @@ wallpaper_description = "Procedurally generated palette-tinted gradient — see 
 "3"                 = "#878787"   # L 0.625 C 0.000 h   0  comments, hints
 
 [spark]
-red                 = "#E86081"   # L 0.670 C 0.170 h   8  errors, tags, removed
+red                 = "#EF678B"   # L 0.690 C 0.170 h   6  errors, tags, removed
 orange              = "#E1A583"   # L 0.770 C 0.085 h  50  numbers, constants
-amber               = "#DCBB72"   # L 0.805 C 0.100 h  86  warnings, find, modified
-green               = "#82B989"   # L 0.735 C 0.090 h 148  strings, success, added
+amber               = "#E9C87E"   # L 0.845 C 0.100 h  86  warnings, find, modified
+green               = "#8BC392"   # L 0.765 C 0.090 h 148  strings, success, added
 violet              = "#C38DC6"   # L 0.715 C 0.100 h 325  keywords, visited links
 
 [accent]
-signature           = "#C77870"   # L 0.655 C 0.100 h  26  focus ring, active tab, primary button, progress
-signature_hover     = "#D78F85"   # L 0.720 C 0.090 h  28
+signature           = "#BD7564"   # L 0.635 C 0.095 h  34  focus ring, active tab, primary button, progress
+signature_hover     = "#CF8A7A"   # L 0.700 C 0.088 h  34
 on_signature        = "#1C1C1C"   # L 0.225 C 0.000 h   0  text on the signature
 highlight           = "#DBB5B0"   # L 0.805 C 0.045 h  26  selection background (light tint of the signature)
 highlight_alt       = "#D0AAA5"   # L 0.770 C 0.045 h  26  alternate selected row
@@ -53,15 +53,15 @@ highlight_positive  = "#1C5421"   # L 0.395 C 0.100 h 145  on selection
 black               = "#514D4E"   # L 0.425 C 0.005 h   0
 blue                = "#80B0E7"   # L 0.745 C 0.095 h 252
 cyan                = "#72D0D0"   # L 0.800 C 0.090 h 195
-bright_red          = "#FF7997"   # L 0.740 C 0.165 h   8
-bright_green        = "#92D19B"   # L 0.805 C 0.100 h 148
-bright_yellow       = "#F6D17E"   # L 0.875 C 0.110 h  86
+bright_red          = "#FF85A2"   # L 0.760 C 0.150 h   6
+bright_green        = "#9CDBA4"   # L 0.835 C 0.100 h 148
+bright_yellow       = "#FFDF99"   # L 0.915 C 0.094 h  86
 bright_blue         = "#95C7FF"   # L 0.815 C 0.096 h 252
 bright_magenta      = "#DDA0E0"   # L 0.785 C 0.110 h 325
 bright_cyan         = "#7DE9E8"   # L 0.870 C 0.100 h 195
-faint_red           = "#9A4256"   # L 0.500 C 0.119 h   8
-faint_green         = "#5C8061"   # L 0.565 C 0.063 h 148
-faint_yellow        = "#9E8858"   # L 0.635 C 0.070 h  86
+faint_red           = "#A0485E"   # L 0.520 C 0.119 h   6
+faint_green         = "#65896A"   # L 0.595 C 0.063 h 148
+faint_yellow        = "#AA9464"   # L 0.675 C 0.070 h  86
 faint_blue          = "#5C7C9F"   # L 0.575 C 0.066 h 252
 faint_magenta       = "#856287"   # L 0.545 C 0.070 h 325
 faint_cyan          = "#599595"   # L 0.630 C 0.063 h 195
