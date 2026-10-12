@@ -95,6 +95,46 @@ class EngineParityTest(unittest.TestCase):
                 with self.subTest(variant=v["slug"], check=check_id):
                     self.assertAlmostEqual(js_values[v["slug"]][check_id], py_value, places=6)
 
+    def test_saved_edits_apply_only_while_the_file_value_is_unchanged(self):
+        js = """
+        const E = require(process.argv[1]);
+        const original = {hearth: {"0": "#111111", "1": "#222222"}, glow: {"1": "#CCCCCC"}};
+        const tuned = structuredClone(original); tuned.hearth["0"] = "#151515"; tuned.glow["1"] = "#DDDDDD";
+        const edits = E.diffEdits(original, tuned);
+        // the file was regenerated: glow.1 changed underneath the saved edit, hearth.1 vanished
+        const regenerated = {hearth: {"0": "#111111"}, glow: {"1": "#C0C0C0"}};
+        const res = E.applyEdits(regenerated, {...edits, "hearth.1": {from: "#222222", to: "#2A2A2A"}});
+        console.log(JSON.stringify({edits, res}));
+        """
+        out = self._node(js, {})
+        self.assertEqual(out["edits"], {"hearth.0": {"from": "#111111", "to": "#151515"},
+                                        "glow.1": {"from": "#CCCCCC", "to": "#DDDDDD"}})
+        self.assertEqual(out["res"]["tiers"], {"hearth": {"0": "#151515"}, "glow": {"1": "#C0C0C0"}})
+        self.assertEqual(out["res"]["applied"], ["hearth.0"])
+        self.assertEqual(sorted(out["res"]["stale"]), ["glow.1", "hearth.1"])
+
+    def test_exported_toml_round_trips_through_palette_lib(self):
+        import palette_lib
+        data = render_lab.build_data()
+        js = """
+        const E = require(process.argv[1]);
+        const data = JSON.parse(require('fs').readFileSync(process.argv[2], 'utf8'));
+        const out = {};
+        for (const [setName, set] of Object.entries(data.sets))
+          for (const v of set.variants) out[`${setName}/${v.slug}`] = E.toToml(v);
+        console.log(JSON.stringify(out));
+        """
+        exported = self._node(js, data)
+        entries = {f"{s}/{v['slug']}": v for s, st in data["sets"].items() for v in st["variants"]}
+        self.assertEqual(set(exported), set(entries))
+        with tempfile.TemporaryDirectory() as d:
+            for key, toml_text in exported.items():
+                with self.subTest(variant=key):
+                    path = Path(d) / "export.toml"
+                    path.write_text(toml_text)
+                    got, want = palette_lib.prepare(path), palette_lib.prepare(REPO / entries[key]["file"])
+                    self.assertEqual(got, want)
+
     def test_js_oklch_round_trips_palette_hexes(self):
         data = render_lab.build_data(next_dir=NOWHERE)
         hexes = sorted({h for v in data["sets"]["current"]["variants"]
