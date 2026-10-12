@@ -56,6 +56,20 @@ class ResolveTest(unittest.TestCase):
         self.assertEqual(palette_lib.resolve(_pal(), "var.name"), "Umber")
 
 
+class VariantSlugTest(unittest.TestCase):
+    def test_canonical_palette_is_umber_wherever_it_lives(self):
+        self.assertEqual(palette_lib.variant_slug(Path("palette.toml")), "umber")
+        self.assertEqual(palette_lib.variant_slug(Path("palettes/next/palette.toml")), "umber")
+
+    def test_variant_slug_is_the_file_stem(self):
+        self.assertEqual(palette_lib.variant_slug(Path("palettes/tide.toml")), "tide")
+
+    def test_markup_in_a_filename_is_rejected(self):
+        for name in ("x<b>.toml", "Tide.toml", "tide two.toml", 'a"b.toml'):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, "lowercase"):
+                palette_lib.variant_slug(Path(name))
+
+
 class DeepMergeTest(unittest.TestCase):
     def test_override_replaces_leaf_and_keeps_others(self):
         merged = palette_lib.deep_merge({"a": "x", "b": "y"}, {"b": "z"})

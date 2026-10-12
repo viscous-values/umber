@@ -313,17 +313,13 @@ def audit_family(pals):
 # CLI                                                                         #
 # --------------------------------------------------------------------------- #
 
-def variant_name(path):
-    return "umber" if path.stem == "palette" else path.stem
-
-
 def load_targets(directory=None):
     """name -> (path, prepared palette). Default: palette.toml + palettes/*.toml."""
     if directory is None:
         paths = [palette_lib.PALETTE_FILE, *sorted(palette_lib.PALETTES_DIR.glob("*.toml"))]
     else:
         paths = sorted(Path(directory).glob("*.toml"))
-    return {variant_name(p): (p, palette_lib.prepare(p)) for p in paths}
+    return {palette_lib.variant_slug(p): (p, palette_lib.prepare(p)) for p in paths}
 
 
 def report(name, path, checks, failures_only):

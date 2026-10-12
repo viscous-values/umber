@@ -34,7 +34,7 @@ TIER_KEYS = ["hearth", "glow", "mist", "spark", "accent", "ansi"]
 
 
 def variant_entry(path):
-    slug = "umber" if path.stem == "palette" else path.stem
+    slug = palette_lib.variant_slug(path)
     raw = palette_lib.load_toml(path)
     pal = palette_lib.prepare(path)
     meta = raw.get("meta", {})
