@@ -1,5 +1,8 @@
 # Umber palette — single source of truth.
 #
+# OPEN: the whole scheme is due for a rework (link vs visited, surface
+# steps, accent identity, …). Read PALETTE-REVISIT.md before changing colors.
+#
 # scripts/render_palette.py reads this file and writes the per-consumer
 # palette files (Plasma .colors, Konsole .colorscheme, VSCode theme JSON,
 # Firefox/Chromium manifests, SDDM theme.conf, splash + lockscreen QML)
