@@ -58,6 +58,12 @@ decoration_hover  = "glow.3"            # Plasma DecorationHover
 link         = "glow.2"
 link_visited = "spark.violet"
 
+# Browser sites that drew these jobs with the accent before the role layer.
+# The defaults keep v1.0.1 output; the drafts point them at role.link and
+# role.focus_ring, and promotion makes that the default.
+link_ntp    = "role.accent"   # Chromium new-tab page links
+focus_field = "role.accent"   # Firefox url-field focus border
+
 # Selection.
 selection_bg  = "role.accent"
 selection_alt = "spark.amber"   # Plasma [Colors:Selection] BackgroundAlternate
