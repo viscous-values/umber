@@ -1,0 +1,61 @@
+# Umber Slate — overcast variant.
+#
+# Hearth: neutral-cool charcoal (B > R by ~4-6 per channel).
+# Glow:   ~6% desaturated from canonical-cool Umber.
+# Mist + Spark: identical to canonical.
+
+[meta]
+description = "Cream-on-overcast — Umber Slate. Neutral-cool charcoal hearths, lightly desaturated cream glow."
+wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
+
+[hearth]
+"0" = "#232527"   # deepest bg     — slight cool wash
+"1" = "#2A2C2F"   # panel bg
+"2" = "#323438"   # raised surface
+"3" = "#434548"   # border
+
+[glow]
+"0" = "#A39A8E"   # muted
+"1" = "#CFBC98"   # primary fg
+"2" = "#D8CDB2"   # emphasized fg
+"3" = "#ECE5D7"   # brightest fg
+
+[mist]
+"0" = "#4F7A7E"
+"1" = "#7AA8AC"
+"2" = "#88A6C5"
+"3" = "#A8BDD6"
+
+[spark]
+red    = "#E06C75"
+orange = "#D19A66"
+amber  = "#E5C07B"
+green  = "#98C379"
+violet = "#C586B0"
+
+# Variant-specific UI accent. soft cool blue (= mist.2) — Slate's overcast field reads cool, accent matches.
+# See palette.toml [accent] for the canonical block.
+[accent]
+highlight          = "#88A6C5"
+highlight_text     = "#232527"
+highlight_link     = "#523300"   # 4.53:1 on highlight
+highlight_negative = "#6D1B1F"   # 4.54:1
+highlight_neutral  = "#523300"   # 4.53:1
+highlight_positive = "#244110"   # 4.51:1
+highlight_visited  = "#4B351D"   # 4.54:1
+
+# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
+# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
+# roles.toml [role.ansi].
+[ansi]
+bright_red     = "#EB8590"
+bright_green   = "#B5D690"
+bright_yellow  = "#F0CF8E"
+bright_magenta = "#D5A0C2"
+bright_cyan    = "#9CC4C7"
+faint_red      = "#A04D54"
+faint_green    = "#6D8C56"
+faint_yellow   = "#A48A58"
+faint_blue     = "#57748F"
+faint_magenta  = "#8D608A"
+faint_cyan     = "#508083"

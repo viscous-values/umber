@@ -1,0 +1,65 @@
+# Umber Ash — neutral-charcoal variant.
+#
+# Warm cream foreground on neutral charcoal surfaces. Hearths anchor
+# on weave/hush's neutral charcoal quartet (R=G=B); glow shifts
+# ever-so-slightly cool from weave/hush's cream to balance against
+# the now-neutral hearth.
+#
+# The warmest of the cool family. Canonical warm Umber is preserved
+# as-is in palette.toml — Ash sits alongside it as a peer variant.
+
+[meta]
+description = "Warm cream foreground on neutral charcoal — Umber Ash, the warmest of the cool family."
+wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
+
+[hearth]
+"0" = "#242424"   # deepest bg     — neutral charcoal (R=G=B)
+"1" = "#2B2B2B"   # panel bg
+"2" = "#333333"   # raised surface
+"3" = "#444444"   # border
+
+[glow]
+"0" = "#A6998A"   # muted / disabled / hint        (was #A89986, slight cool shift)
+"1" = "#D0BC95"   # primary fg / body text         (was #D4BC91, slight cool shift)
+"2" = "#DACEB0"   # emphasized fg / selection alt  (was #E1CDA5, cool-shift + slight desat)
+"3" = "#EDE6D6"   # brightest fg / cursor          (was #F0E5D0, slight cool shift)
+
+[mist]
+"0" = "#4F7A7E"
+"1" = "#7AA8AC"
+"2" = "#88A6C5"
+"3" = "#A8BDD6"
+
+[spark]
+red    = "#E06C75"
+orange = "#D19A66"
+amber  = "#E5C07B"
+green  = "#98C379"
+violet = "#C586B0"
+
+# Variant-specific UI accent. warm cream (= glow.1) — Ash sits closest to canonical, keeps the cream signature.
+# See palette.toml [accent] for the canonical block.
+[accent]
+highlight          = "#D0BC95"
+highlight_text     = "#242424"
+highlight_link     = "#6B4400"   # 4.61:1 on highlight
+highlight_negative = "#8F262C"   # 4.55:1
+highlight_neutral  = "#6B4400"   # 4.61:1
+highlight_positive = "#2D5016"   # 4.98:1
+highlight_visited  = "#5C4225"   # 5.00:1
+
+# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
+# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
+# roles.toml [role.ansi].
+[ansi]
+bright_red     = "#EB8590"
+bright_green   = "#B5D690"
+bright_yellow  = "#F0CF8E"
+bright_magenta = "#D5A0C2"
+bright_cyan    = "#9CC4C7"
+faint_red      = "#A04D54"
+faint_green    = "#6D8C56"
+faint_yellow   = "#A48A58"
+faint_blue     = "#57748F"
+faint_magenta  = "#8D608A"
+faint_cyan     = "#508083"

@@ -37,7 +37,13 @@ class DraftGuardTest(unittest.TestCase):
     def test_render_refuses_draft_palettes(self):
         with self.assertRaises(SystemExit) as cm:
             render_palette.cmd_render(self._args(NEXT / "palette.toml"))
-        self.assertIn("draft", str(cm.exception.code))
+        self.assertIn("not a shipped palette", str(cm.exception.code))
+        self.assertEqual(self.calls, [])
+
+    def test_render_refuses_archived_palettes(self):
+        with self.assertRaises(SystemExit) as cm:
+            render_palette.cmd_render(self._args(REPO / "palettes" / "archive" / "classic" / "tide.toml"))
+        self.assertIn("overwrite", str(cm.exception.code))
         self.assertEqual(self.calls, [])
 
     def test_force_renders_a_draft(self):
