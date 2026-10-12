@@ -94,6 +94,11 @@ class VariantChecksTest(unittest.TestCase):
     def test_focus_is_not_an_accent(self):
         self.assertFalse(self.checks["distinct:fg~accent"].ok)
 
+    def test_accent_vs_status_is_advisory(self):
+        check = self.checks["accent-vs-status:accent~error"]
+        self.assertEqual(check.level, "warn")
+        self.assertEqual(check.threshold, pa.THRESHOLDS["accent_vs_status_de"])
+
 
 class FamilyChecksTest(unittest.TestCase):
     def test_todays_grounds_are_indistinct(self):
