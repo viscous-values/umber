@@ -1,0 +1,89 @@
+# Umber palette — single source of truth.
+#
+# OPEN: the whole scheme is due for a rework (link vs visited, surface
+# steps, accent identity, …). Read PALETTE-REVISIT.md before changing colors.
+#
+# scripts/render_palette.py reads this file and writes the per-consumer
+# palette files (Plasma .colors, Konsole .colorscheme, VSCode theme JSON,
+# Firefox/Chromium manifests, SDDM theme.conf, splash + lockscreen QML)
+# from templates under scripts/templates/. To change a color:
+#
+#   1. Edit the value here
+#   2. Run:  python scripts/render_palette.py render
+#   3. Commit both palette.toml and the regenerated consumer files
+#
+# 17-color palette in 4 tiers. Tier names are component roles, independent
+# of the project name:
+#   hearth — surfaces (deepest bg → border tier; warm-tinted earth pigment)
+#   glow   — warm foregrounds (muted → brightest)
+#   mist   — cool accents (deep teal → soft blue)
+#   spark  — vivid semantic accents
+#
+# WCAG 2.x contrast notes (AA = 4.5:1 for text):
+#   glow.0 on hearth.1 ≈ 5.25:1 — passes AA; used for hints/disabled text
+#   spark.red on hearth.0 ≈ 4.94:1 — passes AA with little headroom
+#   accent.highlight_* on accent.highlight ≥ 4.5:1 — see [accent] below
+
+[meta]
+description = "Quiet warm peach foreground on neutral charcoal — palette adapted from MarianArlt's Sugar Dark, muted for long sessions."
+wallpaper_description = "Procedurally generated charcoal-to-faint-peach gradient — see scripts/render_wallpaper.py."
+
+[hearth]
+"0" = "#26221E"   # deepest bg     — editor, modals, splash         (warm-tinted)
+"1" = "#2D2823"   # panel bg       — sidebar, header, lockscreen    (warm-tinted)
+"2" = "#363029"   # raised surface — hover, status bar, peek title  (warm-tinted)
+"3" = "#48413A"   # border         — divider, focus, button alt     (warm-tinted)
+
+[glow]
+"0" = "#A89986"   # muted / disabled / hint
+"1" = "#D4BC91"   # primary fg     — body text
+"2" = "#E1CDA5"   # emphasized fg  — active text, selection alt
+"3" = "#F0E5D0"   # brightest fg   — cursor, highlights              (warm cream, was #E1E1E1)
+
+[mist]
+"0" = "#4F7A7E"   # deep teal      — reserved for syntax headroom    (NEW)
+"1" = "#7AA8AC"   # cool teal      — regex, brackets[6]
+"2" = "#88A6C5"   # primary blue   — focus, function names, links
+"3" = "#A8BDD6"   # softer blue    — comments, hints
+
+[spark]
+red    = "#E06C75"   # error / negative / delete
+orange = "#D19A66"   # numbers / constants / debug
+amber  = "#E5C07B"   # warning / neutral / pending
+green  = "#98C379"   # success / strings / added
+violet = "#C586B0"   # keyword / visited / control flow
+
+# Variant-specific UI accent. Drives selection backgrounds, focused-field
+# borders, active-tab lines — anywhere a "highlight" wants to feel native
+# to the variant's mood. Canonical Umber + Ash use the warm glow signature;
+# cool variants (Slate, Storm, Tide) pull from mist so the highlight reads
+# cool on a cool field.
+#
+# highlight_* are semantic text colors drawn ON the highlight (Plasma
+# [Colors:Selection] link / negative / neutral / positive / visited). Each is
+# a darkened spark/brown hue kept at ≥ 4.5:1 against this variant's
+# highlight (WCAG AA), so they differ per variant.
+[accent]
+highlight          = "#D4BC91"   # selection bg (= glow.1, warm peach)
+highlight_text     = "#26221E"   # text on highlight bg (= hearth.0)
+highlight_link     = "#6D4600"   # 4.51:1 on highlight
+highlight_negative = "#91272C"   # 4.50:1
+highlight_neutral  = "#6D4600"   # 4.51:1
+highlight_positive = "#2D5016"   # 5.02:1
+highlight_visited  = "#5C4225"   # 5.04:1
+
+# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
+# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
+# roles.toml [role.ansi].
+[ansi]
+bright_red     = "#EB8590"
+bright_green   = "#B5D690"
+bright_yellow  = "#F0CF8E"
+bright_magenta = "#D5A0C2"
+bright_cyan    = "#9CC4C7"
+faint_red      = "#A04D54"
+faint_green    = "#6D8C56"
+faint_yellow   = "#A48A58"
+faint_blue     = "#57748F"
+faint_magenta  = "#8D608A"
+faint_cyan     = "#508083"

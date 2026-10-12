@@ -1,0 +1,61 @@
+# Umber Storm — night-sea variant.
+#
+# Hearth: slate-blue charcoal (B > G > R, B-R ~ 12-16).
+# Glow:   ~20% desaturated from canonical-cool Umber.
+# Mist + Spark: identical to canonical.
+
+[meta]
+description = "Cream-on-night-sea — Umber Storm. Slate-blue charcoal hearths, sand-cream glow."
+wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
+
+[hearth]
+"0" = "#1F2530"   # deepest bg     — slate blue
+"1" = "#262C36"   # panel bg
+"2" = "#2E343E"   # raised surface
+"3" = "#40454D"   # border
+
+[glow]
+"0" = "#9D9A96"   # muted
+"1" = "#CCBC9D"   # primary fg
+"2" = "#D4CCB9"   # emphasized fg
+"3" = "#E8E5DC"   # brightest fg
+
+[mist]
+"0" = "#4F7A7E"
+"1" = "#7AA8AC"
+"2" = "#88A6C5"
+"3" = "#A8BDD6"
+
+[spark]
+red    = "#E06C75"
+orange = "#D19A66"
+amber  = "#E5C07B"
+green  = "#98C379"
+violet = "#C586B0"
+
+# Variant-specific UI accent. soft cool blue (= mist.2) — Storm is night sea; warm cream would clash.
+# See palette.toml [accent] for the canonical block.
+[accent]
+highlight          = "#88A6C5"
+highlight_text     = "#1F2530"
+highlight_link     = "#523300"   # 4.53:1 on highlight
+highlight_negative = "#6D1B1F"   # 4.54:1
+highlight_neutral  = "#523300"   # 4.53:1
+highlight_positive = "#244110"   # 4.51:1
+highlight_visited  = "#4B351D"   # 4.54:1
+
+# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
+# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
+# roles.toml [role.ansi].
+[ansi]
+bright_red     = "#EB8590"
+bright_green   = "#B5D690"
+bright_yellow  = "#F0CF8E"
+bright_magenta = "#D5A0C2"
+bright_cyan    = "#9CC4C7"
+faint_red      = "#A04D54"
+faint_green    = "#6D8C56"
+faint_yellow   = "#A48A58"
+faint_blue     = "#57748F"
+faint_magenta  = "#8D608A"
+faint_cyan     = "#508083"

@@ -1,0 +1,61 @@
+# Umber Tide — dusk variant.
+#
+# Hearth: teal-cool charcoal (G ≈ B > R, B-R ~ 8-10).
+# Glow:   ~12% desaturated from canonical-cool Umber.
+# Mist + Spark: identical to canonical.
+
+[meta]
+description = "Cream-on-dusk — Umber Tide. Teal-cool charcoal hearths, cream glow drifting toward sand."
+wallpaper_description = "Procedurally generated palette-tinted gradient — see scripts/render_wallpaper.py."
+
+[hearth]
+"0" = "#202629"   # deepest bg     — teal cool
+"1" = "#272D31"   # panel bg
+"2" = "#2F3539"   # raised surface
+"3" = "#404648"   # border
+
+[glow]
+"0" = "#A09A93"   # muted
+"1" = "#CDBC9A"   # primary fg
+"2" = "#D6CCB5"   # emphasized fg
+"3" = "#EAE5D9"   # brightest fg
+
+[mist]
+"0" = "#4F7A7E"
+"1" = "#7AA8AC"
+"2" = "#88A6C5"
+"3" = "#A8BDD6"
+
+[spark]
+red    = "#E06C75"
+orange = "#D19A66"
+amber  = "#E5C07B"
+green  = "#98C379"
+violet = "#C586B0"
+
+# Variant-specific UI accent. cool teal (= mist.1) — Tide is teal dusk; teal accent feels native.
+# See palette.toml [accent] for the canonical block.
+[accent]
+highlight          = "#7AA8AC"
+highlight_text     = "#202629"
+highlight_link     = "#4F3100"   # 4.52:1 on highlight
+highlight_negative = "#691A1E"   # 4.54:1
+highlight_neutral  = "#4F3100"   # 4.52:1
+highlight_positive = "#213E0F"   # 4.55:1
+highlight_visited  = "#49331C"   # 4.52:1
+
+# Terminal brights + faints (Konsole Color*Intense / Color*Faint, VSCode
+# terminal.ansiBright*). Normal ANSI colors map from spark/mist through
+# roles.toml [role.ansi].
+[ansi]
+bright_red     = "#EB8590"
+bright_green   = "#B5D690"
+bright_yellow  = "#F0CF8E"
+bright_magenta = "#D5A0C2"
+bright_cyan    = "#9CC4C7"
+faint_red      = "#A04D54"
+faint_green    = "#6D8C56"
+faint_yellow   = "#A48A58"
+faint_blue     = "#57748F"
+faint_magenta  = "#8D608A"
+faint_cyan     = "#508083"
