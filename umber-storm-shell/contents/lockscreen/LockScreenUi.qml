@@ -45,6 +45,7 @@ Pane {
     LayoutMirroring.childrenInherit: true
 
     readonly property color umberFloor: "#232342"
+    readonly property color accentTextColor: "#191A29"   // text drawn on palette.highlight
     readonly property real umberScrimOpacity: 0.55
 
     function handleMessage(msg) {

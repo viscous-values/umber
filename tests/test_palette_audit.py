@@ -137,6 +137,13 @@ class VariantChecksTest(unittest.TestCase):
         self.assertEqual(check.level, "warn")
         self.assertEqual(check.threshold, pa.THRESHOLDS["link_vs_info_de"])
 
+    def test_greeter_accent_is_held_to_text_contrast(self):
+        # SDDM and the lockscreen draw typed text and hover labels in AccentColor
+        # (role.decoration_focus), and draw text on it: both are text, not decoration.
+        self.assertEqual(self.checks["contrast:decoration_focus/bg_panel"].threshold, pa.THRESHOLDS["text_contrast"])
+        on_accent = self.checks["contrast:fg_on_accent/decoration_focus"]
+        self.assertEqual((on_accent.level, on_accent.threshold), ("error", pa.THRESHOLDS["text_contrast"]))
+
     def test_accent_vs_status_is_advisory(self):
         check = self.checks["accent-vs-status:accent~error"]
         self.assertEqual(check.level, "warn")
