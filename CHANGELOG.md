@@ -4,6 +4,8 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+## [2.0.0] — 2026-10-12
+
 ### Changed
 - **Palette redesign.** Every variant now has its own character on a shared lightness ladder: Umber (fireside: raw umber, cream, burnt-sienna signature), Ash (charcoal and sanguine: graphite, paper white, red chalk, graphite-wash selection), Slate (pewter overcast, moss), Tide (sea glass, coral) and Storm (indigo night, lightning). Each has its own ground hue, text temperature, signature accent and syntax key; previously the five differed only in a near-black tint and shared every accent. Measured before/after in `PALETTE-REVISIT.md`.
 - Focus rings, active tabs, primary buttons, progress and the splash use the variant's signature; selections are a light tint of it with hue-distinct link / visited / error / warning / success colors on top. Links are blue, visited links violet and info cyan. Input outlines reach 3:1; surface steps are wider; comments sit back from body text; terminal black is visible; red, green and amber stay apart under red-green color blindness.
@@ -73,6 +75,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 ### Origin
 Adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark), muted for long-session comfort and built out into a full Nord-style palette. Spark accent hexes adapted from Atom One Dark; Mist tier informed by Nord; Newaita-reborn (cbrnix) for icons; Nordic-cursors (EliverLara) as cursor source.
 
-[Unreleased]: https://github.com/viscous-values/umber/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/viscous-values/umber/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/viscous-values/umber/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/viscous-values/umber/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/viscous-values/umber/releases/tag/v1.0.0
