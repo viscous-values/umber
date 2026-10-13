@@ -1,40 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
-  <!-- background: charcoal -->
-  <rect width="640" height="400" fill="#2B2B2B"/>
+  <!-- SDDM greeter preview, rendered from the palette: BackgroundColor = role.bg_panel,
+       MainColor = role.fg, AccentColor = role.decoration_focus (focused field). -->
+  <rect width="640" height="400" fill="#232342"/>
 
   <!-- clock + date, top center -->
-  <text x="320" y="120" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="56" font-weight="300" fill="#D4BC91" letter-spacing="-1">22:14</text>
-  <text x="320" y="148" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" fill="#A89986">Monday, 27 of April</text>
+  <text x="320" y="120" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="56" font-weight="300" fill="#BFC9E0" letter-spacing="-1">22:14</text>
+  <text x="320" y="148" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" fill="#99A0B1">Monday, 27 of April</text>
 
   <!-- username field -->
   <g transform="translate(195, 188)">
-    <rect width="250" height="38" rx="20" fill="none" stroke="#D4BC91" stroke-width="1"/>
+    <rect width="250" height="38" rx="20" fill="none" stroke="#BFC9E0" stroke-width="1"/>
     <!-- user icon (simple silhouette) -->
-    <circle cx="22" cy="14" r="5" fill="#D4BC91"/>
-    <path d="M 12 28 Q 22 20 32 28" fill="none" stroke="#D4BC91" stroke-width="2" stroke-linecap="round"/>
-    <text x="135" y="24" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" fill="#D4BC91">user</text>
+    <circle cx="22" cy="14" r="5" fill="#BFC9E0"/>
+    <path d="M 12 28 Q 22 20 32 28" fill="none" stroke="#BFC9E0" stroke-width="2" stroke-linecap="round"/>
+    <text x="135" y="24" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" fill="#BFC9E0">user</text>
   </g>
 
-  <!-- password field -->
+  <!-- password field (focused) -->
   <g transform="translate(195, 234)">
-    <rect width="250" height="38" rx="20" fill="none" stroke="#E1E1E1" stroke-width="2"/>
-    <text x="125" y="26" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="14" fill="#E1E1E1" letter-spacing="3">••••••••</text>
+    <rect width="250" height="38" rx="20" fill="none" stroke="#EBDE77" stroke-width="2"/>
+    <text x="125" y="26" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="14" fill="#EBDE77" letter-spacing="3">••••••••</text>
   </g>
 
   <!-- login button -->
   <g transform="translate(195, 286)">
-    <rect width="250" height="38" rx="20" fill="#D4BC91"/>
-    <text x="125" y="24" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" font-weight="500" fill="#2B2B2B">Login</text>
+    <rect width="250" height="38" rx="20" fill="#BFC9E0"/>
+    <text x="125" y="24" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="13" font-weight="500" fill="#232342">Login</text>
   </g>
 
   <!-- session select, small -->
-  <text x="320" y="346" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="11" fill="#A89986">Session: Plasma (Wayland)</text>
+  <text x="320" y="346" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="11" fill="#99A0B1">Session: Plasma (Wayland)</text>
 
   <!-- power buttons row -->
-  <g transform="translate(232, 364)" fill="none" stroke="#A89986" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(232, 364)" fill="none" stroke="#99A0B1" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
     <!-- suspend (moon) -->
     <g transform="translate(0,0)">
-      <path d="M 11 4 a 7 7 0 1 0 6 11 a 5.5 5.5 0 0 1 -6 -11 z" fill="#A89986" stroke="none"/>
+      <path d="M 11 4 a 7 7 0 1 0 6 11 a 5.5 5.5 0 0 1 -6 -11 z" fill="#99A0B1" stroke="none"/>
     </g>
     <!-- hibernate (snowflake-ish) -->
     <g transform="translate(44,0)">

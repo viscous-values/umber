@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="162" viewBox="0 0 256 162">
+  <!-- Store-listing thumbnail for canonical Umber, rendered from the palette. -->
+  <!-- desktop background -->
+  <rect width="256" height="162" fill="{{ role.bg_panel }}"/>
+
+  <!-- window -->
+  <rect x="36" y="22" width="184" height="108" rx="6" fill="{{ role.bg_panel }}" stroke="{{ role.bg }}" stroke-width="1"/>
+  <!-- titlebar -->
+  <rect x="36" y="22" width="184" height="20" rx="6" fill="{{ role.bg_raised }}"/>
+  <rect x="36" y="36" width="184" height="6" fill="{{ role.bg_raised }}"/>
+  <!-- traffic dots -->
+  <circle cx="48" cy="32" r="3" fill="{{ role.accent }}"/>
+  <circle cx="58" cy="32" r="3" fill="{{ role.fg_muted }}"/>
+  <circle cx="68" cy="32" r="3" fill="{{ role.fg_muted }}"/>
+  <!-- title text -->
+  <text x="128" y="36" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="9" fill="{{ role.fg }}" letter-spacing="1">umber</text>
+
+  <!-- list rows in window -->
+  <rect x="48" y="54" width="160" height="14" rx="3" fill="{{ role.bg }}"/>
+  <text x="56" y="64" font-family="Noto Sans, sans-serif" font-size="8" fill="{{ role.fg }}">Documents</text>
+
+  <!-- selected row -->
+  <rect x="48" y="72" width="160" height="14" rx="3" fill="{{ role.selection_bg }}"/>
+  <text x="56" y="82" font-family="Noto Sans, sans-serif" font-size="8" fill="{{ role.on_selection.fg }}" font-weight="500">Pictures</text>
+
+  <rect x="48" y="90" width="160" height="14" rx="3" fill="{{ role.bg }}"/>
+  <text x="56" y="100" font-family="Noto Sans, sans-serif" font-size="8" fill="{{ role.fg }}">Music</text>
+
+  <!-- buttons -->
+  <rect x="48" y="110" width="50" height="14" rx="3" fill="{{ role.bg_active }}"/>
+  <text x="73" y="120" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="8" fill="{{ role.fg }}">Cancel</text>
+  <rect x="158" y="110" width="50" height="14" rx="3" fill="{{ role.button_bg }}"/>
+  <text x="183" y="120" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="8" fill="{{ role.fg_on_accent }}" font-weight="500">OK</text>
+
+  <!-- panel -->
+  <rect x="0" y="148" width="256" height="14" fill="{{ role.bg }}"/>
+  <circle cx="12" cy="155" r="4" fill="{{ role.accent }}"/>
+  <rect x="22" y="153" width="20" height="4" rx="1" fill="{{ role.fg_muted }}"/>
+  <rect x="48" y="153" width="20" height="4" rx="1" fill="{{ role.fg_muted }}"/>
+  <text x="244" y="158" text-anchor="end" font-family="Noto Sans, sans-serif" font-size="7" fill="{{ role.fg }}">21:00</text>
+</svg>

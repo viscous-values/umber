@@ -99,5 +99,31 @@ class ExtensionIconTest(unittest.TestCase):
         self.assertTrue(all(abs(a - b) <= 2 for a, b in zip(got, brand)), f"{got} != brand {brand}")
 
 
+class PreviewTemplatesTest(unittest.TestCase):
+    def test_sddm_preview_ships_with_every_variant_store_preview_only_canonical(self):
+        self.assertEqual(render_palette.outputs_for("umber")["sddm-preview.svg.tmpl"], "umber-sddm/preview.svg")
+        self.assertEqual(render_palette.outputs_for("umber")["store-preview.svg.tmpl"], "preview.svg")
+        self.assertEqual(render_palette.outputs_for("tide")["sddm-preview.svg.tmpl"], "umber-tide-sddm/preview.svg")
+        self.assertNotIn("store-preview.svg.tmpl", render_palette.outputs_for("tide"))
+
+    def test_sddm_preview_draws_the_greeter_colors(self):
+        import re
+        pal = render_palette.prepare_palette(REPO / "palettes" / "tide.toml", "tide")
+        svg = render_palette.render_template(
+            (render_palette.TEMPLATE_DIR / "sddm-preview.svg.tmpl").read_text(), pal)
+        self.assertEqual(re.search(r'<rect width="640" height="400" fill="(#[0-9A-F]{6})"', svg).group(1),
+                         pal["role"]["bg_panel"])                      # BackgroundColor
+        self.assertIn(f'stroke="{pal["role"]["decoration_focus"]}"', svg)  # focused password field = AccentColor
+
+    @unittest.skipUnless(__import__("shutil").which("rsvg-convert"), "rsvg-convert not installed")
+    def test_rasterize_writes_a_png_at_the_svg_size(self):
+        import tempfile
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as d:
+            png = Path(d) / "preview.png"
+            render_palette.rasterize(REPO / "umber-sddm" / "preview.svg", png)
+            self.assertEqual(Image.open(png).size, (640, 400))
+
+
 if __name__ == "__main__":
     unittest.main()
