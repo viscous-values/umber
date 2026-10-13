@@ -23,7 +23,7 @@ To make a change that should propagate everywhere (e.g. a hex value in the palet
        python3 scripts/render_palette.py render --palette "$p"
    done
    ```
-   Then refresh what `render` doesn't write: the 4K wallpapers, the mockups and the Plasma theme previews, and the lab page.
+   Then refresh what `render` doesn't write: the 4K wallpapers, the mockups and the Plasma theme previews, the cursors, and the lab page.
    ```
    python3 scripts/render_wallpaper.py --palette palettes/tide.toml \
        --out io.github.viscous-values.umber-tide/contents/wallpapers/Umber-Tide/contents/images/3840x2160.jpg
@@ -31,8 +31,9 @@ To make a change that should propagate everywhere (e.g. a hex value in the palet
        --out-full io.github.viscous-values.umber-tide/contents/previews/fullscreenpreview.jpg \
        --out-thumb io.github.viscous-values.umber-tide/contents/previews/preview.png
    python3 scripts/render_lab.py
+   ./scripts/build-cursor.sh            # all five; needs Nordic-cursors at ~/.icons/Nordic-cursors
    ```
-   (Repeat per variant; canonical Umber uses `palette.toml` and the `umber` / `Umber` names.) `render` rasterizes the SDDM preview with `rsvg-convert` from librsvg; without it the PNG is left stale with a warning. The test suite fails if a wallpaper or the lab page falls out of date.
+   (Repeat the wallpaper and preview commands per variant; canonical Umber uses `palette.toml` and the `umber` / `Umber` names.) `render` rasterizes the SDDM preview with `rsvg-convert` from librsvg; without it the PNG is left stale with a warning. The test suite fails if a wallpaper, a cursor or the lab page falls out of date.
 3. Verify nothing drifted:
    ```
    python3 scripts/render_palette.py check
@@ -44,7 +45,7 @@ To make a change that should propagate everywhere (e.g. a hex value in the palet
 
 1. Copy `palettes/tide.toml` to `palettes/<name>.toml` (lowercase letters, digits and hyphens) and change the values; keep every key, since `roles.toml` references them all. Tiers: `[hearth]` (`0`–`4` plus `hover`), `[glow]` (`0`–`3`), `[mist]` (`0`–`3`), `[spark]` (red/orange/amber/green/violet), `[accent]` (the `signature` set, the `highlight` selection set and the `highlight_*` colors drawn on it, each ≥ 4.5:1 against `highlight`) and `[ansi]` (terminal black/blue/cyan plus the bright and faint colors). What each color is *used for* lives in `roles.toml`; a variant can remap any role with its own `[role]` table (e.g. `[role.syntax]` `string = "spark.amber"`). Tune it in the Palette Lab and make `python3 scripts/palette_audit.py --strict` pass.
 2. `python3 scripts/render_palette.py render --palette palettes/<name>.toml` — generates every consumer file under `<slug>-firefox/`, `io.github.viscous-values.<slug>/`, etc.
-3. Re-render previews via `scripts/render_previews.py`.
+3. Re-render previews via `scripts/render_previews.py`, and build its cursor with `./scripts/build-cursor.sh <name>` (commit `cursors/Umber-<Name>-cursor/`).
 4. Wire the variant into `install.sh` — add the slug to `VARIANTS_TO_INSTALL` and the `case` validator.
 5. README's Variants table should pick up the new variant.
 

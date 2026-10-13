@@ -121,10 +121,10 @@ class InstallScriptsTest(unittest.TestCase):
         (schemes / "Umber-Slate.colors").write_text("[General]\nColorScheme=Umber-Slate\n")
         funcs = bash_functions(REPO / "install.sh", "set_variant_names", "install_variant_user_files")
         out = self._bash(
-            'step() { :; }; ok() { :; }; note() { :; }\n'
-            f'REPO_ROOT="{REPO}"; SCHEMES_DIR="{schemes}"; LNF_DIR="{self.home}/lnf"; '
+            'set -u; step() { :; }; ok() { :; }; note() { :; }\n'
+            f'REPO_ROOT="{REPO}"; SCHEMES_DIR="{schemes}"; ICONS_DIR="{self.home}/icons"; LNF_DIR="{self.home}/lnf"; '
             f'SHELLS_DIR="{self.home}/shells"; KONSOLE_DIR="{self.home}/konsole"; APPS_DIR="{self.home}/apps"\n'
-            'mkdir -p "$LNF_DIR" "$SHELLS_DIR" "$KONSOLE_DIR" "$APPS_DIR"\n'
+            'mkdir -p "$ICONS_DIR" "$LNF_DIR" "$SHELLS_DIR" "$KONSOLE_DIR" "$APPS_DIR"\n'
             f'{funcs}\ninstall_variant_user_files slate')
         self.assertEqual(out.returncode, 0, out.stderr)
         self.assertEqual(sorted(p.name for p in schemes.iterdir()), [shipped_colors("slate").name])

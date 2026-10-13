@@ -104,6 +104,7 @@ set_variant_names() {
     FF_DIR_NAME="${SLUG}-firefox"
     CR_DIR_NAME="${SLUG}-chromium"
     SCHEME_FILE="${COLOR_SCHEME}.colors"
+    CURSOR_THEME="${SCHEME}-cursor"    # cursors/<name>/; the Global Theme names it
     KONSOLE_FILE="${SCHEME}.colorscheme"
     SDDM_THEME_TARGET="/usr/share/sddm/themes/$SLUG"
 }
@@ -317,8 +318,8 @@ done
 set_variant_names "$ACTIVE_VARIANT"
 
 # ---------------------------------------------------------------------------
-# Overwrite confirmation — combined across every variant being installed,
-# plus the shared cursor dir. One prompt covers the whole batch.
+# Overwrite confirmation — combined across every variant being installed.
+# One prompt covers the whole batch.
 existing=()
 for v in "${VARIANTS_TO_INSTALL[@]}"; do
     set_variant_names "$v"
@@ -326,8 +327,8 @@ for v in "${VARIANTS_TO_INSTALL[@]}"; do
     [[ -d "$SHELLS_DIR/$SHELL_PKG_ID" ]]  && existing+=("$SHELLS_DIR/$SHELL_PKG_ID")
     [[ -f "$SCHEMES_DIR/$SCHEME_FILE" ]]  && existing+=("$SCHEMES_DIR/$SCHEME_FILE")
     [[ -f "$KONSOLE_DIR/$KONSOLE_FILE" ]] && existing+=("$KONSOLE_DIR/$KONSOLE_FILE")
+    [[ -d "$ICONS_DIR/$CURSOR_THEME" ]]   && existing+=("$ICONS_DIR/$CURSOR_THEME")
 done
-[[ -d "$ICONS_DIR/Umber-cursor" ]] && existing+=("$ICONS_DIR/Umber-cursor")
 set_variant_names "$ACTIVE_VARIANT"
 if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
     if (( ALL_VARIANTS == 1 )); then
@@ -559,23 +560,12 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-step "Umber-cursor"
-mkdir -p "$ICONS_DIR"
-if [[ ! -d "$REPO_ROOT/cursors/Umber-cursor" ]]; then
-    echo "ERROR: cursors/Umber-cursor not found in repo. Run scripts/build-cursor.sh." >&2
-    exit 1
-fi
-rm -rf "$ICONS_DIR/Umber-cursor"
-cp -a "$REPO_ROOT/cursors/Umber-cursor" "$ICONS_DIR/Umber-cursor"
-ok "installed to $ICONS_DIR/Umber-cursor"
-
-# ---------------------------------------------------------------------------
-# Per-variant user-space installs: color scheme + LookAndFeel package +
-# Plasma/Shell package + Konsole color scheme. Each variant installs into
+# Per-variant user-space installs: color scheme + cursor + LookAndFeel
+# package + Plasma/Shell package + Konsole color scheme. Each variant installs into
 # its own paths (io.github.viscous-values.umber-ash/, etc.) and they coexist on disk.
 # kscreenlockerrc Theme= is set ONCE below for the active variant only —
 # it's a global setting, not per-variant.
-mkdir -p "$LNF_DIR" "$SHELLS_DIR" "$SCHEMES_DIR" "$KONSOLE_DIR" "$APPS_DIR"
+mkdir -p "$ICONS_DIR" "$LNF_DIR" "$SHELLS_DIR" "$SCHEMES_DIR" "$KONSOLE_DIR" "$APPS_DIR"
 
 install_variant_user_files() {
     local v="$1"
@@ -590,6 +580,15 @@ install_variant_user_files() {
         rm -f -- "$SCHEMES_DIR/$SCHEME.colors"
         note "removed old $SCHEME.colors"
     fi
+
+    step "$NAME cursor ($CURSOR_THEME)"
+    if [[ ! -d "$REPO_ROOT/cursors/$CURSOR_THEME" ]]; then
+        echo "ERROR: cursors/$CURSOR_THEME not found in repo. Run scripts/build-cursor.sh." >&2
+        exit 1
+    fi
+    rm -rf "$ICONS_DIR/$CURSOR_THEME"
+    cp -a "$REPO_ROOT/cursors/$CURSOR_THEME" "$ICONS_DIR/$CURSOR_THEME"
+    ok "installed to $ICONS_DIR/$CURSOR_THEME"
 
     step "Plasma Look-and-Feel package ($PKG_ID)"
     rm -rf "$LNF_DIR/$PKG_ID"
@@ -762,7 +761,7 @@ if [[ -n "$changeicons" ]]; then
 else
     note "plasma-changeicons helper not found — pick icons manually in System Settings."
 fi
-plasma-apply-cursortheme Umber-cursor >/dev/null 2>&1 || true
+plasma-apply-cursortheme "$CURSOR_THEME" >/dev/null 2>&1 || true
 
 # Sanity check: did kdeglobals actually get [Colors:Window] populated?
 # If not, the apply silently no-op'd and running apps will keep stale
