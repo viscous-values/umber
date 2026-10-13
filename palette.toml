@@ -45,8 +45,8 @@ hover               = "#64574B"   # L 0.465 C 0.025 h  62  hover on an active su
 
 [mist]
 "0"                 = "#8CCAAF"   # L 0.790 C 0.075 h 165  types, classes
-"1"                 = "#5DAEAE"   # L 0.700 C 0.080 h 195  regex, ANSI cyan
-"2"                 = "#80BAE4"   # L 0.765 C 0.085 h 240  functions, links, info, ANSI blue
+"1"                 = "#5DAEAE"   # L 0.700 C 0.080 h 195  regex, info
+"2"                 = "#80BAE4"   # L 0.765 C 0.085 h 240  functions, links, JSON keys
 "3"                 = "#958676"   # L 0.630 C 0.030 h  70  comments, hints
 
 [spark]
