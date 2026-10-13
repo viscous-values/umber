@@ -34,6 +34,8 @@ the filename unless --variant is given explicitly.
 
 import argparse
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -94,7 +96,7 @@ def outputs_for(variant):
     pkg_id = f"io.github.viscous-values.{slug}"
     shell_dir = f"{slug}-shell"
 
-    return {
+    outputs = {
         # Plasma colorscheme.
         "Umber.colors.tmpl":           f"{pkg_id}/contents/colors/{scheme}.colors",
         # Konsole colorscheme.
@@ -107,6 +109,7 @@ def outputs_for(variant):
         # SDDM — per-variant theme directory.
         "sddm-theme.conf.tmpl":        f"{slug}-sddm/theme.conf",
         "sddm-metadata.desktop.tmpl":  f"{slug}-sddm/metadata.desktop",
+        "sddm-preview.svg.tmpl":       f"{slug}-sddm/preview.svg",   # + preview.png, rasterized
         # Plasma Splash + lockscreen QML.
         "Splash.qml.tmpl":             f"{pkg_id}/contents/splash/Splash.qml",
         "LockScreenUi.qml.tmpl":       f"{shell_dir}/contents/lockscreen/LockScreenUi.qml",
@@ -116,6 +119,10 @@ def outputs_for(variant):
         "lookandfeel-wallpaper-metadata.json.tmpl": f"{pkg_id}/contents/wallpapers/{scheme}/metadata.json",
         "plasma-shell-metadata.json.tmpl":          f"{shell_dir}/metadata.json",
     }
+    if is_canon:
+        # Store-listing thumbnail at the repo root.
+        outputs["store-preview.svg.tmpl"] = "preview.svg"
+    return outputs
 
 
 # --------------------------------------------------------------------------- #
@@ -217,6 +224,22 @@ def icon_outputs_for(variant):
     return paths
 
 
+def rasterize(svg_path, png_path):
+    """SVG -> PNG at the SVG's own size, via librsvg's rsvg-convert."""
+    tool = shutil.which("rsvg-convert")
+    if tool is None:
+        print(f"warning: rsvg-convert not found; {png_path} not refreshed", file=sys.stderr)
+        return False
+    subprocess.run([tool, str(svg_path), "-o", str(png_path)], check=True)
+    return True
+
+
+def raster_outputs_for(variant):
+    """PNG outputs rasterized from rendered SVGs: (svg_rel, png_rel) pairs."""
+    svg = outputs_for(variant)["sddm-preview.svg.tmpl"]
+    return [(svg, svg.replace(".svg", ".png"))]
+
+
 def render_one(palette, variant):
     outputs = outputs_for(variant)
     written = []
@@ -227,6 +250,9 @@ def render_one(palette, variant):
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(rendered)
         written.append(out_rel)
+    for svg_rel, png_rel in raster_outputs_for(variant):
+        if rasterize(REPO / svg_rel, REPO / png_rel):
+            written.append(png_rel)
     written.extend(render_extension_icon.render_for_variant(palette, variant))
     return written
 
@@ -244,7 +270,7 @@ def check_one(palette, variant):
             drift.append(out_rel)
     # Icons are binary; we only check existence (full pixel-diff on every
     # check would be slow and would flag innocuous PIL/encoder changes).
-    for icon_rel in icon_outputs_for(variant):
+    for icon_rel in [*icon_outputs_for(variant), *(png for _, png in raster_outputs_for(variant))]:
         if not (REPO / icon_rel).exists():
             drift.append(icon_rel)
     return drift
