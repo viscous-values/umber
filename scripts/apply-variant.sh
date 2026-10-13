@@ -34,7 +34,7 @@ if [[ "$VARIANT" == "umber" ]]; then
     SCHEME="Umber"
 else
     PKG_ID="io.github.viscous-values.umber-$VARIANT"
-    SCHEME="Umber-${VARIANT^}"   # ash → Ash, slate → Slate, ...
+    SCHEME="Umber${VARIANT^}"    # ash → UmberAsh: Plasma scheme ids have no separator (see install.sh)
 fi
 
 LNF_DIR="$HOME/.local/share/plasma/look-and-feel/$PKG_ID"

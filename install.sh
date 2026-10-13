@@ -86,10 +86,15 @@ set_variant_names() {
     if [[ "$v" == "umber" ]]; then
         SLUG="umber"
         SCHEME="Umber"
+        COLOR_SCHEME="Umber"
         NAME="Umber"
     else
         SLUG="umber-$v"
         SCHEME="Umber-${v^}"   # Title-case suffix: ash → Ash
+        # Plasma color scheme id: no separator. Global Theme apply drops
+        # separators from ColorScheme= to find the .colors file, so it never
+        # finds Umber-Ash.colors.
+        COLOR_SCHEME="Umber${v^}"
         NAME="Umber ${v^}"
     fi
     PKG_ID="io.github.viscous-values.$SLUG"
@@ -98,7 +103,7 @@ set_variant_names() {
     SDDM_DIR_NAME="${SLUG}-sddm"
     FF_DIR_NAME="${SLUG}-firefox"
     CR_DIR_NAME="${SLUG}-chromium"
-    SCHEME_FILE="${SCHEME}.colors"
+    SCHEME_FILE="${COLOR_SCHEME}.colors"
     KONSOLE_FILE="${SCHEME}.colorscheme"
     SDDM_THEME_TARGET="/usr/share/sddm/themes/$SLUG"
 }
@@ -579,6 +584,12 @@ install_variant_user_files() {
     step "$NAME color scheme"
     cp "$REPO_ROOT/$PKG_ID/contents/colors/$SCHEME_FILE" "$SCHEMES_DIR/$SCHEME_FILE"
     ok "installed to $SCHEMES_DIR/$SCHEME_FILE"
+    # Installs before 2.0.0 named it Umber-<V>.colors; left behind, it shows
+    # a second, stale entry in System Settings → Colors.
+    if [[ "$SCHEME" != "$COLOR_SCHEME" && -f "$SCHEMES_DIR/$SCHEME.colors" ]]; then
+        rm -f -- "$SCHEMES_DIR/$SCHEME.colors"
+        note "removed old $SCHEME.colors"
+    fi
 
     step "Plasma Look-and-Feel package ($PKG_ID)"
     rm -rf "$LNF_DIR/$PKG_ID"
@@ -609,16 +620,13 @@ install_variant_user_files() {
     cp "$REPO_ROOT/konsole/$KONSOLE_FILE" "$KONSOLE_DIR/$KONSOLE_FILE"
     ok "installed to $KONSOLE_DIR/$KONSOLE_FILE"
 
-    # Per-variant launcher .desktop. WHY: System Settings → Global Theme →
-    # Apply runs plasma-apply-lookandfeel, which has a Plasma 6 bug for any
-    # third-party LnF package — the color scheme transition silently no-ops
-    # and the new variant's [Colors:*] never make it into kdeglobals. Apps
-    # keep showing the previous variant's colors. apply-variant.sh works
-    # around it by running plasma-apply-colorscheme directly after the LnF
-    # apply (BreezeLight → real-scheme dance to defeat the "already set"
-    # short-circuit). This launcher exposes that script via KRunner / the
-    # app menu so users can switch variants without going through the
-    # broken KCM tile picker.
+    # Per-variant launcher .desktop. It exposes apply-variant.sh via KRunner /
+    # the app menu: the LnF apply plus a direct plasma-apply-colorscheme
+    # (BreezeLight → real-scheme dance to defeat the "already set"
+    # short-circuit), which also repairs a kdeglobals whose [Colors:*] an
+    # earlier apply stripped. System Settings → Global Theme switches colors
+    # by itself now that the scheme ids have no separator (see
+    # set_variant_names).
     step "$NAME launcher (KRunner: \"Apply $NAME\")"
     LAUNCHER="$APPS_DIR/umber-apply-$v.desktop"
     cat > "$LAUNCHER" <<EOF
@@ -626,7 +634,7 @@ install_variant_user_files() {
 Type=Application
 Name=Apply $NAME Theme
 GenericName=Umber Theme Switcher
-Comment=Switch the active Plasma session to $NAME (works around a Plasma 6 KCM bug)
+Comment=Switch the active Plasma session to $NAME
 Exec=$REPO_ROOT/scripts/apply-variant.sh $v
 Icon=preferences-desktop-color
 Terminal=false
@@ -742,8 +750,8 @@ LNF_APPLY_LOG="$(mktemp -t umber-lnf-apply-XXXXXX.log)"
 if plasma-apply-colorscheme BreezeLight 2>&1 | sed 's/^/    /'; then :; else
     err "plasma-apply-colorscheme BreezeLight failed (intermediate flicker step)"
 fi
-if plasma-apply-colorscheme "$SCHEME" 2>&1 | sed 's/^/    /'; then :; else
-    err "plasma-apply-colorscheme $SCHEME failed — kdeglobals may have stale colors"
+if plasma-apply-colorscheme "$COLOR_SCHEME" 2>&1 | sed 's/^/    /'; then :; else
+    err "plasma-apply-colorscheme $COLOR_SCHEME failed — kdeglobals may have stale colors"
 fi
 changeicons=""
 for p in /usr/lib/plasma-changeicons /usr/libexec/plasma-changeicons; do
@@ -763,7 +771,7 @@ if grep -q '^\[Colors:Window\]' "$HOME/.config/kdeglobals" 2>/dev/null; then
     ok "Global Theme applied ($NAME) — kdeglobals has [Colors:*] sections"
 else
     err "Global Theme apply finished but ~/.config/kdeglobals has no [Colors:*] sections."
-    note "Running apps will keep stale colors. Try: plasma-apply-colorscheme $SCHEME"
+    note "Running apps will keep stale colors. Try: plasma-apply-colorscheme $COLOR_SCHEME"
     note "If that says \"already set\", first run: plasma-apply-colorscheme BreezeLight"
     note "Worst case: log out and back in to refresh every running app."
 fi
