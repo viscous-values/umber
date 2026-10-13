@@ -5,15 +5,26 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 ## [Unreleased]
 
 ### Changed
+- **Palette redesign.** Every variant now has its own character on a shared lightness ladder: Umber (fireside: raw umber, cream, burnt-sienna signature), Ash (charcoal and sanguine: graphite, paper white, red chalk, graphite-wash selection), Slate (pewter overcast, moss), Tide (sea glass, coral) and Storm (indigo night, lightning). Each has its own ground hue, text temperature, signature accent and syntax key; previously the five differed only in a near-black tint and shared every accent. Measured before/after in `PALETTE-REVISIT.md`.
+- Focus rings, active tabs, primary buttons, progress and the splash use the variant's signature; selections are a light tint of it with hue-distinct link / visited / error / warning / success colors on top. Links are blue, visited links violet and info cyan. Input outlines reach 3:1; surface steps are wider; comments sit back from body text; terminal black is visible; red, green and amber stay apart under red-green color blindness.
+- Templates name semantic roles from the new `roles.toml` instead of raw palette tiers, so a variant can remap any job (`link`, `focus_ring`, `syntax.type`, …). Chromium new-tab links and the Firefox url-field focus border now follow the link and focus roles like every other consumer.
+- SDDM greeter previews and the store thumbnail (`preview.svg`) render from the palette instead of being hand-made; each variant gets its own SDDM preview. Browser-extension icons take their accent line from the signature.
 - KDE LookAndFeel + Plasma Shell package namespace migrated from `com.tyler.<variant>` to `io.github.viscous-values.<variant>`. Existing installs are auto-cleaned when running `install.sh --migrate`.
 - VSCode extension rebranded `tyler.umber` → `viscous-values.umber`; bumped to `1.1.1`.
 - `install.sh --migrate` now handles two legacy namespaces in one pass: the original Hush install AND the `com.tyler.*` Umber namespace.
 
 ### Added
+- `scripts/palette_audit.py`: WCAG contrast, OKLab role separation, color-blindness simulation and cross-variant identity checks; `--strict` gates palette changes.
+- The Palette Lab (`scripts/render_lab.py` → `mockups/palette-lab.html`): every variant as Plasma, VSCode and Konsole mockups with value, hue, distance and audit views and an OKLCH tuner that exports TOML.
+- `palettes/archive/classic/`: the pre-redesign palettes, kept resolvable, as the lab's Classic set and the audit's regression fixture. `v1.0.1` is tagged.
+- A stdlib `unittest` suite under `tests/`.
 - CONTRIBUTING.md (render pipeline, anti-patterns, commit conventions).
 - SECURITY.md (private disclosure path).
 - `.github/ISSUE_TEMPLATE/` (bug report skeleton).
 - GitHub repo description, topics (kde, plasma6, theme, dark-theme, sddm, konsole, firefox-theme, vscode-theme).
+
+### Removed
+- `palette-preview.svg`, a hand-made swatch sheet of the old palette; the README now shows rendered variant thumbnails.
 
 ### Fixed
 - Plasma `[Colors:Selection]` link / negative / neutral / positive / visited text now meets WCAG AA (4.5:1) on every variant's selection highlight. The old hardcoded values measured 3.2–3.9:1 on Umber/Ash and 2.3–3.7:1 on Slate/Storm/Tide. They now live in per-variant `[accent]` keys (`highlight_link`, `highlight_negative`, `highlight_neutral`, `highlight_positive`, `highlight_visited`) instead of raw template literals, each a darkened version of the original hue.

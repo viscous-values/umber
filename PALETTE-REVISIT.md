@@ -1,35 +1,59 @@
-# Palette revisit (open)
+# Palette revisit (closed)
 
-Noted 2026-10-12. The color scheme as a whole needs a hard look before more consumers are built on it. This isn't urgent and isn't scheduled. It's a marker so the next palette change starts here rather than with another spot fix.
+Opened 2026-10-12, when the owner found that the variants and the roles inside each variant ran together, and that the WCAG AA selection fix (`99d2798`) had made it worse. Closed the same month by the redesign on `feat/palette-rework`.
 
-Owner's read after reviewing the colors side by side: there isn't enough difference between roles that should look different (links vs visited links and similar), and the scheme overall isn't where it should be. The 2026-10-12 selection-contrast fix (`fix(palette): meet WCAG AA for selection text on every variant`) only made the existing choices readable; it didn't revisit them.
+The pre-redesign palettes are kept in [`palettes/archive/classic/`](palettes/archive/classic) and the last release before the redesign is tagged `v1.0.1`.
 
-## What the numbers say (canonical Umber; the variants are similar)
+## What was wrong
 
-Contrast is the WCAG 2.x ratio. "ΔE" is the distance in OKLab, where about 0.02 is the smallest difference most people notice side by side.
+- **The variants differed only in what the eye ignores.** Backgrounds were 0.006–0.033 apart in OKLab ΔE (about 0.02 is the smallest difference people notice side by side), all at the same lightness. Body text was 0.004–0.018 apart. The accent and syntax colors were byte-identical in all five, and Slate and Storm shared one selection color. A near-black tint that fills the screen gets white-balanced away within a minute, so the only thing that changed between variants was the thing the eye discards.
+- **Roles inside a variant blurred.** Surfaces stepped 1.08:1 and 1.12:1, types and variables shared a hue (ΔE 0.039), comments were as bright as body text, and canonical Umber's focus color was its body-text color.
+- **The accessibility fixes pushed everything together.** WCAG only constrains lightness against the background, so each fix moved foregrounds into the same lightness band. Dark text on a light selection forced the on-selection colors dark, where yellow, orange and red all turn brown: selected links became the same color as selected warnings.
+- **One pigment did unrelated jobs.** `mist.2` was the focus ring, primary button, info, function names, ANSI blue and markdown links at once; consumers disagreed about which pigment a job used.
 
-| Issue | Measurement | Where it comes from |
+## What changed
+
+- **A semantic role layer.** [`roles.toml`](roles.toml) maps each job (`link`, `focus_ring`, `on_selection.neutral`, `syntax.type`, `ansi.black`, …) onto palette pigments, and every template names roles, never pigments. A variant can remap any role.
+- **One value ladder, five characters.** All variants share surface lightness steps (.235 / .272 / .312 / .398, hover .465, control outline .555) and text steps (.705 / .835 / .895 / .950). Each variant gets its own ground hue, text temperature, signature accent and syntax key:
+  - **Umber**, fireside: raw umber, cream, burnt-sienna signature
+  - **Ash**, charcoal and sanguine: graphite, paper white, red-chalk signature, graphite-wash selection
+  - **Slate**, pewter overcast: pewter, silver, moss signature
+  - **Tide**, sea glass: deep teal, sea-foam, coral signature
+  - **Storm**, indigo night: ultramarine, moonlit text, lightning signature
+- **Selection is a light tint of the signature**, with its own set of hue-distinct colors for text drawn on it (navy, plum, maroon, olive, forest) instead of darkened browns.
+- **Links are blue, visited links violet, info cyan**, so info text never looks clickable. Links are also underlined wherever the consumer allows: a 3:1 link-vs-text contrast is impossible on a dark theme while both stay readable, so the underline is the non-color cue.
+- **Red, green and amber are staggered in lightness** (error darkest, warning lightest) so they stay apart under red-green color blindness.
+
+## Before and after
+
+Measured by [`scripts/palette_audit.py`](scripts/palette_audit.py) on all five variants of each set. ΔE is OKLab distance; contrast is the WCAG 2 ratio.
+
+| Measure | Classic (all five) | Redesign (all five) |
 |---|---|---|
-| Links barely differ from body text | link `glow.2` vs body `glow.1`: ΔE 0.050, only 1.18:1 between them. WCAG 1.4.1 suggests 3:1 when color alone marks a link | `ForegroundLink = glow.2` in every Plasma section |
-| Selected links look like selected visited links | on the selection highlight: ΔE 0.045 (Umber), 0.027 (Slate/Storm), 0.026 (Tide); both are dark browns | `[accent] highlight_link` / `highlight_visited` |
-| Selected links and warnings are the same color | `highlight_link == highlight_neutral` in every variant | inherited from the old shared literal `139,90,0` |
-| Focus outline is just brighter text | `DecorationFocus`/`DecorationHover` = `glow.3`, the same color as active text; there is no distinct accent | `Umber.colors.tmpl`, all sections |
-| Alternate selected rows clash on cool variants | `[Colors:Selection] BackgroundAlternate = spark.amber` sits next to a blue or teal highlight on Slate, Storm and Tide | `Umber.colors.tmpl` |
-| Window vs panel surfaces nearly identical | `hearth.1` on `hearth.0`: 1.08:1 (ΔE 0.026); `hearth.2`: 1.21:1; `hearth.3`: 1.57:1 | `[hearth]` steps |
-| Terminal "black" is invisible | Konsole `Color0 = hearth.1` on `hearth.0`: 1.08:1 | `Umber.colorscheme.tmpl` |
-| Terminal blue and cyan are close | `mist.2` vs `mist.1`: ΔE 0.044 | `[mist]` |
-| Green and yellow merge for protanopia | simulated ΔE 0.019 (red vs green holds up: 0.195 / 0.092) | `[spark]`, taken from One Dark |
-| Inactive text on cool-variant selection | `hearth.3` on the blue/teal highlight: about 3.7:1. WCAG exempts inactive controls, but it reads weak | `ForegroundInactive = hearth.3` |
-| Identity | the `[spark]` red/orange/amber/green are One Dark's values verbatim (see README credits) | `[spark]` |
+| Link vs body text, ΔE | 0.049–0.053 | 0.104–0.147 |
+| Link vs visited, ΔE | 0.184–0.200 | 0.103–0.180 |
+| Selected link vs selected visited, ΔE | 0.026–0.045 | 0.117 |
+| Selected link vs selected warning, ΔE | 0.000 | 0.186 |
+| Focus ring vs body text, ΔE | 0.000 | 0.153–0.327 |
+| Alternate selected row vs selection, ΔE | 0.039–0.189 | 0.034–0.036 |
+| Window vs panel lightness step, ΔL | 0.026–0.029 | 0.036–0.039 |
+| Panel vs raised lightness step, ΔL | 0.032–0.033 | 0.039–0.040 |
+| Terminal black vs background, contrast | 1.08–1.10:1 | 1.99–2.03:1 |
+| Terminal blue vs cyan, ΔE | 0.044 | 0.104–0.122 |
+| Success vs warning under protanopia, ΔE | 0.019 | 0.061–0.121 |
+| Inactive text on selection, contrast | 3.67–5.45:1 | 5.04–5.96:1 |
+| Types vs variables, ΔE | 0.039–0.057 | 0.085–0.111 |
+| Comments below body text, ΔL | 0.010–0.014 | 0.189–0.212 |
+| Input outline on panels, contrast | 1.45:1 | 3.13–3.15:1 |
+| Background between variants, ΔE | 0.006–0.033 | 0.025–0.087 |
+| Variant identity, pairwise mean ΔE (background, panel, text, accent, selection) | 0.008–0.077 | 0.061–0.108 |
+| Variant syntax key, pairwise mean ΔE | 0.000 | 0.044–0.071 |
+| **Audit checks below threshold** | **116** | **0** |
 
-## Questions to answer in the rework
+The alternate-selected-row distance went *down* on purpose: it is supposed to be a slightly different tint of the selection, not a different color (classic Slate, Tide and Storm put an amber row next to a blue selection).
 
-- What does umber's accent want to be? It needs one color that is clearly not body text, for focus, links and selection.
-- Should links and visited links differ in hue as well as lightness, and by how much (aim for ΔE > 0.10 and 3:1 against body text)?
-- Should the `hearth` ramp have wider steps so windows, panels, raised controls and borders separate?
-- Does umber keep One Dark's accents or get its own, tuned to the warm field?
-- Should each variant's selection colors (highlight, alternate row, text on highlight) be designed as a set, rather than one amber alternate for everyone?
+## Keeping it this way
 
-## How to approach it
-
-Change `palette.toml` and `palettes/*.toml` first, then re-render (see CONTRIBUTING.md) and re-measure everything in the table above. Keep WCAG AA (4.5:1 for text, 3:1 for focus outlines) as the floor for every text-on-background pair the templates actually produce.
+- `python3 scripts/palette_audit.py --strict` must pass before a palette change is committed. It checks text contrast on the surfaces each text is drawn on, 3:1 for focus rings and input outlines, surface steps, role separation, colors on the selection, color-blindness simulation, terminal legibility, and cross-variant identity. Its thresholds live in one place and the lab uses the same checks.
+- `python3 scripts/render_lab.py` builds the Palette Lab (`mockups/palette-lab.html`), which shows the Classic and current sets side by side as Plasma, VSCode and Konsole mockups, with grayscale and color-blindness views and an OKLCH tuner that exports TOML.
+- Propose changes in `palettes/next/<variant>.toml`; the lab shows them as a Draft set, and `render_palette.py` refuses to render them over shipped files.
