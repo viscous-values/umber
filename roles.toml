@@ -44,7 +44,7 @@ fg_strong    = "glow.3"   # brightest text: active foreground, url/popup text
 fg_on_accent = "accent.on_signature" # text on filled buttons, badges, status items
 cursor       = "glow.3"
 
-# Neutrals that do not come from a tier.
+# Hover on an active surface, and the shadow color for scrims.
 bg_active_hover = "hearth.hover"   # hover on bg_active: secondary button, scrollbar thumb
 shadow          = "#000000"   # drop shadows and scrims (alpha set in templates)
 
