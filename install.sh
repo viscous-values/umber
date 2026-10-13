@@ -655,43 +655,22 @@ note "Konsole: open Settings → Edit Current Profile → Appearance → choose 
 step "VSCode (Microsoft) extension link + cache stub"
 if [[ -d "$VSCODE_EXT_DIR" ]] || [[ -d "$HOME/.vscode" ]]; then
     mkdir -p "$VSCODE_EXT_DIR"
-    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/viscous-values.umber-1.1.1"
-    python3 - <<'PYEOF'
-import json, time, pathlib
-p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
-if not p.exists():
-    p.parent.mkdir(parents=True, exist_ok=True)
-    data = []
-else:
-    try:
-        data = json.loads(p.read_text() or "[]")
-    except json.JSONDecodeError:
-        data = []
-if not any(e.get("identifier", {}).get("id") == "viscous-values.umber" for e in data):
-    data.append({
-        "identifier": {"id": "viscous-values.umber"},
-        "version": "1.1.1",
-        "location": {
-            "$mid": 1,
-            "path": str(pathlib.Path.home() / ".vscode/extensions/viscous-values.umber-1.1.1"),
-            "scheme": "file",
-        },
-        "relativeLocation": "viscous-values.umber-1.1.1",
-        "metadata": {
-            "installedTimestamp": int(time.time() * 1000),
-            "pinned": True,
-            "source": "vsix",
-        },
-    })
-    p.write_text(json.dumps(data))
-    print("    .. registered viscous-values.umber in extensions.json")
-else:
-    print("    .. viscous-values.umber already registered in extensions.json")
-PYEOF
-    ok "linked to $VSCODE_EXT_DIR/viscous-values.umber-1.1.1"
+    VSCODE_EXT_VERSION="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["version"])' "$REPO_ROOT/umber-vscode/package.json")"
+    VSCODE_EXT_NAME="viscous-values.umber-$VSCODE_EXT_VERSION"
+    # Drop links an older install left behind (only symlinks into this repo).
+    for old_link in "$VSCODE_EXT_DIR"/viscous-values.umber-*; do
+        if [[ -L "$old_link" && "$(basename "$old_link")" != "$VSCODE_EXT_NAME" \
+              && "$(readlink -f "$old_link")" == "$REPO_ROOT/umber-vscode" ]]; then
+            rm -f -- "$old_link"
+            note "removed old extension link $(basename "$old_link")"
+        fi
+    done
+    ln -sfn "$REPO_ROOT/umber-vscode" "$VSCODE_EXT_DIR/$VSCODE_EXT_NAME"
+    python3 "$REPO_ROOT/scripts/register_vscode_extension.py" --extensions-dir "$VSCODE_EXT_DIR" --version "$VSCODE_EXT_VERSION"
+    ok "linked to $VSCODE_EXT_DIR/$VSCODE_EXT_NAME"
     note "Restart VSCode, then Ctrl+K Ctrl+T → $NAME (or any sibling variant)."
 else
-    note "VSCode (Microsoft) not detected — skipping. For code-oss, ln -sfn $REPO_ROOT/umber-vscode ~/.vscode-oss/extensions/viscous-values.umber-1.1.1"
+    note "VSCode (Microsoft) not detected — skipping. For code-oss, link $REPO_ROOT/umber-vscode into ~/.vscode-oss/extensions/ as viscous-values.umber-<version from umber-vscode/package.json>"
 fi
 
 # ---------------------------------------------------------------------------
