@@ -66,7 +66,7 @@ If you want Umber to also style some new application (e.g., a tmux palette, an A
 
 - **Don't rely on the System Settings → Global Theme tile picker for testing variant switches.** Plasma 6's `plasma-apply-lookandfeel` no-ops the color-scheme transition for third-party LnF packages. Use `./scripts/apply-variant.sh <variant>` (or the per-variant KRunner launchers `install.sh` writes) instead. See [README §Variants](README.md#variants).
 
-- **Don't add new hardcoded `#3A3A3A`-style hex values to the templates.** Use a palette tier reference. The renderer's `--check` won't catch raw hex drift, but a code review will.
+- **Don't add hardcoded `#3A3A3A`-style hex values to templates or QML.** Reference a role (`{{ role.border }}`), adding one to `roles.toml` if no existing job fits. The test suite rejects color literals in templates.
 
 ## Commit style
 

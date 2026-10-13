@@ -22,7 +22,8 @@ The pre-redesign palettes are kept in [`palettes/archive/classic/`](palettes/arc
   - **Storm**, indigo night: ultramarine, moonlit text, lightning signature
 - **Selection is a light tint of the signature**, with its own set of hue-distinct colors for text drawn on it (navy, plum, maroon, olive, forest) instead of darkened browns.
 - **Links are blue, visited links violet, info cyan**, so info text never looks clickable. Links are also underlined wherever the consumer allows: a 3:1 link-vs-text contrast is impossible on a dark theme while both stay readable, so the underline is the non-color cue.
-- **Red, green and amber are staggered in lightness** (error darkest, warning lightest) so they stay apart under red-green color blindness.
+- **Red, green and amber sit at different lightnesses** (error is always the darkest) so they stay apart under red-green color blindness, where hue alone fails.
+- **The login and lock screens** draw typed text in the signature and text on it in a dark ink, both held to 4.5:1; their popups use the overlay surface instead of a hard-coded grey.
 
 ## Before and after
 
@@ -34,7 +35,8 @@ Measured by [`scripts/palette_audit.py`](scripts/palette_audit.py) on all five v
 | Link vs visited, ΔE | 0.184–0.200 | 0.103–0.180 |
 | Selected link vs selected visited, ΔE | 0.026–0.045 | 0.117 |
 | Selected link vs selected warning, ΔE | 0.000 | 0.186 |
-| Focus ring vs body text, ΔE | 0.000 | 0.153–0.327 |
+| Accent vs body text, ΔE | 0.000–0.140 | 0.107–0.220 |
+| Plasma focus color vs active text, ΔE | 0.000 | 0.153–0.264 |
 | Alternate selected row vs selection, ΔE | 0.039–0.189 | 0.034–0.036 |
 | Window vs panel lightness step, ΔL | 0.026–0.029 | 0.036–0.039 |
 | Panel vs raised lightness step, ΔL | 0.032–0.033 | 0.039–0.040 |
