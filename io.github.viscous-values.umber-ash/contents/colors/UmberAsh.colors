@@ -139,7 +139,7 @@ ForegroundPositive=139,195,146
 ForegroundVisited=195,141,198
 
 [General]
-ColorScheme=Umber-Ash
+ColorScheme=UmberAsh
 Name=Umber Ash
 shadeSortColumn=true
 

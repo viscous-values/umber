@@ -139,7 +139,7 @@ ForegroundPositive=103,190,169
 ForegroundVisited=200,146,202
 
 [General]
-ColorScheme=Umber-Slate
+ColorScheme=UmberSlate
 Name=Umber Slate
 shadeSortColumn=true
 

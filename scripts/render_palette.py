@@ -13,6 +13,7 @@ Templates live in scripts/templates/ and use {{ key }} placeholders:
     {{ var.name }}              -> "Umber" / "Umber Ash"
     {{ var.slug }}              -> "umber" / "umber-ash"
     {{ var.scheme }}            -> "Umber" / "Umber-Ash"  (filename-style)
+    {{ var.color_scheme }}      -> "Umber" / "UmberAsh"   (Plasma color scheme id)
     {{ var.id }}                -> "io.github.viscous-values.umber" / "io.github.viscous-values.umber-ash"
     {{ var.shell_id }}          -> "io.github.viscous-values.umber-shell" / "io.github.viscous-values.umber-ash-shell"
     {{ var.shell_name }}        -> "Umber Shell" / "Umber Ash Shell"
@@ -56,6 +57,16 @@ def derive_variant(palette_path):
     return palette_lib.variant_slug(palette_path)
 
 
+def color_scheme_id(variant):
+    """Plasma color scheme id: the .colors file stem and ColorScheme= value.
+
+    No separators. Global Theme apply finds the file by dropping separators
+    from ColorScheme= (KLookAndFeelManager::colorSchemeFile), so Umber-Ash.colors
+    would never be found.
+    """
+    return "Umber" if variant == "umber" else f"Umber{variant.title()}"
+
+
 def compute_var(palette, variant):
     """Build the `var.*` namespace injected into the palette dict for templates."""
     is_canon = (variant == "umber")
@@ -76,6 +87,7 @@ def compute_var(palette, variant):
         "name":        name,
         "slug":        slug,
         "scheme":      scheme,
+        "color_scheme": color_scheme_id(variant),
         "id":          pkg_id,
         "shell_id":    shell_id,
         "shell_name":  shell_name,
@@ -98,7 +110,7 @@ def outputs_for(variant):
 
     outputs = {
         # Plasma colorscheme.
-        "Umber.colors.tmpl":           f"{pkg_id}/contents/colors/{scheme}.colors",
+        "Umber.colors.tmpl":           f"{pkg_id}/contents/colors/{color_scheme_id(variant)}.colors",
         # Konsole colorscheme.
         "Umber.colorscheme.tmpl":      f"konsole/{scheme}.colorscheme",
         # VSCode theme JSON (single extension dir, multiple theme files).

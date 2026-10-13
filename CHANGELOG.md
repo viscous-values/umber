@@ -30,6 +30,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `palette-preview.svg`, a hand-made swatch sheet of the old palette; the README now shows rendered variant thumbnails.
 
 ### Fixed
+- Choosing Umber Ash, Slate, Tide or Storm in System Settings → Global Theme now switches the window colors too; before, every variant kept the previous scheme (usually Umber's brown). Plasma finds a Global Theme's color scheme by dropping separators from its name, so it looked for `UmberSlate.colors` and never matched `Umber-Slate.colors`. The Plasma color schemes are now `UmberAsh`, `UmberSlate`, `UmberTide` and `UmberStorm`. `install.sh` removes the old hyphenated files, and Konsole and VSCode names are unchanged.
 - Plasma `[Colors:Selection]` link / negative / neutral / positive / visited text now meets WCAG AA (4.5:1) on every variant's selection highlight. The old hardcoded values measured 3.2–3.9:1 on Umber/Ash and 2.3–3.7:1 on Slate/Storm/Tide. They now live in per-variant `[accent]` keys (`highlight_link`, `highlight_negative`, `highlight_neutral`, `highlight_positive`, `highlight_visited`) instead of raw template literals, each a darkened version of the original hue.
 - `palette.toml` contrast notes corrected: glow.0 on hearth.1 is 5.25:1 (was noted as ≈3.8:1) and spark.red on hearth.0 is 4.94:1 (was ≈4.5:1).
 

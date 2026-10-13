@@ -139,7 +139,7 @@ ForegroundPositive=188,194,112
 ForegroundVisited=190,148,216
 
 [General]
-ColorScheme=Umber-Tide
+ColorScheme=UmberTide
 Name=Umber Tide
 shadeSortColumn=true
 

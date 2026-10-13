@@ -139,7 +139,7 @@ ForegroundPositive=119,219,136
 ForegroundVisited=187,138,239
 
 [General]
-ColorScheme=Umber-Storm
+ColorScheme=UmberStorm
 Name=Umber Storm
 shadeSortColumn=true
 
