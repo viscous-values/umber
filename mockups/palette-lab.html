@@ -527,11 +527,11 @@ const DATA = {"roles":{"bg":"hearth.0","bg_panel":"hearth.1","bg_raised":"hearth
       let edits = store.get(`edits:${id}`);
       const legacy = store.get(`tiers:${id}`);  // whole-tier saves from the first lab version
       if (legacy) {
+        // Whole-tier saves from the first lab version can't tell the viewer's
+        // edits from palette changes made since, so they are discarded rather
+        // than replayed over the current palette.
         store.remove(`tiers:${id}`);
-        if (!edits) {
-          edits = E.diffEdits(v.tiers, legacy);
-          if (Object.keys(edits).length) NOTICES.push(`${v.name} (${set.label}): restored local edits from an earlier version of this page. Reset the variant in Tune to see the current palette.`);
-        }
+        NOTICES.push(`${v.name} (${set.label}): discarded tuner edits saved by an earlier version of this page; they predate the current palette.`);
       }
       if (!edits) continue;
       const res = E.applyEdits(v.tiers, edits);
