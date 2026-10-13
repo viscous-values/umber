@@ -5,50 +5,51 @@
 [![Firefox AMO](https://img.shields.io/badge/Firefox-AMO-FF7139?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/umber/)
 [![Last commit](https://img.shields.io/github/last-commit/viscous-values/umber)](https://github.com/viscous-values/umber/commits/main)
 
-A quiet warm-on-charcoal theme suite for KDE Plasma 6 and friends. Five palettes share Mist + Spark accents: **Umber** (warm canonical), **Ash** (warmest of the cool family — neutral charcoal hearths), **Slate** (overcast), **Tide** (dusk), **Storm** (night sea). Originally adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark), muted for long-session comfort and built out into a full Nord-style palette.
-
-![Palette preview](palette-preview.svg)
-
-![Plasma preview](io.github.viscous-values.umber/contents/previews/fullscreenpreview.jpg)
-
-## Palette
-
-17 colors in 4 tiers. Canonical Umber values (variants share Mist + Spark; Hearth + Glow shift cool, see [Variants](#variants) below). Source of truth: [`palette.toml`](palette.toml) + the templated outputs under `scripts/templates/`.
-
-| Tier | Purpose | Colors |
-|------|---------|--------|
-| **Hearth** | dark surfaces (deepest → border) | `#26221E` `#2D2823` `#363029` `#48413A` |
-| **Glow**   | warm foregrounds (dim → bright)  | `#A89986` `#D4BC91` `#E1CDA5` `#F0E5D0` |
-| **Mist**   | cool accents (counterweight)     | `#4F7A7E` `#7AA8AC` `#88A6C5` `#A8BDD6` |
-| **Spark**  | vivid syntax / status hues       | red `#E06C75` · orange `#D19A66` · amber `#E5C07B` · green `#98C379` · violet `#C586B0` |
-
-Semantic conventions: negative = `spark.red`, neutral/warning = `spark.amber`, positive = `spark.green`, visited link = `spark.violet`.
-
-## Variants
-
-The Umber family is a cool-temperature ramp anchored on the warm canonical. Mist + Spark are identical across all five; **Hearth shifts cool** and **Glow desaturates progressively** to suppress peach selection bands on cool grounds.
+A quiet, earthy dark theme suite for KDE Plasma 6 and friends, built for long sessions. Five variants share one lightness ladder and one role map, and each has its own character: **Umber** (fireside: raw umber, cream, burnt sienna), **Ash** (charcoal and sanguine), **Slate** (pewter overcast, moss), **Tide** (sea glass, coral) and **Storm** (indigo night, lightning). Originally adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark).
 
 | Umber | Ash | Slate | Tide | Storm |
 |:---:|:---:|:---:|:---:|:---:|
 | ![Umber](mockups/umber-thumb.png) | ![Ash](mockups/ash-thumb.png) | ![Slate](mockups/slate-thumb.png) | ![Tide](mockups/tide-thumb.png) | ![Storm](mockups/storm-thumb.png) |
 
-| Variant | Mood | Hearth character | Glow desat |
-|---|---|---|---|
-| **Umber** (canonical) | fireside | warm-tinted brown-charcoal (R−B ≈ 5–8) | reference |
-| **Ash** | warmest cool | neutral charcoal, R=G=B (`#242424` / `#2B2B2B` / `#333333` / `#444444`) | slight cool-shift on cream |
-| **Slate** | overcast | neutral-cool, B > R by ~4–6 | ~6% from Ash |
-| **Tide** | dusk | teal-cool, G ≈ B > R, B−R ~8–10 | ~12% |
-| **Storm** | night sea | slate-blue, B > G > R, B−R ~12–16 | ~20% |
+![Plasma preview](io.github.viscous-values.umber/contents/previews/fullscreenpreview.jpg)
 
-Each variant ships a complete theme suite (LookAndFeel package, Plasma Shell lockscreen, Konsole, VSCode, Firefox, Chromium, SDDM). Mockups live in [`mockups/`](mockups) — open `mockups/{ash,slate,tide,storm}-{desktop,filemanager,textsample,ui-catalog,swatches}.{jpg,png}` to compare.
+## Palette
+
+Each variant's file ([`palette.toml`](palette.toml) for Umber, [`palettes/`](palettes) for the others) defines pigments in tiers; [`roles.toml`](roles.toml) says what each pigment is *for* (`link`, `focus_ring`, `selection_bg`, `syntax.type`, `ansi.black`, …), and every consumer template names roles, never raw pigments. Canonical Umber:
+
+| Tier | Purpose | Colors |
+|------|---------|--------|
+| **Hearth** | surfaces, deepest → raised, then hover and control outline | `#291B0E` `#322417` `#3C2E21` `#51443A` · hover `#64574B` · outline `#7E7064` |
+| **Glow**   | text, muted → strongest | `#AA9E8B` `#D9C6A8` `#EBDABF` `#F7EDDD` |
+| **Mist**   | types, regex/info, functions/links, comments | `#8CCAAF` `#5DAEAE` `#80BAE4` `#958676` |
+| **Spark**  | syntax and status hues | red `#E66F64` · orange `#F2A660` · amber `#EDD473` · green `#9FC56B` · violet `#D988A8` |
+| **Accent** | the signature, its selection tint, and the colors drawn on the selection | signature `#EB9251` · selection `#E3B492` |
+
+All five variants share the lightness ladder (surfaces OKLab L .235 / .272 / .312 / .398, text .705 / .835 / .895 / .950), so they feel like one family; hue, chroma and the signature carry each variant's identity. Every palette passes [`scripts/palette_audit.py`](scripts/palette_audit.py): WCAG AA text contrast on every surface it's drawn on, 3:1 focus rings and input outlines, separation between roles that must read differently, color-blindness simulation, and cross-variant identity. [`PALETTE-REVISIT.md`](PALETTE-REVISIT.md) has the before/after numbers for the 2026-10 redesign; the earlier palettes live in [`palettes/archive/classic/`](palettes/archive/classic).
+
+To see the whole family side by side (Plasma, VSCode and Konsole mockups, grayscale and color-blindness views, and an OKLCH tuner), run `python3 scripts/render_lab.py` and open `mockups/palette-lab.html`.
+
+## Variants
+
+Each variant is a painter's limited palette: a ground, a text temperature, one signature accent (focus rings, active tabs, primary buttons, progress) with a light selection tint drawn from it, and its own syntax key.
+
+| Variant | Concept | Ground | Text | Signature | Selection |
+|---|---|---|---|---|---|
+| **Umber** (canonical) | fireside | raw umber `#291B0E` | cream `#D9C6A8` | burnt sienna `#EB9251` | `#E3B492` |
+| **Ash** | charcoal and sanguine drawing | neutral graphite `#1E1E1E` | paper white `#CAC9C4` | red chalk `#BD7564` | graphite wash `#C3C8CE` |
+| **Slate** | pewter overcast | pewter `#132029` | silver `#C6CACB` | moss `#A4C485` | `#C0D2AC` |
+| **Tide** | sea glass | deep teal `#092321` | sea-foam `#C5CCBB` | coral `#FA9BAC` | `#ECBCC2` |
+| **Storm** | indigo night | ultramarine `#1A1939` | moonlit `#BFC9E0` | lightning `#EBDE77` | gold `#E8CA8D` |
+
+Each variant ships a complete theme suite (LookAndFeel package, Plasma Shell lockscreen, Konsole, VSCode, Firefox, Chromium, SDDM). Mockups live in [`mockups/`](mockups) (`<variant>-{filemanager,textsample,ui-catalog,swatches}.png`), and the Palette Lab compares them all.
 
 Install any variant alongside canonical:
 
 ```fish
-./install.sh --variant ash      # neutral charcoal, slight-cool cream
-./install.sh --variant slate    # overcast
-./install.sh --variant tide     # teal dusk
-./install.sh --variant storm    # slate-blue night sea
+./install.sh --variant ash      # charcoal and sanguine
+./install.sh --variant slate    # pewter overcast, moss
+./install.sh --variant tide     # sea glass, coral
+./install.sh --variant storm    # indigo night, lightning
 ./install.sh --all-variants     # canonical + all four variants in one run
 ```
 
@@ -75,12 +76,12 @@ To switch between installed variants, either pick one from KRunner / the app lau
 | `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/viscous-values.umber-1.1.1` (or `~/.vscode/extensions/` for Microsoft VSCode) |
 | `umber-firefox/` | Firefox WebExtension theme (manifest v2) | loaded via `about:debugging` (temporary) or signed for permanent install |
 | `umber-chromium/` | Chromium / Chrome theme extension (manifest v3) | loaded unpacked via `chrome://extensions/` |
-| `palette-preview.svg` | Canonical visual reference for the 16-color spec | — |
-| `preview.svg` | Small thumbnail for store listings | — |
+| `preview.svg` | Small thumbnail for store listings, rendered from the palette | — |
 
 Bundled assets:
 - **Cursor:** `cursors/Umber-cursor/` — pre-built recolor of [Nordic-cursors](https://github.com/EliverLara/Nordic-cursors) (Nord palette → Umber palette, pixel-by-pixel). Regeneratable via `scripts/build-cursor.sh` if you have Nordic-cursors at `~/.icons/Nordic-cursors`.
-- **Wallpaper:** `io.github.viscous-values.umber/contents/wallpapers/Umber/` — 4K charcoal-to-faint-peach gradient. Regeneratable via `scripts/render_wallpaper.py`.
+- **Wallpaper:** `io.github.viscous-values.umber/contents/wallpapers/Umber/` — 4K palette-tinted gradient. Regeneratable via `scripts/render_wallpaper.py`.
+- The cursor recolor reads canonical `palette.toml` at build time; the committed cursor still carries the pre-redesign canonical colors until it is rebuilt with `scripts/build-cursor.sh`.
 
 External dependency (auto-installed by `install.sh`):
 - **Icons:** [Newaita-reborn-light-brown-dark](https://github.com/cbrnix/Newaita-reborn) — desaturated taupe folders match Umber's `glow.dim` register. The Global Theme references it by name; `install.sh` clones and copies the `Newaita-reborn-light-brown-dark/` variant if it isn't already present at `~/.local/share/icons/`.
@@ -236,8 +237,7 @@ Build signed-ready `.xpi` archives locally (e.g. when adding a variant before AM
 ## Origin & credits
 
 - **Sugar Dark** by [Marian Arlt](https://github.com/MarianArlt/sddm-sugar-dark) (2018) — base for the SDDM theme and the warm-on-dark direction. Umber muted the palette (`#FFDEAD` navajowhite → `#D4BC91`; pure white `#FFFFFF` → `#E1E1E1`; View bg lifted `#1F1F1F` → `#242424`) and ported the QML to Qt6/Plasma 6. Upstream QML in `umber-sddm/` retains its GPL headers, and `umber-sddm/AUTHORS` + `CREDITS` + `COPYING` are preserved verbatim.
-- **Atom One Dark** — the Spark accent hexes (`#E06C75` red, `#D19A66` orange, `#E5C07B` amber, `#98C379` green) come from the One Dark palette, with `#C586B0` violet damped from One Dark's magenta for less ringing in long sessions.
-- **Nord** ([arcticicestudio/nord](https://www.nordtheme.com/)) — Mist tones (`#7AA8AC`, `#88A6C5`, `#A8BDD6`) lean on Nord's `nord8/9/10` for the cool counterweight.
+- **Atom One Dark** and **Nord** ([arcticicestudio/nord](https://www.nordtheme.com/)): the Spark and Mist accents through v1.0.1 came from One Dark and leaned on Nord's `nord8/9/10`. The 2026-10 redesign replaced them with per-variant pigments; the earlier values are kept in `palettes/archive/classic/`.
 - **Nordic-cursors** by [EliverLara](https://github.com/EliverLara/Nordic-cursors) — pixel-source for `cursors/Umber-cursor/`. The recolor in `scripts/recolor_nordic_inplace.py` walks every xcursor binary and remaps Nord palette → Umber palette while preserving anti-aliased edges.
 - **Newaita-reborn** by [cbrnix](https://github.com/cbrnix/Newaita-reborn) — paired icon set (`Newaita-reborn-light-brown-dark` variant); auto-installed by `install.sh`. Not redistributed in this repo.
 
