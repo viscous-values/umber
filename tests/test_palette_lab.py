@@ -36,6 +36,13 @@ class BuildDataTest(unittest.TestCase):
         self.assertEqual(data["specs"], palette_audit.check_specs())
         self.assertEqual(data["thresholds"], palette_audit.THRESHOLDS)
 
+    def test_classic_set_comes_from_the_archive_before_current(self):
+        data = render_lab.build_data(next_dir=NOWHERE)
+        self.assertEqual(list(data["sets"]), ["classic", "current"])
+        self.assertEqual(data["sets"]["classic"]["label"], "Classic")
+        self.assertEqual([v["slug"] for v in data["sets"]["classic"]["variants"]],
+                         ["umber", "ash", "slate", "tide", "storm"])
+
     def test_no_draft_set_without_next_dir(self):
         self.assertNotIn("draft", render_lab.build_data(next_dir=NOWHERE)["sets"])
 

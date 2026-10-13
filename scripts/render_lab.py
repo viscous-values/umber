@@ -4,8 +4,9 @@
     python3 scripts/render_lab.py                 # -> mockups/palette-lab.html
     python3 scripts/render_lab.py --out /tmp/lab.html --next-dir palettes/next
 
-The page embeds two palette sets: "current" (palette.toml + palettes/*.toml)
-and, when palettes/next/ holds proposals, "draft". It shows the five variants
+The page embeds up to three palette sets: "classic" (the pre-redesign
+palettes in palettes/archive/classic/), "current" (palette.toml +
+palettes/*.toml) and, when palettes/next/ holds proposals, "draft". It shows the five variants
 as mock Plasma / VSCode / Konsole surfaces, a lightness ladder, a hue wheel,
 distance matrices, the audit, and an OKLCH tuner that exports TOML.
 
@@ -25,6 +26,7 @@ import palette_lib
 
 REPO = palette_lib.REPO
 NEXT_DIR = palette_lib.PALETTES_DIR / "next"
+CLASSIC_DIR = palette_lib.PALETTES_DIR / "archive" / "classic"
 OUT = REPO / "mockups" / "palette-lab.html"
 TEMPLATE = REPO / "scripts" / "templates" / "palette-lab.html"
 ENGINE = REPO / "scripts" / "templates" / "palette-lab-engine.js"
@@ -58,9 +60,13 @@ def build_set(paths, label):
     return {"label": label, "variants": entries}
 
 
-def build_data(next_dir=NEXT_DIR):
+def build_data(next_dir=NEXT_DIR, classic_dir=CLASSIC_DIR):
+    sets = {}
+    classic = sorted(Path(classic_dir).glob("*.toml")) if Path(classic_dir).is_dir() else []
+    if classic:
+        sets["classic"] = build_set(classic, "Classic")
     current = [palette_lib.PALETTE_FILE, *sorted(palette_lib.PALETTES_DIR.glob("*.toml"))]
-    sets = {"current": build_set(current, "Current")}
+    sets["current"] = build_set(current, "Current")
     drafts = sorted(Path(next_dir).glob("*.toml")) if Path(next_dir).is_dir() else []
     if drafts:
         sets["draft"] = build_set(drafts, "Draft")

@@ -178,11 +178,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   </nav>
   <div class="controls">
     <span class="lbl">Set</span>
-    <span class="seg" id="ctl-set">
-      <button id="set-current" data-v="current" aria-pressed="true">Current</button>
-      <button id="set-draft" data-v="draft" aria-pressed="false">Draft</button>
-      <button id="set-split" data-v="split" aria-pressed="false">Both</button>
-    </span>
+    <span class="seg" id="ctl-set"></span>
     <span class="lbl">See</span>
     <span class="seg" id="ctl-vision">
       <button id="vis-color" data-v="color" aria-pressed="true">Color</button>
@@ -307,8 +303,9 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
     }
   }
   const hasDraft = 'draft' in SETS;
+  const SET_NAMES = Object.keys(SETS);
   const state = {
-    tab: 'lineup', set: hasDraft ? 'split' : 'current', vision: 'color', booth: 'n25', showPassing: false,
+    tab: 'lineup', set: SET_NAMES.length > 1 ? 'all' : 'current', vision: 'color', booth: 'n25', showPassing: false,
     tuneSet: hasDraft ? 'draft' : 'current', tuneSlug: 'umber', distSlug: 'umber',
   };
 
@@ -323,7 +320,7 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
       });
     }
   }
-  const visibleSets = () => state.set === 'split' ? ['current', 'draft'] : [state.set];
+  const visibleSets = () => state.set === 'all' ? SET_NAMES : [state.set];
 
   // ------------------------------------------------------------ painting
   function paint(hex) {
@@ -856,7 +853,8 @@ textarea { width: 100%; min-height: 260px; background: var(--booth-raised); bord
   }
 
   // Boot.
-  if (!hasDraft) { $('#set-draft').disabled = true; $('#set-split').disabled = true; $('#set-draft').title = $('#set-split').title = 'No proposals in palettes/next/ yet'; }
+  $('#ctl-set').innerHTML = SET_NAMES.map(s => `<button id="set-${esc(s)}" data-v="${esc(s)}">${esc(SETS[s].label)}</button>`).join('') +
+    (SET_NAMES.length > 1 ? '<button id="set-all" data-v="all" title="Every set, stacked per variant">Compare</button>' : '');
   press('#ctl-set', state.set);
   const savedBooth = store.get('booth');
   if (savedBooth && savedBooth !== 'n25') document.querySelector(`#booth-${savedBooth}`)?.click();
