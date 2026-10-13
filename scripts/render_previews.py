@@ -291,7 +291,7 @@ def _draw_panel(draw, w, h, R, font_small):
               clock, font=font_small, fill=R["fg"])
 
 
-def concept_blurb(pal, width=36, max_lines=3):
+def concept_blurb(pal, width=36, max_lines=4):
     """Headline + wrapped body lines from the palette's [meta] concept.
 
     "Indigo night. Deep ultramarine ground, ..." -> ("Indigo night", [...]).
