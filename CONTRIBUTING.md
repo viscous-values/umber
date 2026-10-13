@@ -23,6 +23,16 @@ To make a change that should propagate everywhere (e.g. a hex value in the palet
        python3 scripts/render_palette.py render --palette "$p"
    done
    ```
+   Then refresh what `render` doesn't write: the 4K wallpapers, the mockups and the Plasma theme previews, and the lab page.
+   ```
+   python3 scripts/render_wallpaper.py --palette palettes/tide.toml \
+       --out io.github.viscous-values.umber-tide/contents/wallpapers/Umber-Tide/contents/images/3840x2160.jpg
+   python3 scripts/render_previews.py --palette palettes/tide.toml \
+       --out-full io.github.viscous-values.umber-tide/contents/previews/fullscreenpreview.jpg \
+       --out-thumb io.github.viscous-values.umber-tide/contents/previews/preview.png
+   python3 scripts/render_lab.py
+   ```
+   (Repeat per variant; canonical Umber uses `palette.toml` and the `umber` / `Umber` names.) `render` rasterizes the SDDM preview with `rsvg-convert` from librsvg; without it the PNG is left stale with a warning. The test suite fails if a wallpaper or the lab page falls out of date.
 3. Verify nothing drifted:
    ```
    python3 scripts/render_palette.py check

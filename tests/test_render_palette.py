@@ -125,5 +125,28 @@ class PreviewTemplatesTest(unittest.TestCase):
             self.assertEqual(Image.open(png).size, (640, 400))
 
 
+class WallpaperTest(unittest.TestCase):
+    """The committed 4K wallpapers must come from the current palettes.
+
+    render_wallpaper.py paints the top of the frame in hearth.0 exactly, so the
+    top band of a current wallpaper averages to that color (grain is +/-4)."""
+
+    def test_wallpaper_top_band_is_the_palette_ground(self):
+        import palette_lib
+        from PIL import Image, ImageStat
+        for path in SHIPPED:
+            with self.subTest(variant=path.name):
+                slug = palette_lib.variant_slug(path)
+                pkg, scheme = ("umber", "Umber") if slug == "umber" else (f"umber-{slug}", f"Umber-{slug.title()}")
+                jpg = REPO / f"io.github.viscous-values.{pkg}" / "contents" / "wallpapers" / scheme / "contents" / "images" / "3840x2160.jpg"
+                with Image.open(jpg) as img:
+                    img.draft("RGB", (480, 270))
+                    top = img.convert("RGB").crop((0, 0, img.size[0], 3))
+                    mean = [round(c) for c in ImageStat.Stat(top).mean]
+                deep = render_palette.hex_to_rgb(palette_lib.load_toml(path)["hearth"]["0"])
+                self.assertTrue(all(abs(a - b) <= 4 for a, b in zip(mean, deep)),
+                                f"{jpg.relative_to(REPO)} top band {mean} != hearth.0 {list(deep)}: run scripts/render_wallpaper.py")
+
+
 if __name__ == "__main__":
     unittest.main()
