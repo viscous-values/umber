@@ -113,6 +113,9 @@ def render_for_variant(palette, variant):
 
 def cmd_render(args):
     palette_path = args.palette or PALETTE_FILE
+    if palette_lib.is_unshipped(palette_path) and not args.force:
+        raise SystemExit(f"{palette_path} is not a shipped palette: its icons would overwrite the "
+                         f"shipped {derive_variant(palette_path)} icons. Pass --force to do it anyway.")
     variant = args.variant or derive_variant(palette_path)
     palette = palette_lib.prepare(palette_path)
     written = render_for_variant(palette, variant)
@@ -128,6 +131,8 @@ def main(argv=None):
                         help="palette TOML (default: palette.toml; pass palettes/<v>.toml for variants)")
     parser.add_argument("--variant", default=None,
                         help="variant slug override (default: derived from palette filename stem)")
+    parser.add_argument("--force", action="store_true",
+                        help="allow a draft or archived palette to overwrite the shipped icons")
     parser.set_defaults(func=cmd_render)
     args = parser.parse_args(argv)
     return args.func(args)

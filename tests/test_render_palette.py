@@ -89,13 +89,26 @@ class ConsumerRolesTest(unittest.TestCase):
         self.assertEqual(border, pal["mist"]["1"])
 
 class ExtensionIconTest(unittest.TestCase):
+    def test_icon_cli_refuses_unshipped_palettes(self):
+        import render_extension_icon
+        calls = []
+        real = render_extension_icon.render_for_variant
+        render_extension_icon.render_for_variant = lambda pal, variant: calls.append(variant) or []
+        try:
+            with self.assertRaises(SystemExit) as cm:
+                render_extension_icon.main(["--palette", str(CLASSIC / "tide.toml")])
+            self.assertIn("not a shipped palette", str(cm.exception.code))
+            self.assertEqual(calls, [])
+        finally:
+            render_extension_icon.render_for_variant = real
+
     def test_icon_accent_line_is_the_brand_color(self):
         import palette_lib
         import render_extension_icon
         pal = palette_lib.prepare(REPO / "palettes" / "tide.toml")
-        img = render_extension_icon.render_icon(pal, 128).convert("RGB")
+        with render_extension_icon.render_icon(pal, 128) as icon:
+            got = icon.convert("RGB").getpixel((64, 18))   # middle of the accent line under the card's top edge
         brand = render_extension_icon.hex_to_rgb(pal["role"]["brand"])
-        got = img.getpixel((64, 18))   # middle of the accent line under the card's top edge
         self.assertTrue(all(abs(a - b) <= 2 for a, b in zip(got, brand)), f"{got} != brand {brand}")
 
 
@@ -122,7 +135,8 @@ class PreviewTemplatesTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             png = Path(d) / "preview.png"
             render_palette.rasterize(REPO / "umber-sddm" / "preview.svg", png)
-            self.assertEqual(Image.open(png).size, (640, 400))
+            with Image.open(png) as img:
+                self.assertEqual(img.size, (640, 400))
 
 
 class WallpaperTest(unittest.TestCase):
