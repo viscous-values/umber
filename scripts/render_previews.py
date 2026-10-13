@@ -4,15 +4,23 @@ Outputs (one per --out-* flag, all independent and optional):
 
 - --out-full PATH        desktop with wallpaper + panel + faux window (1920x1214)
 - --out-thumb PATH       same, downscaled to 512x324
-- --out-swatches PATH    17-cell tier grid (900x320)
+- --out-swatches PATH    pigment-tier grid: hearth, glow, mist, spark, accent (900x320)
 - --out-filemanager PATH Dolphin-style window (1200x760)
-- --out-textsample PATH  code editor surface (1200x760)
+- --out-textsample PATH  VSCode-style editor surface (1200x760)
 - --out-ui-catalog PATH  control gallery (1200x760)
 
 The desktop view (--out-full / --out-thumb) is the synthetic Plasma
 preview that ships inside the LookAndFeel package. The other views are
 review-only artifacts used to evaluate a palette before regenerating
 consumer files.
+
+Colors come from palette_lib.prepare(). Every UI and code element is
+drawn with the resolved semantic role (roles.toml) that the real theme
+file uses for the same element: window chrome and the Dolphin view follow
+scripts/templates/Umber.colors.tmpl, the editor and most controls follow
+Umber-color-theme.json.tmpl, and the window buttons and panel follow
+store-preview.svg.tmpl. Only the swatch grid, the wallpaper and the
+stand-in icon fills read pigment tiers directly.
 
 A run takes one palette (--palette, default palette.toml) and one title
 (--title, default derived from the palette filename) and produces only
@@ -21,11 +29,12 @@ the views requested by --out-* flags.
 
 import argparse
 import random
-import tomllib
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-REPO = Path(__file__).resolve().parent.parent
+import palette_lib
+
+REPO = palette_lib.REPO
 
 
 # --------------------------------------------------------------------------- #
@@ -38,49 +47,51 @@ def _hex_rgb(h):
 
 
 def load_palette(path):
-    with open(path, "rb") as f:
-        return tomllib.load(f)
+    """Palette dict with pal["role"] merged from roles.toml and resolved to hex."""
+    return palette_lib.prepare(path)
 
 
-def palette_aliases(palette):
-    """Return semantic-role dicts for hearth/glow/mist/spark.
-
-    Renaming a key here repoints every downstream draw call without any
-    further edits.
-    """
-    hearth = {
-        "deep": _hex_rgb(palette["hearth"]["0"]),
-        "base": _hex_rgb(palette["hearth"]["1"]),
-        "elev": _hex_rgb(palette["hearth"]["2"]),
-        "high": _hex_rgb(palette["hearth"]["3"]),
-    }
-    glow = {
-        "dim":   _hex_rgb(palette["glow"]["0"]),
-        "warm":  _hex_rgb(palette["glow"]["1"]),
-        "peach": _hex_rgb(palette["glow"]["2"]),
-        "near":  _hex_rgb(palette["glow"]["3"]),
-    }
-    mist = {
-        "deep": _hex_rgb(palette["mist"]["0"]),
-        "teal": _hex_rgb(palette["mist"]["1"]),
-        "blue": _hex_rgb(palette["mist"]["2"]),
-        "sky":  _hex_rgb(palette["mist"]["3"]),
-    }
-    spark = {
-        "red":    _hex_rgb(palette["spark"]["red"]),
-        "orange": _hex_rgb(palette["spark"]["orange"]),
-        "amber":  _hex_rgb(palette["spark"]["amber"]),
-        "green":  _hex_rgb(palette["spark"]["green"]),
-        "violet": _hex_rgb(palette["spark"]["violet"]),
-    }
-    return hearth, glow, mist, spark
+def roles(pal):
+    """pal["role"] as RGB tuples, nested tables kept: R["syntax"]["keyword"]."""
+    def conv(table):
+        return {k: conv(v) if isinstance(v, dict) else _hex_rgb(v) for k, v in table.items()}
+    return conv(pal["role"])
 
 
-def _wallpaper_glow(palette):
+def tier(pal, table, key):
+    """A pigment straight from a tier table: swatches, wallpaper and stand-in icons only."""
+    return _hex_rgb(pal[table][key])
+
+
+# Swatch grid: (tier table, [(key, label), ...]). Labels name each pigment's
+# main job; roles.toml is the authority on what uses it.
+SWATCH_ROWS = [
+    ("hearth", [("0", "0 · bg"), ("1", "1 · panel"), ("2", "2 · raised"),
+                ("3", "3 · active"), ("4", "4 · outline"), ("hover", "hover")]),
+    ("glow",   [("0", "0 · muted"), ("1", "1 · body"), ("2", "2 · emphasis"),
+                ("3", "3 · strong")]),
+    ("mist",   [("0", "0 · type"), ("1", "1 · info, regex"), ("2", "2 · link, fn"),
+                ("3", "3 · comment")]),
+    ("spark",  [(k, k) for k in ("red", "orange", "amber", "green", "violet")]),
+    ("accent", [("signature", "signature"), ("signature_hover", "signature hover"),
+                ("highlight", "highlight"), ("highlight_alt", "highlight alt")]),
+]
+
+# Accent swatches label themselves in the palette's own on-colors.
+ACCENT_ON = {"signature": "on_signature", "signature_hover": "on_signature",
+             "highlight": "highlight_text", "highlight_alt": "highlight_text"}
+
+
+def tier_rows(pal):
+    """[(table, [(key, label, rgb, hex), ...]), ...] for the swatch grid."""
+    return [(table, [(key, label, tier(pal, table, key), pal[table][key])
+                     for key, label in cells])
+            for table, cells in SWATCH_ROWS]
+
+
+def _wallpaper_glow(pal):
     """Horizon-band tone derived from the palette so cool palettes get cool bands."""
-    deep = _hex_rgb(palette["hearth"]["0"])
-    emph = _hex_rgb(palette["glow"]["2"])
-    return lerp(deep, emph, 0.45)
+    return lerp(tier(pal, "hearth", "0"), tier(pal, "glow", "2"), 0.45)
 
 
 # --------------------------------------------------------------------------- #
@@ -91,28 +102,42 @@ def lerp(a, b, t):
     return tuple(int(round(a[i] + (b[i] - a[i]) * t)) for i in range(3))
 
 
+def _first_font(candidates, size, fallback):
+    for c in candidates:
+        if Path(c).exists():
+            return ImageFont.truetype(c, size)
+    return fallback(size)
+
+
 def load_font(size):
-    candidates = [
+    return _first_font([
         "/usr/share/fonts/noto/NotoSans-Regular.ttf",
         "/usr/share/fonts/TTF/DejaVuSans.ttf",
         "/usr/share/fonts/dejavu/DejaVuSans.ttf",
-    ]
-    for c in candidates:
-        if Path(c).exists():
-            return ImageFont.truetype(c, size)
-    return ImageFont.load_default()
+    ], size, lambda s: ImageFont.load_default())
 
 
 def load_mono(size):
-    candidates = [
+    return _first_font([
         "/usr/share/fonts/TTF/DejaVuSansMono.ttf",
         "/usr/share/fonts/dejavu/DejaVuSansMono.ttf",
         "/usr/share/fonts/noto/NotoMono-Regular.ttf",
-    ]
-    for c in candidates:
-        if Path(c).exists():
-            return ImageFont.truetype(c, size)
-    return load_font(size)
+    ], size, load_font)
+
+
+def load_mono_italic(size):
+    return _first_font([
+        "/usr/share/fonts/TTF/DejaVuSansMono-Oblique.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSansMono-Oblique.ttf",
+    ], size, load_mono)
+
+
+def load_symbols(size):
+    """A face with arrows and the multiplication sign (Noto Sans lacks the arrows)."""
+    return _first_font([
+        "/usr/share/fonts/TTF/DejaVuSans.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+    ], size, load_font)
 
 
 def text_w(draw, text, font):
@@ -134,6 +159,69 @@ def derive_title(palette_path):
     return "Umber " + stem.replace("-", " ").title()
 
 
+def _backdrop(R):
+    """Desktop tone behind the review windows."""
+    return lerp(R["bg"], (0, 0, 0), 0.35)
+
+
+def _window_chrome(img, x, y, w, h, title, R, font_title, titlebar_h, body, rule):
+    """Breeze-style window frame. Returns the client box (x, y, w, h).
+
+    Titlebar: Plasma [WM] activeBackground = role.bg_raised, activeForeground
+    = role.fg. Buttons follow store-preview.svg.tmpl: the outermost in
+    role.accent, the others role.fg_muted. `body` fills the client area;
+    `rule` is the line under the titlebar (None when a toolbar continues the
+    header, as Plasma's [Colors:Header] does).
+    """
+    draw = ImageDraw.Draw(img, "RGBA")
+    radius = 8
+    for i in range(4):
+        alpha = 36 - i * 8
+        draw.rounded_rectangle(
+            [x - i * 2, y - i, x + w + i * 2, y + h + i * 3],
+            radius=radius + i, fill=R["shadow"] + (alpha,))
+    draw.rounded_rectangle([x, y, x + w, y + h], radius=radius, fill=body)
+    draw.rounded_rectangle([x, y, x + w, y + titlebar_h], radius=radius,
+                           fill=R["bg_raised"], corners=(True, True, False, False))
+    if rule is not None:
+        draw.line([x, y + titlebar_h, x + w, y + titlebar_h], fill=rule)
+    th = text_h(draw, title, font_title)
+    draw.text((x + 16, y + (titlebar_h - th) // 2 - 2),
+              title, font=font_title, fill=R["fg"])
+    btn_r = max(6, titlebar_h // 4)
+    by = y + titlebar_h // 2
+    bx = x + w - 18
+    for color in (R["accent"], R["fg_muted"], R["fg_muted"]):
+        draw.ellipse([bx - btn_r, by - btn_r, bx + btn_r, by + btn_r], fill=color)
+        bx -= btn_r * 2 + 8
+    return x, y + titlebar_h, w, h - titlebar_h
+
+
+def _draw_runs(draw, x, y, runs, font):
+    """Draw [(text, color), ...] left to right; returns the end x."""
+    for text, color in runs:
+        draw.text((x, y), text, font=font, fill=color)
+        x += font.getlength(text)
+    return x
+
+
+def _folder_icon(draw, x, y, s, fill, outline=None):
+    """Stand-in folder glyph inside an s x s box."""
+    draw.rounded_rectangle([x, y + s // 6, x + s * 2 // 5, y + s // 3 + 1], radius=1, fill=fill)
+    draw.rounded_rectangle([x, y + s // 4, x + s, y + s * 5 // 6], radius=2,
+                           fill=fill, outline=outline)
+
+
+def _page_icon(draw, x, y, s, color):
+    """Stand-in document glyph inside an s x s box."""
+    w = s * 3 // 4
+    left = x + (s - w) // 2
+    draw.rectangle([left, y, left + w, y + s], outline=color)
+    for i in (1, 2, 3):
+        ly = y + i * s // 4
+        draw.line([left + 3, ly, left + w - 3, ly], fill=color)
+
+
 # --------------------------------------------------------------------------- #
 # wallpaper                                                                   #
 # --------------------------------------------------------------------------- #
@@ -150,22 +238,21 @@ def horizon_weight(y_frac):
     return (1 - d * d) ** 2
 
 
-def base_color(y_frac, hearth):
+def base_color(y_frac, deep, base, elev):
     if y_frac < HORIZON:
-        return lerp(hearth["deep"], hearth["elev"], y_frac / HORIZON)
-    return lerp(hearth["elev"], hearth["base"], (y_frac - HORIZON) / (1.0 - HORIZON))
+        return lerp(deep, elev, y_frac / HORIZON)
+    return lerp(elev, base, (y_frac - HORIZON) / (1.0 - HORIZON))
 
 
-def render_wallpaper(width, height, palette, hearth, seed=1729):
+def render_wallpaper(width, height, pal, seed=1729):
     rng = random.Random(seed)
     img = Image.new("RGB", (width, height))
     px = img.load()
-    band = _wallpaper_glow(palette)
+    deep, base, elev = (tier(pal, "hearth", k) for k in ("0", "1", "2"))
+    band = _wallpaper_glow(pal)
     for y in range(height):
         y_frac = y / (height - 1)
-        base = base_color(y_frac, hearth)
-        glow_t = horizon_weight(y_frac) * 0.55
-        row = lerp(base, band, glow_t)
+        row = lerp(base_color(y_frac, deep, base, elev), band, horizon_weight(y_frac) * 0.55)
         for x in range(width):
             j = rng.randint(-GRAIN, GRAIN)
             px[x, y] = (
@@ -180,136 +267,127 @@ def render_wallpaper(width, height, palette, hearth, seed=1729):
 # desktop view (ships in-package as preview.png / fullscreenpreview.jpg)      #
 # --------------------------------------------------------------------------- #
 
-def _draw_panel(draw, w, h, hearth, glow, font_small):
+def _draw_panel(draw, w, h, R, font_small):
+    """Plasma panel after store-preview.svg.tmpl: role.bg bar, role.accent launcher, role.fg clock."""
     panel_h = max(36, h // 22)
     y0 = h - panel_h
-    draw.rectangle([0, y0, w, h], fill=hearth["deep"])
-    draw.line([0, y0, w, y0], fill=hearth["high"])
+    draw.rectangle([0, y0, w, h], fill=R["bg"])
+    draw.line([0, y0, w, y0], fill=R["border"])
     pad = panel_h // 4
-    draw.rectangle([pad, y0 + pad, pad + panel_h - 2 * pad, h - pad],
-                   fill=glow["peach"])
-    x = pad * 3 + (panel_h - 2 * pad)
-    for _ in range(3):
-        draw.rectangle([x, y0 + pad, x + panel_h * 2, h - pad], fill=hearth["high"])
-        x += panel_h * 2 + pad
+    d = panel_h - 2 * pad
+    draw.ellipse([pad, y0 + pad, pad + d, y0 + pad + d], fill=R["accent"])
+    # Task buttons: the focused one is bg_active with an accent indicator line.
+    x = pad * 3 + d
+    for i in range(3):
+        x2 = x + panel_h * 2
+        draw.rectangle([x, y0 + pad, x2, h - pad], fill=R["bg_active"] if i == 0 else R["bg_raised"])
+        if i == 0:
+            draw.rectangle([x, h - pad - 2, x2, h - pad], fill=R["accent"])
+        x = x2 + pad
     clock = "20:42"
     tw = text_w(draw, clock, font_small)
     th = text_h(draw, clock, font_small)
     draw.text((w - tw - pad * 3, y0 + (panel_h - th) // 2 - 2),
-              clock, font=font_small, fill=glow["warm"])
+              clock, font=font_small, fill=R["fg"])
 
 
-def _draw_window(img, x, y, w, h, title, hearth, glow, mist, spark,
-                 font_title, font_body):
-    draw = ImageDraw.Draw(img, "RGBA")
+def concept_blurb(pal, width=36, max_lines=3):
+    """Headline + wrapped body lines from the palette's [meta] concept.
+
+    "Indigo night. Deep ultramarine ground, ..." -> ("Indigo night", [...]).
+    """
+    import textwrap
+    concept = pal.get("meta", {}).get("concept") or pal.get("meta", {}).get("description", "")
+    sentences = [x.strip() for x in concept.split(". ") if x.strip()]
+    if not sentences:
+        return "Umber", []
+    headline = sentences[0].rstrip(".")
+    body = sentences[1].rstrip(".") + "." if len(sentences) > 1 else ""
+    return headline, textwrap.wrap(body, width, break_on_hyphens=False)[:max_lines]
+
+
+def _draw_window(img, x, y, w, h, title, pal, R, font_title, font_body):
     titlebar_h = max(28, h // 14)
     radius = 8
+    _, top, _, _ = _window_chrome(img, x, y, w, h, title, R, font_title, titlebar_h,
+                                  body=R["bg"], rule=R["border"])
+    draw = ImageDraw.Draw(img, "RGBA")
+    S, B, sel = R["syntax"], R["bracket"], R["on_selection"]
 
-    # Drop shadow.
-    for i in range(4):
-        alpha = 36 - i * 8
-        draw.rounded_rectangle(
-            [x - i * 2, y - i, x + w + i * 2, y + h + i * 3],
-            radius=radius + i, fill=(0, 0, 0, alpha))
-
-    # Window body + titlebar.
-    draw.rounded_rectangle([x, y, x + w, y + h], radius=radius, fill=hearth["deep"])
-    draw.rounded_rectangle([x, y, x + w, y + titlebar_h], radius=radius, fill=hearth["elev"])
-    draw.rectangle([x, y + titlebar_h - radius, x + w, y + titlebar_h], fill=hearth["elev"])
-    draw.line([x, y + titlebar_h, x + w, y + titlebar_h], fill=hearth["high"])
-
-    th = text_h(draw, title, font_title)
-    draw.text((x + 16, y + (titlebar_h - th) // 2 - 2),
-              title, font=font_title, fill=glow["warm"])
-
-    btn_r = max(6, titlebar_h // 4)
-    by = y + titlebar_h // 2
-    bx = x + w - 18
-    for color in (spark["red"], spark["amber"], spark["green"]):
-        draw.ellipse([bx - btn_r, by - btn_r, bx + btn_r, by + btn_r], fill=color)
-        bx -= btn_r * 2 + 8
-
-    # Sidebar.
+    # Sidebar = Plasma [Colors:Window]; the main pane is [Colors:View].
     side_w = w // 4
-    draw.rectangle([x, y + titlebar_h, x + side_w, y + h - radius], fill=hearth["base"])
+    draw.rounded_rectangle([x, top + 1, x + side_w, y + h], radius=radius,
+                           fill=R["bg_panel"], corners=(False, False, False, True))
     item_h = max(22, h // 18)
-    iy = y + titlebar_h + 14
-    rows = [
-        ("Hearth", glow["warm"]),
-        ("Glow",   glow["peach"]),
-        ("Mist",   mist["blue"]),
-        ("Spark",  spark["amber"]),
+    iy = top + 14
+    rows = [  # (label, stand-in icon fill, selected)
+        ("Hearth", tier(pal, "hearth", "4"),     False),
+        ("Glow",   tier(pal, "glow", "2"),       True),
+        ("Mist",   tier(pal, "mist", "2"),       False),
+        ("Spark",  tier(pal, "spark", "amber"),  False),
     ]
-    for label, accent in rows:
-        if label == "Glow":
+    for label, icon, selected in rows:
+        if selected:
             draw.rounded_rectangle(
                 [x + 8, iy - 4, x + side_w - 8, iy + item_h - 4],
-                radius=4, fill=glow["peach"])
-            text_color = hearth["deep"]
+                radius=4, fill=R["selection_bg"])
+            text_color, outline = sel["fg_soft"], sel["decoration"]
         else:
-            text_color = glow["dim"]
+            text_color, outline = R["fg"], R["border"]
         sw = item_h - 8
         draw.rectangle(
             [x + 16, iy + (item_h - sw) // 2 - 2,
              x + 16 + sw, iy + (item_h + sw) // 2 - 2],
-            fill=accent, outline=hearth["high"])
+            fill=icon, outline=outline)
         draw.text((x + 16 + sw + 10, iy - 2), label, font=font_body, fill=text_color)
         iy += item_h + 6
 
     # Main content.
     cx = x + side_w + 24
-    cy = y + titlebar_h + 22
-    headline = "Calm cream on charcoal"
-    draw.text((cx, cy), headline, font=font_title, fill=glow["peach"])
+    cy = top + 22
+    headline, blurb = concept_blurb(pal)
+    draw.text((cx, cy), headline, font=font_title, fill=R["fg_emphasis"])
     cy += font_title.size + 8
-    body_lines = [
-        "16 colors. 4 tiers.",
-        "Hearth surfaces, glow foregrounds,",
-        "mist counterweights, spark accents.",
-    ]
-    for line in body_lines:
-        draw.text((cx, cy), line, font=font_body, fill=glow["dim"])
+    for line in blurb:
+        draw.text((cx, cy), line, font=font_body, fill=R["fg_muted"])
         cy += font_body.size + 4
     cy += 10
 
+    # Code block on a widget surface; tokens use the VSCode token roles.
     block_w = w - side_w - 48
     block_h = max(70, h // 4)
     draw.rounded_rectangle([cx, cy, cx + block_w, cy + block_h],
-                           radius=4, fill=hearth["base"])
+                           radius=4, fill=R["bg_panel"])
     code_y = cy + 12
-    code_x = cx + 14
-    for token, color in [
-        ("def ",      spark["violet"]),
-        ("umber",     spark["amber"]),
-        ("(palette):", glow["dim"]),
-    ]:
-        draw.text((code_x, code_y), token, font=font_body, fill=color)
-        code_x += text_w(draw, token, font_body)
+    _draw_runs(draw, cx + 14, code_y, [
+        ("def ", S["storage"]), ("umber", S["function"]), ("(", B["1"]),
+        ("palette", S["parameter"]), (")", B["1"]), (":", S["punctuation"]),
+    ], font_body)
     code_y += font_body.size + 6
-    draw.text((cx + 14, code_y), "    return ", font=font_body, fill=spark["violet"])
-    rw = text_w(draw, "    return ", font_body)
-    draw.text((cx + 14 + rw, code_y), "calm", font=font_body, fill=spark["green"])
+    _draw_runs(draw, cx + 14, code_y, [
+        ("    return ", S["keyword"]), ('"calm"', S["string"]),
+    ], font_body)
 
-    # Status chips.
+    # Status chips: status text on bg_panel (the pairs palette_audit checks).
     sy = cy + block_h + 14
     sx = cx
     for label, color in [
-        ("OK",      spark["green"]),
-        ("Warning", spark["amber"]),
-        ("Error",   spark["red"]),
-        ("Link",    mist["blue"]),
+        ("OK",      R["success"]),
+        ("Warning", R["warning"]),
+        ("Error",   R["error"]),
+        ("Link",    R["link"]),
     ]:
         cw = text_w(draw, label, font_body) + 16
         ch = font_body.size + 8
         draw.rounded_rectangle([sx, sy, sx + cw, sy + ch],
-                               radius=ch // 2, fill=hearth["high"])
+                               radius=ch // 2, fill=R["bg_panel"])
         draw.text((sx + 8, sy + 2), label, font=font_body, fill=color)
         sx += cw + 8
 
 
-def render_desktop(width, height, palette, title):
-    hearth, glow, mist, spark = palette_aliases(palette)
-    img = render_wallpaper(width, height, palette, hearth)
+def render_desktop(width, height, pal, title):
+    R = roles(pal)
+    img = render_wallpaper(width, height, pal)
     font_title = load_font(max(14, height // 36))
     font_body  = load_font(max(11, height // 56))
     font_small = load_font(max(11, height // 60))
@@ -318,11 +396,10 @@ def render_desktop(width, height, palette, title):
     win_h = int(height * 0.66)
     win_x = (width - win_w) // 2
     win_y = int(height * 0.10)
-    _draw_window(img, win_x, win_y, win_w, win_h, title,
-                 hearth, glow, mist, spark, font_title, font_body)
+    _draw_window(img, win_x, win_y, win_w, win_h, title, pal, R, font_title, font_body)
 
     draw = ImageDraw.Draw(img)
-    _draw_panel(draw, width, height, hearth, glow, font_small)
+    _draw_panel(draw, width, height, R, font_small)
     return img
 
 
@@ -330,398 +407,421 @@ def render_desktop(width, height, palette, title):
 # review view: swatches grid                                                  #
 # --------------------------------------------------------------------------- #
 
-def render_swatches(palette, title, width=900, height=320):
-    hearth, glow, mist, spark = palette_aliases(palette)
-    img = Image.new("RGB", (width, height), color=hearth["deep"])
+def render_swatches(pal, title, width=900, height=320):
+    R = roles(pal)
+    img = Image.new("RGB", (width, height), color=R["bg"])
     draw = ImageDraw.Draw(img)
     font_title = load_font(20)
     font_label = load_font(11)
     font_hex   = load_mono(10)
 
-    draw.text((20, 14), title, font=font_title, fill=glow["warm"])
-    draw.text((20, 40), "tier · role · hex", font=font_label, fill=glow["dim"])
+    draw.text((20, 14), title, font=font_title, fill=R["fg_emphasis"])
+    draw.text((20, 40), "tier · job · hex", font=font_label, fill=R["fg_muted"])
 
-    rows = [
-        ("hearth", [("deep", hearth["deep"], palette["hearth"]["0"]),
-                    ("base", hearth["base"], palette["hearth"]["1"]),
-                    ("elev", hearth["elev"], palette["hearth"]["2"]),
-                    ("high", hearth["high"], palette["hearth"]["3"])]),
-        ("glow",   [("dim",   glow["dim"],   palette["glow"]["0"]),
-                    ("warm",  glow["warm"],  palette["glow"]["1"]),
-                    ("peach", glow["peach"], palette["glow"]["2"]),
-                    ("near",  glow["near"],  palette["glow"]["3"])]),
-        ("mist",   [("deep", mist["deep"], palette["mist"]["0"]),
-                    ("teal", mist["teal"], palette["mist"]["1"]),
-                    ("blue", mist["blue"], palette["mist"]["2"]),
-                    ("sky",  mist["sky"],  palette["mist"]["3"])]),
-        ("spark",  [("red",    spark["red"],    palette["spark"]["red"]),
-                    ("orange", spark["orange"], palette["spark"]["orange"]),
-                    ("amber",  spark["amber"],  palette["spark"]["amber"]),
-                    ("green",  spark["green"],  palette["spark"]["green"]),
-                    ("violet", spark["violet"], palette["spark"]["violet"])]),
-    ]
-
-    grid_top = 70
-    cell_w = 130
-    cell_h = 50
-    pad = 8
+    rows = tier_rows(pal)
+    grid_top = 64
+    cell_h = 42
+    pad = 7
     label_w = 70
-    for ri, (tier, cells) in enumerate(rows):
+    max_cells = max(len(cells) for _, cells in rows)
+    cell_w = (width - 40 - label_w - (max_cells - 1) * pad) // max_cells
+    for ri, (table, cells) in enumerate(rows):
         ry = grid_top + ri * (cell_h + pad)
-        draw.text((20, ry + (cell_h - 16) // 2), tier, font=font_label, fill=glow["warm"])
+        draw.text((20, ry + (cell_h - 16) // 2), table, font=font_label, fill=R["fg"])
         cx = 20 + label_w
-        for role, rgb, hex_str in cells:
-            # Cell fill + 1px outline.
-            draw.rectangle([cx, ry, cx + cell_w, ry + cell_h], fill=rgb,
-                           outline=hearth["high"])
-            # Pick legible text color by luminance.
-            lum = 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
-            text_fg = hearth["deep"] if lum > 140 else glow["near"]
-            draw.text((cx + 8, ry + 6), role, font=font_label, fill=text_fg)
-            draw.text((cx + 8, ry + 24), hex_str.upper(), font=font_hex, fill=text_fg)
+        for key, label, rgb, hex_str in cells:
+            draw.rectangle([cx, ry, cx + cell_w, ry + cell_h], fill=rgb, outline=R["border"])
+            if table == "accent":
+                text_fg = tier(pal, "accent", ACCENT_ON[key])
+            else:
+                lum = 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
+                text_fg = R["bg"] if lum > 140 else R["fg_strong"]
+            draw.text((cx + 8, ry + 5), label, font=font_label, fill=text_fg)
+            draw.text((cx + 8, ry + 23), hex_str.upper(), font=font_hex, fill=text_fg)
             cx += cell_w + pad
     return img
 
 
 # --------------------------------------------------------------------------- #
-# review view: file manager (Dolphin-shaped)                                  #
+# review view: file manager (Dolphin-shaped, Umber.colors.tmpl)               #
 # --------------------------------------------------------------------------- #
 
-def _frame_window(img, x, y, w, h, title, hearth, glow, spark, font_title):
-    """Shared window chrome. Returns (content_x, content_y, content_w, content_h)."""
-    draw = ImageDraw.Draw(img, "RGBA")
-    titlebar_h = max(30, h // 22)
-    radius = 8
-    for i in range(4):
-        alpha = 36 - i * 8
-        draw.rounded_rectangle(
-            [x - i * 2, y - i, x + w + i * 2, y + h + i * 3],
-            radius=radius + i, fill=(0, 0, 0, alpha))
-    draw.rounded_rectangle([x, y, x + w, y + h], radius=radius, fill=hearth["deep"])
-    draw.rounded_rectangle([x, y, x + w, y + titlebar_h], radius=radius, fill=hearth["elev"])
-    draw.rectangle([x, y + titlebar_h - radius, x + w, y + titlebar_h], fill=hearth["elev"])
-    draw.line([x, y + titlebar_h, x + w, y + titlebar_h], fill=hearth["high"])
-    th = text_h(draw, title, font_title)
-    draw.text((x + 16, y + (titlebar_h - th) // 2 - 2),
-              title, font=font_title, fill=glow["warm"])
-    btn_r = max(6, titlebar_h // 4)
-    by = y + titlebar_h // 2
-    bx = x + w - 18
-    for color in (spark["red"], spark["amber"], spark["green"]):
-        draw.ellipse([bx - btn_r, by - btn_r, bx + btn_r, by + btn_r], fill=color)
-        bx -= btn_r * 2 + 8
-    return x, y + titlebar_h, w, h - titlebar_h
-
-
-def render_filemanager(palette, title, width=1200, height=760):
-    hearth, glow, mist, spark = palette_aliases(palette)
-    img = Image.new("RGB", (width, height), color=lerp(hearth["deep"], (0, 0, 0), 0.35))
+def render_filemanager(pal, title, width=1200, height=760):
+    R = roles(pal)
+    sel = R["on_selection"]
+    img = Image.new("RGB", (width, height), color=_backdrop(R))
     font_title = load_font(15)
     font_body  = load_font(13)
     font_small = load_font(11)
     font_mono  = load_mono(12)
+    font_sym   = load_symbols(15)
 
     win_x, win_y, win_w, win_h = 40, 40, width - 80, height - 80
-    cx, cy, cw, ch = _frame_window(
-        img, win_x, win_y, win_w, win_h,
-        f"Documents — {title}",
-        hearth, glow, spark, font_title)
+    # [Colors:Window] body; the toolbar continues the [Colors:Header] titlebar.
+    cx, cy, cw, ch = _window_chrome(
+        img, win_x, win_y, win_w, win_h, f"Documents — {title}", R, font_title,
+        titlebar_h=max(30, win_h // 22), body=R["bg_panel"], rule=None)
 
     draw = ImageDraw.Draw(img, "RGBA")
 
-    # Toolbar.
+    # Toolbar ([Colors:Header]).
     tb_h = 36
-    draw.rectangle([cx, cy, cx + cw, cy + tb_h], fill=hearth["base"])
-    draw.line([cx, cy + tb_h, cx + cw, cy + tb_h], fill=hearth["high"])
+    draw.rectangle([cx, cy, cx + cw, cy + tb_h], fill=R["bg_raised"])
+    draw.line([cx, cy + tb_h, cx + cw, cy + tb_h], fill=R["border"])
     nav_x = cx + 14
-    for glyph in ["←", "→", "↑", "⟳"]:
-        draw.text((nav_x, cy + 10), glyph, font=font_body, fill=glow["dim"])
+    for glyph, color in [("←", R["fg"]), ("→", R["fg_muted"]),   # forward: disabled
+                         ("↑", R["fg"]), ("↻", R["fg"])]:
+        draw.text((nav_x, cy + 8), glyph, font=font_sym, fill=color)
         nav_x += 26
-    # Breadcrumb.
-    bc_x = nav_x + 16
-    bc_y = cy + 10
-    crumbs = [("Home", mist["blue"]), (" / ", glow["dim"]),
-              ("user", mist["blue"]), (" / ", glow["dim"]),
-              ("Documents", glow["warm"])]
-    for txt, color in crumbs:
-        draw.text((bc_x, bc_y), txt, font=font_body, fill=color)
-        bc_x += text_w(draw, txt, font_body)
+    # Breadcrumb: parent crumbs inactive, current folder normal.
+    _draw_runs(draw, nav_x + 16, cy + 9, [
+        ("Home", R["fg_muted"]), (" / ", R["fg_muted"]),
+        ("user", R["fg_muted"]), (" / ", R["fg_muted"]),
+        ("Documents", R["fg"]),
+    ], font_body)
 
-    # Sidebar.
+    # Places panel ([Colors:Window]).
     sb_x = cx
     sb_y = cy + tb_h
     sb_w = 230
     sb_h = ch - tb_h
-    draw.rectangle([sb_x, sb_y, sb_x + sb_w, sb_y + sb_h], fill=hearth["base"])
-    draw.line([sb_x + sb_w, sb_y, sb_x + sb_w, sb_y + sb_h], fill=hearth["high"])
+    draw.line([sb_x + sb_w, sb_y, sb_x + sb_w, sb_y + sb_h], fill=R["border"])
 
-    draw.text((sb_x + 16, sb_y + 14), "Places", font=font_small, fill=glow["dim"])
-    places = [
-        ("Home",      mist["blue"],  False),
-        ("Documents", mist["teal"],  True),
-        ("Downloads", mist["sky"],   False),
-        ("Pictures",  mist["deep"],  False),
-        ("Music",     spark["violet"], False),
-        ("Trash",     spark["red"],  False),
+    draw.text((sb_x + 16, sb_y + 14), "Places", font=font_small, fill=R["fg_muted"])
+    places = [  # (label, stand-in icon fill, selected)
+        ("Home",      tier(pal, "mist", "2"),        False),
+        ("Documents", tier(pal, "mist", "1"),        True),
+        ("Downloads", tier(pal, "mist", "3"),        False),
+        ("Pictures",  tier(pal, "mist", "0"),        False),
+        ("Music",     tier(pal, "spark", "violet"),  False),
+        ("Trash",     tier(pal, "spark", "red"),     False),
     ]
     item_h = 30
     item_y = sb_y + 34
-    for label, icon_color, selected in places:
+    for label, icon, selected in places:
         if selected:
             draw.rounded_rectangle(
                 [sb_x + 8, item_y, sb_x + sb_w - 8, item_y + item_h - 2],
-                radius=4, fill=glow["peach"])
-            txt_color = hearth["deep"]
-            icon_outline = hearth["deep"]
+                radius=4, fill=R["selection_bg"])
+            txt_color, icon_outline = sel["fg_soft"], sel["decoration"]
         else:
-            txt_color = glow["warm"]
-            icon_outline = hearth["high"]
-        # Icon: filled square swatch.
+            txt_color, icon_outline = R["fg"], R["border"]
         draw.rectangle(
             [sb_x + 18, item_y + 7, sb_x + 32, item_y + item_h - 9],
-            fill=icon_color, outline=icon_outline)
+            fill=icon, outline=icon_outline)
         draw.text((sb_x + 42, item_y + 6), label, font=font_body, fill=txt_color)
         item_y += item_h + 2
 
-    # Devices section.
     item_y += 8
-    draw.text((sb_x + 16, item_y), "Devices", font=font_small, fill=glow["dim"])
+    draw.text((sb_x + 16, item_y), "Devices", font=font_small, fill=R["fg_muted"])
     item_y += 22
-    for label, icon_color in [("SSD",  mist["sky"]), ("USB Drive", mist["teal"])]:
+    for label, icon in [("SSD", tier(pal, "mist", "3")), ("USB Drive", tier(pal, "mist", "1"))]:
         draw.rectangle(
             [sb_x + 18, item_y + 7, sb_x + 32, item_y + item_h - 9],
-            fill=icon_color, outline=hearth["high"])
-        draw.text((sb_x + 42, item_y + 6), label, font=font_body, fill=glow["warm"])
+            fill=icon, outline=R["border"])
+        draw.text((sb_x + 42, item_y + 6), label, font=font_body, fill=R["fg"])
         item_y += item_h + 2
 
-    # File list pane.
-    fl_x = sb_x + sb_w
-    fl_y = sb_y
-    fl_w = cw - sb_w
-    fl_h = sb_h
-    draw.rectangle([fl_x, fl_y, fl_x + fl_w, fl_y + fl_h], fill=hearth["deep"])
+    # File list ([Colors:View]: BackgroundNormal, BackgroundAlternate rows).
+    fl_x = sb_x + sb_w + 1
+    fl_y = sb_y + 1
+    fl_w = cw - sb_w - 1
+    fl_h = sb_h - 1
+    draw.rectangle([fl_x, fl_y, fl_x + fl_w, fl_y + fl_h], fill=R["bg"])
 
-    # Header row.
+    # Column header (section-header surface, as VSCode's sideBarSectionHeader).
     hdr_h = 28
-    draw.rectangle([fl_x, fl_y, fl_x + fl_w, fl_y + hdr_h], fill=hearth["base"])
-    draw.line([fl_x, fl_y + hdr_h, fl_x + fl_w, fl_y + hdr_h], fill=hearth["high"])
+    draw.rectangle([fl_x, fl_y, fl_x + fl_w, fl_y + hdr_h], fill=R["bg_raised"])
+    draw.line([fl_x, fl_y + hdr_h, fl_x + fl_w, fl_y + hdr_h], fill=R["border"])
     cols = [("Name", 16), ("Size", fl_w - 240), ("Modified", fl_w - 130)]
     for label, dx in cols:
-        draw.text((fl_x + dx, fl_y + 7), label, font=font_small, fill=glow["dim"])
+        draw.text((fl_x + dx, fl_y + 7), label, font=font_small, fill=R["fg"])
 
     files = [
-        ("📁 Projects",        mist["blue"],   "—",       "Apr 28 14:02", "folder"),
-        ("📁 Reports",         mist["blue"],   "—",       "Apr 27 09:11", "folder"),
-        ("📁 Receipts",        mist["blue"],   "—",       "Apr 21 17:43", "folder"),
-        ("notes.md",          glow["warm"],   "12.4 KB", "Apr 28 16:33", "selected"),
-        ("budget.numbers",    glow["warm"],   "84.0 KB", "Apr 26 11:08", "file"),
-        ("invoice-042.pdf",   glow["warm"],   "210 KB",  "Apr 25 22:15", "hover"),
-        ("portrait.jpg",      glow["warm"],   "1.4 MB",  "Apr 24 08:30", "file"),
-        ("spec.txt",          glow["warm"],   "3.1 KB",  "Apr 22 19:57", "file"),
-        ("agenda.docx",       glow["warm"],   "27.0 KB", "Apr 22 09:00", "file"),
-        ("config.toml",       glow["warm"],   "1.2 KB",  "Apr 21 13:14", "file"),
-        ("archive.tar.gz",    glow["warm"],   "8.7 MB",  "Apr 18 10:42", "file"),
-        ("README",            glow["warm"],   "0.8 KB",  "Apr 16 23:01", "file"),
+        ("Projects",        "—",       "Apr 28 14:02", "folder"),
+        ("Reports",         "—",       "Apr 27 09:11", "folder"),
+        ("Receipts",        "—",       "Apr 21 17:43", "folder"),
+        ("notes.md",        "12.4 KB", "Apr 28 16:33", "selected"),
+        ("budget.numbers",  "84.0 KB", "Apr 26 11:08", "selected"),
+        ("invoice-042.pdf", "210 KB",  "Apr 25 22:15", "hover"),
+        ("portrait.jpg",    "1.4 MB",  "Apr 24 08:30", "file"),
+        ("spec.txt",        "3.1 KB",  "Apr 22 19:57", "file"),
+        ("agenda.docx",     "27.0 KB", "Apr 22 09:00", "file"),
+        ("config.toml",     "1.2 KB",  "Apr 21 13:14", "file"),
+        ("archive.tar.gz",  "8.7 MB",  "Apr 18 10:42", "file"),
+        ("README",          "0.8 KB",  "Apr 16 23:01", "file"),
     ]
+    folder_fill = tier(pal, "mist", "2")   # stand-in icon, same as the Home place
     row_h = 30
-    row_y = fl_y + hdr_h + 2
-    for name, name_color, size, mtime, state in files:
+    row_y = fl_y + hdr_h + 1
+    for i, (name, size, mtime, state) in enumerate(files):
+        alternate = i % 2 == 1
+        box = [fl_x + 4, row_y, fl_x + fl_w - 4, row_y + row_h - 2]
+        if alternate:
+            draw.rectangle([fl_x, row_y, fl_x + fl_w, row_y + row_h - 1], fill=R["bg_panel"])
         if state == "selected":
-            draw.rectangle([fl_x + 4, row_y, fl_x + fl_w - 4, row_y + row_h - 2],
-                           fill=glow["peach"])
-            n_color = hearth["deep"]
-            m_color = hearth["deep"]
+            draw.rounded_rectangle(box, radius=3,
+                                   fill=R["selection_alt"] if alternate else R["selection_bg"])
+            n_color = m_color = sel["fg_soft"]
         elif state == "hover":
-            draw.rectangle([fl_x + 4, row_y, fl_x + fl_w - 4, row_y + row_h - 2],
-                           fill=hearth["elev"])
-            n_color = glow["warm"]
-            m_color = glow["dim"]
+            draw.rounded_rectangle(box, radius=3, fill=R["bg_raised"])
+            n_color, m_color = R["fg"], R["fg_muted"]
         else:
-            n_color = name_color
-            m_color = glow["dim"]
-        draw.text((fl_x + 16, row_y + 7), name, font=font_body, fill=n_color)
+            n_color, m_color = R["fg"], R["fg_muted"]
+        if state == "folder":
+            _folder_icon(draw, fl_x + 14, row_y + 6, 16, folder_fill)
+        else:
+            _page_icon(draw, fl_x + 14, row_y + 6, 16, m_color)
+        draw.text((fl_x + 40, row_y + 6), name, font=font_body, fill=n_color)
         draw.text((fl_x + cols[1][1], row_y + 7), size, font=font_mono, fill=m_color)
         draw.text((fl_x + cols[2][1], row_y + 7), mtime, font=font_mono, fill=m_color)
         row_y += row_h
         if row_y > fl_y + fl_h - 30:
             break
 
-    # Statusbar.
-    st_h = 24
-    st_y = win_y + win_h - st_h - 4
-    draw.rectangle([cx, st_y, cx + cw, st_y + st_h], fill=hearth["base"])
-    draw.line([cx, st_y, cx + cw, st_y], fill=hearth["high"])
-    draw.text((cx + 16, st_y + 5), "12 items · 3 folders · 1 selected (12.4 KB)",
-              font=font_small, fill=glow["dim"])
+    # Status bar ([Colors:Window]).
+    st_h = 26
+    st_y = win_y + win_h - st_h
+    draw.rounded_rectangle([cx, st_y, cx + cw, st_y + st_h], radius=8,
+                           fill=R["bg_panel"], corners=(False, False, True, True))
+    draw.line([cx, st_y, cx + cw, st_y], fill=R["border"])
+    draw.text((cx + 16, st_y + 6), "12 items · 3 folders · 2 selected (96.4 KB)",
+              font=font_small, fill=R["fg"])
 
     return img
 
 
 # --------------------------------------------------------------------------- #
-# review view: text sample (code editor)                                      #
+# review view: text sample (VSCode-shaped, Umber-color-theme.json.tmpl)       #
 # --------------------------------------------------------------------------- #
 
-def render_textsample(palette, title, width=1200, height=760):
-    hearth, glow, mist, spark = palette_aliases(palette)
-    img = Image.new("RGB", (width, height), color=lerp(hearth["deep"], (0, 0, 0), 0.35))
+def render_textsample(pal, title, width=1200, height=760):
+    R = roles(pal)
+    S, B = R["syntax"], R["bracket"]
+    img = Image.new("RGB", (width, height), color=_backdrop(R))
     font_title = load_font(15)
     font_body  = load_font(12)
     font_small = load_font(11)
     font_mono  = load_mono(13)
+    font_ital  = load_mono_italic(13)
+    font_sym   = load_symbols(12)
 
     win_x, win_y, win_w, win_h = 40, 40, width - 80, height - 80
-    cx, cy, cw, ch = _frame_window(
-        img, win_x, win_y, win_w, win_h,
-        f"render.py — {title}",
-        hearth, glow, spark, font_title)
+    # titleBar.activeBackground / activeForeground / border.
+    cx, cy, cw, ch = _window_chrome(
+        img, win_x, win_y, win_w, win_h, f"render.py — {title}", R, font_title,
+        titlebar_h=max(30, win_h // 22), body=R["bg"], rule=R["divider"])
 
     draw = ImageDraw.Draw(img, "RGBA")
 
-    # Tab strip.
-    tab_h = 32
-    draw.rectangle([cx, cy, cx + cw, cy + tab_h], fill=hearth["base"])
-    draw.line([cx, cy + tab_h, cx + cw, cy + tab_h], fill=hearth["high"])
-    tabs = [("render.py", True), ("palette.toml", False), ("README.md", False)]
-    tab_x = cx + 8
-    for label, active in tabs:
-        tw = text_w(draw, label, font_body) + 28
+    # Tab strip: editorGroupHeader.tabsBackground, tab.* colors.
+    tab_h = 34
+    draw.rectangle([cx, cy + 1, cx + cw, cy + tab_h], fill=R["bg_panel"])
+    tab_x = cx
+    active_span = None
+    for label, active in [("render.py", True), ("palette.toml", False), ("README.md", False)]:
+        tw = int(font_body.getlength(label)) + 32
         if active:
-            draw.rectangle([tab_x, cy, tab_x + tw, cy + tab_h], fill=hearth["deep"])
-            draw.rectangle([tab_x, cy + tab_h - 2, tab_x + tw, cy + tab_h],
-                           fill=glow["peach"])
-            tcolor = glow["warm"]
+            draw.rectangle([tab_x, cy + 1, tab_x + tw, cy + tab_h], fill=R["bg"])
+            draw.rectangle([tab_x, cy + 1, tab_x + tw, cy + 2], fill=R["accent"])  # activeBorderTop
+            tcolor = R["fg_emphasis"]
+            active_span = (tab_x, tab_x + tw)
         else:
-            tcolor = glow["dim"]
-        draw.text((tab_x + 12, cy + 8), label, font=font_body, fill=tcolor)
-        tab_x += tw + 2
+            tcolor = R["fg_muted"]
+        draw.text((tab_x + 16, cy + 9), label, font=font_body, fill=tcolor)
+        draw.line([tab_x + tw, cy + 1, tab_x + tw, cy + tab_h], fill=R["divider"])   # tab.border
+        tab_x += tw + 1
+    # editorGroupHeader.tabsBorder runs under every tab but the active one.
+    draw.line([active_span[1], cy + tab_h, cx + cw, cy + tab_h], fill=R["divider"])
 
-    # Gutter + code area.
+    # Breadcrumbs: breadcrumb.background / foreground / focusForeground.
+    bc_h = 22
+    bc_y = cy + tab_h + 1
+    _draw_runs(draw, cx + 16, bc_y + 4, [
+        ("scripts", R["fg_muted"]), ("  ›  ", R["fg_muted"]),
+        ("render.py", R["fg_muted"]), ("  ›  ", R["fg_muted"]),
+        ("render", R["fg"]),
+    ], font_small)
+
+    # Editor: gutter shares editor.background.
+    st_h = 24
     gutter_w = 56
-    gx, gy = cx, cy + tab_h
-    gh = ch - tab_h - 28  # leave room for statusbar
-    draw.rectangle([gx, gy, gx + gutter_w, gy + gh], fill=hearth["base"])
-    draw.line([gx + gutter_w, gy, gx + gutter_w, gy + gh], fill=hearth["high"])
-
+    gx, gy = cx, bc_y + bc_h
+    gh = (win_y + win_h - st_h) - gy
+    ruler_w = 14
+    ruler_x = cx + cw - ruler_w
+    mm_w = 80
+    mm_x = ruler_x - mm_w
     code_x = gx + gutter_w + 14
-    code_w = cw - gutter_w - 110  # leave room for minimap on right
-    code_y = gy + 12
+    code_y = gy + 8
     line_h = font_mono.size + 6
+    char_w = font_mono.getlength("M")
 
-    # Each line is a list of (text, color, decoration) tuples; decoration
-    # ∈ {None, "warn", "error"} drives squiggle underlines.
-    Vio = spark["violet"]
-    Grn = spark["green"]
-    Org = spark["orange"]
-    Amb = spark["amber"]
-    Red = spark["red"]
-    Tea = mist["teal"]
-    Blu = mist["blue"]
-    Sky = mist["sky"]
-    Dep = mist["deep"]
-    Bod = glow["warm"]
+    # Token kinds -> (color, italic) per tokenColors / semanticTokenColors
+    # (Python grammar scopes, Pylance semantic tokens, bracket-pair colorization).
+    K = {
+        "comment": (S["comment"], True),       # comment                       (italic)
+        "keyword": (S["keyword"], False),      # keyword.control
+        "storage": (S["storage"], False),      # storage.type (def, r-prefix)
+        "ns":      (S["namespace"], False),    # semantic namespace (modules)
+        "class":   (S["class"], False),        # semantic class (Path, dict, ValueError)
+        "fn":      (S["function"], False),     # entity.name.function / semantic method
+        "param":   (S["parameter"], True),     # variable.parameter              (italic)
+        "var":     (S["variable"], False),     # semantic variable
+        "const":   (S["constant"], False),     # constant.other.caps / *.readonly
+        "num":     (S["number"], False),       # constant.numeric
+        "str":     (S["string"], False),       # string, docstrings, quote marks
+        "regex":   (S["regex"], False),        # string.regexp
+        "op":      (S["operator"], False),     # keyword.operator.assignment / comparison
+        "punc":    (S["punctuation"], False),  # : . ->
+        "b1":      (B["1"], False),            # editorBracketHighlight.foreground1
+        "b2":      (B["2"], False),            # editorBracketHighlight.foreground2
+        "ws":      (R["fg"], False),
+    }
 
     lines = [
-        [('"""Calm cream on charcoal — palette renderer."""', Sky, None)],
-        [('', Bod, None)],
-        [('import ', Vio, None), ('json', Bod, None)],
-        [('from ', Vio, None), ('pathlib', Bod, None),
-         (' import ', Vio, None), ('Path', Blu, None)],
-        [('', Bod, None)],
-        [('PALETTE_VERSION', Bod, None), (' = ', Bod, None),
-         ('17', Org, None)],
-        [('RE_HEX', Bod, None), (' = ', Bod, None),
-         ("r'^#[0-9A-F]{6}$'", Tea, None)],
-        [('', Bod, None)],
-        [('def ', Vio, None), ('render', Blu, None),
-         ('(', Bod, None), ('palette', Bod, None),
-         (': ', Bod, None), ('dict', Blu, None),
-         (') -> ', Bod, None), ('Image', Blu, None), (':', Bod, None)],
-        [('    """Render the preview."""', Sky, None)],
-        [('    result', Bod, None), (' = [', Dep, None),
-         ("'header'", Grn, None), (']', Dep, None)],
-        [('    for ', Vio, None), ('tier', Bod, None),
-         (' in ', Vio, None), ('palette', Bod, None), (':', Bod, None)],
-        [('        if ', Vio, None), ('tier', Bod, None),
-         (' == ', Vio, None), ("'spark'", Grn, None), (':', Bod, None)],
-        [('            result', Bod, None), ('.', Bod, None),
-         ('append', Blu, None), ('(', Bod, None),
-         ('tier', Bod, None), (')', Bod, None)],
-        [('        else', Vio, None), (':', Bod, None)],
-        [('            raise ', Vio, None), ('ValueError', Red, None),
-         ('(', Bod, None), ("'unknown tier'", Grn, None), (')', Bod, None)],
-        [('    return ', Vio, None), ('result', Bod, None)],
-        [('', Bod, None)],
-        [('unused_var', Bod, "warn"), (' = ', Bod, None), ('42', Org, None)],
-        [('undefined', Bod, "error"), ('()', Bod, None)],
+        [("# Palette renderer: tiers in, roles out.", "comment")],
+        [],
+        [("import", "keyword"), (" ", "ws"), ("json", "ns")],
+        [("from", "keyword"), (" ", "ws"), ("pathlib", "ns"), (" ", "ws"),
+         ("import", "keyword"), (" ", "ws"), ("Path", "class")],
+        [],
+        [("PALETTE_VERSION", "const"), (" = ", "op"), ("17", "num")],
+        [("RE_HEX", "const"), (" = ", "op"), ("r", "storage"), ("'", "str"),
+         ("^#[0-9A-F]{6}$", "regex"), ("'", "str")],
+        [],
+        [("def", "storage"), (" ", "ws"), ("render", "fn"), ("(", "b1"),
+         ("palette", "param"), (":", "punc"), (" ", "ws"), ("dict", "class"),
+         (")", "b1"), (" -> ", "punc"), ("Image", "class"), (":", "punc")],
+        [("    ", "ws"), ('"""Render the preview."""', "str")],
+        [("    ", "ws"), ("result", "var"), (" = ", "op"), ("[", "b1"),
+         ("'header'", "str"), ("]", "b1")],
+        [("    ", "ws"), ("for", "keyword"), (" ", "ws"), ("tier", "var"), (" ", "ws"),
+         ("in", "keyword"), (" ", "ws"), ("palette", "param"), (":", "punc")],
+        [("        ", "ws"), ("if", "keyword"), (" ", "ws"), ("tier", "var"),
+         (" == ", "op"), ("'spark'", "str"), (":", "punc")],
+        [("            ", "ws"), ("result", "var"), (".", "punc"), ("append", "fn"),
+         ("(", "b1"), ("str", "class"), ("(", "b2"), ("tier", "var"), (")", "b2"), (")", "b1")],
+        [("        ", "ws"), ("else", "keyword"), (":", "punc")],
+        [("            ", "ws"), ("raise", "keyword"), (" ", "ws"), ("ValueError", "class"),
+         ("(", "b1"), ("'unknown tier'", "str"), (")", "b1")],
+        [("    ", "ws"), ("return", "keyword"), (" ", "ws"), ("result", "var")],
+        [],
+        [("unused_var", "var", "warning"), (" = ", "op"), ("42", "num")],
+        [("undefined", "var", "error"), ("(", "b1"), (")", "b1")],
     ]
+    texts = ["".join(seg[0] for seg in segs) for segs in lines]
+    cursor_line = 15                     # 0-based; status bar reads 1-based
+    cursor_col = len(texts[cursor_line])
+    sel_lines = range(10, 13)            # full lines 11-13 selected
+    find_word = "result"
+    find_hits = [(i, t.find(find_word)) for i, t in enumerate(texts) if find_word in t]
+    find_current = 1                     # "2 of 3"
 
-    # Selection band — across lines 11-13 (0-indexed 10-12).
-    sel_top = code_y + 10 * line_h - 2
-    sel_bot = code_y + 13 * line_h - 2
-    draw.rectangle([code_x - 4, sel_top, code_x + code_w, sel_bot],
-                   fill=glow["peach"])
+    def line_top(i):
+        return code_y + i * line_h - 3
 
+    # Current line: editor.lineHighlightBackground (content area only).
+    draw.rectangle([gx + gutter_w, line_top(cursor_line), mm_x - 1,
+                    line_top(cursor_line) + line_h - 1], fill=R["line_highlight"])
+    # Find matches: findMatchBackground (66) / findMatchHighlightBackground (33).
+    for n, (i, col) in enumerate(find_hits):
+        x0 = code_x + col * char_w
+        draw.rectangle([x0, line_top(i) + 1, x0 + len(find_word) * char_w, line_top(i) + line_h - 2],
+                       fill=R["attention"] + (0x66 if n == find_current else 0x33,))
+    # Selection: editor.selectionBackground = selection_bg at 2E, to end of text + EOL.
+    for i in sel_lines:
+        draw.rectangle([code_x, line_top(i), code_x + (len(texts[i]) + 1) * char_w,
+                        line_top(i) + line_h - 1],
+                       fill=R["selection_bg"] + (0x2E,))
+
+    # Gutter: line numbers, git decorations.
+    gutter_marks = {13: R["diff_modified"], 18: R["diff_added"], 19: R["diff_added"]}
+    for i in range(len(lines)):
+        ly = code_y + i * line_h
+        num_color = R["fg"] if i == cursor_line else R["fg_muted"]
+        draw.text((gx + 10, ly), str(i + 1).rjust(3), font=font_mono, fill=num_color)
+        if i in gutter_marks:
+            draw.rectangle([gx + gutter_w - 4, line_top(i), gx + gutter_w - 2,
+                            line_top(i) + line_h - 1], fill=gutter_marks[i])
+
+    # Code.
     for i, segs in enumerate(lines):
         ly = code_y + i * line_h
-        # Line number.
-        ln = str(i + 1).rjust(3)
-        draw.text((gx + 10, ly), ln, font=font_mono, fill=glow["dim"])
         x_cursor = code_x
-        in_selection = 10 <= i <= 12
-        for text, color, decoration in segs:
-            fg = hearth["deep"] if in_selection else color
-            draw.text((x_cursor, ly), text, font=font_mono, fill=fg)
-            tw = text_w(draw, text, font_mono)
-            if decoration in ("warn", "error"):
-                under_color = Amb if decoration == "warn" else Red
-                _draw_squiggle(draw, x_cursor, ly + font_mono.size + 1,
-                               x_cursor + tw, under_color)
+        for seg in segs:
+            text, kind = seg[0], seg[1]
+            color, italic = K[kind]
+            font = font_ital if italic else font_mono
+            draw.text((x_cursor, ly), text, font=font, fill=color)
+            tw = font_mono.getlength(text)
+            if len(seg) > 2:   # editorWarning / editorError squiggle
+                _draw_squiggle(draw, x_cursor, ly + font_mono.size + 2,
+                               x_cursor + tw, R[seg[2]])
             x_cursor += tw
 
-    # Cursor at end of line 16 (0-indexed 15).
-    cursor_y = code_y + 15 * line_h
-    cursor_x = code_x + text_w(draw, "            raise ValueError('unknown tier')", font_mono)
-    draw.line([cursor_x, cursor_y, cursor_x, cursor_y + font_mono.size + 1],
-              fill=glow["near"], width=2)
+    # Cursor: editorCursor.foreground.
+    cursor_x = code_x + cursor_col * char_w
+    cursor_y = code_y + cursor_line * line_h
+    draw.line([cursor_x, cursor_y, cursor_x, cursor_y + font_mono.size + 2],
+              fill=R["cursor"], width=2)
 
-    # Minimap (right column).
-    mm_x = cx + cw - 90
+    # Find widget: editorWidget.background / border, focused input = focusBorder.
+    fw_w, fw_h = 290, 34
+    fw_x = mm_x - fw_w - 16
+    fw_y = gy
+    for k in range(3):
+        draw.rectangle([fw_x - k, fw_y, fw_x + fw_w + k, fw_y + fw_h + k + 1],
+                       fill=R["shadow"] + (40 - k * 12,))
+    draw.rectangle([fw_x, fw_y, fw_x + fw_w, fw_y + fw_h], fill=R["bg_panel"], outline=R["border"])
+    inp = [fw_x + 8, fw_y + 6, fw_x + 160, fw_y + fw_h - 6]
+    draw.rectangle(inp, fill=R["bg"], outline=R["focus_ring"])
+    draw.text((inp[0] + 6, inp[1] + 4), find_word, font=font_body, fill=R["fg"])
+    draw.text((inp[2] + 10, inp[1] + 4), f"{find_current + 1} of {len(find_hits)}",
+              font=font_body, fill=R["fg"])
+    gx_ = fw_x + fw_w - 62
+    for glyph in ("↑", "↓", "×"):
+        draw.text((gx_, inp[1] + 3), glyph, font=font_sym, fill=R["fg"])
+        gx_ += 20
+
+    # Minimap: tokens shrunk onto editor.background.
     mm_y = gy + 8
-    mm_w = 76
-    mm_h = gh - 16
-    draw.rectangle([mm_x, mm_y, mm_x + mm_w, mm_y + mm_h], fill=hearth["base"])
-    draw.line([mm_x, mm_y, mm_x, mm_y + mm_h], fill=hearth["high"])
-    # Each code line becomes a thin colored bar, length proportional to its
-    # text length (capped at mm_w-4); color from the dominant token color.
-    bar_h = max(1, (mm_h - 8) // max(1, len(lines)))
+    bar_h = 4
     for i, segs in enumerate(lines):
-        char_count = sum(len(t) for t, _, _ in segs)
-        bar_w = min(mm_w - 6, max(2, char_count // 2))
-        # Pick the most "saturated" segment color as bar color, falling back
-        # to a desaturated body tone.
-        dominant = None
-        for _, color, _ in segs:
-            if color in (Vio, Grn, Org, Red, Blu, Tea, Sky):
-                dominant = color
-                break
-        if dominant is None:
-            dominant = lerp(Bod, hearth["base"], 0.5)
-        else:
-            dominant = lerp(dominant, hearth["base"], 0.4)
-        by_ = mm_y + 4 + i * bar_h
-        draw.rectangle([mm_x + 3, by_, mm_x + 3 + bar_w, by_ + max(1, bar_h - 1)],
-                       fill=dominant)
+        char_count = sum(len(seg[0]) for seg in segs)
+        if not char_count:
+            continue
+        dominant = next((K[seg[1]][0] for seg in segs
+                         if seg[1] not in ("ws", "var", "param", "op", "punc", "b1", "b2")),
+                        R["fg"])
+        indent = len(texts[i]) - len(texts[i].lstrip())
+        bx0 = mm_x + 6 + indent
+        bar_w = min(mm_w - 12 - indent, max(2, (char_count - indent)))
+        by_ = mm_y + i * bar_h
+        draw.rectangle([bx0, by_, bx0 + bar_w, by_ + bar_h - 2],
+                       fill=lerp(dominant, R["bg"], 0.4))
 
-    # Statusbar.
-    st_h = 24
-    st_y = win_y + win_h - st_h - 4
-    draw.rectangle([cx, st_y, cx + cw, st_y + st_h], fill=hearth["base"])
-    draw.line([cx, st_y, cx + cw, st_y], fill=hearth["high"])
-    left = "main · render.py"
-    right = "Ln 17, Col 12 · UTF-8 · Python · LF"
-    draw.text((cx + 16, st_y + 5), left, font=font_small, fill=mist["blue"])
+    # Overview ruler: border, find / warning / error / git markers.
+    draw.line([ruler_x, gy, ruler_x, gy + gh], fill=R["divider"])
+    marks = [(i, R["attention"]) for i, _ in find_hits]
+    marks += [(18, R["warning"]), (19, R["error"])]
+    for i, color in marks:
+        my = line_top(i) + line_h // 2
+        draw.rectangle([ruler_x + 4, my - 1, ruler_x + ruler_w - 2, my + 1], fill=color)
+    for i, color in gutter_marks.items():
+        my = line_top(i) + line_h // 2
+        draw.rectangle([ruler_x + 1, my - 1, ruler_x + 3, my + 1], fill=color)
+
+    # Status bar: statusBar.background / foreground / border.
+    st_y = win_y + win_h - st_h
+    draw.rounded_rectangle([cx, st_y, cx + cw, st_y + st_h], radius=8,
+                           fill=R["bg_raised"], corners=(False, False, True, True))
+    draw.line([cx, st_y, cx + cw, st_y], fill=R["divider"])
+    left = "main  ·  1 error, 1 warning"
+    right = f"Ln {cursor_line + 1}, Col {cursor_col + 1}  ·  Spaces: 4  ·  UTF-8  ·  LF  ·  Python"
+    draw.text((cx + 16, st_y + 5), left, font=font_small, fill=R["fg"])
     rw = text_w(draw, right, font_small)
-    draw.text((cx + cw - rw - 16, st_y + 5), right, font=font_small, fill=glow["dim"])
+    draw.text((cx + cw - rw - 16, st_y + 5), right, font=font_small, fill=R["fg"])
 
     return img
 
@@ -743,207 +843,202 @@ def _draw_squiggle(draw, x1, y, x2, color, amplitude=2, period=4):
 # review view: UI catalog                                                     #
 # --------------------------------------------------------------------------- #
 
-def render_ui_catalog(palette, title, width=1200, height=760):
-    hearth, glow, mist, spark = palette_aliases(palette)
-    img = Image.new("RGB", (width, height), color=lerp(hearth["deep"], (0, 0, 0), 0.35))
+def render_ui_catalog(pal, title, width=1200, height=760):
+    R = roles(pal)
+    sel = R["on_selection"]
+    img = Image.new("RGB", (width, height), color=_backdrop(R))
     font_title = load_font(15)
     font_h2    = load_font(13)
     font_body  = load_font(12)
     font_small = load_font(11)
 
     win_x, win_y, win_w, win_h = 40, 40, width - 80, height - 80
-    cx, cy, cw, ch = _frame_window(
-        img, win_x, win_y, win_w, win_h,
-        f"UI Catalog — {title}",
-        hearth, glow, spark, font_title)
+    # A Plasma window: [Colors:Window] body.
+    cx, cy, cw, ch = _window_chrome(
+        img, win_x, win_y, win_w, win_h, f"UI Catalog — {title}", R, font_title,
+        titlebar_h=max(30, win_h // 22), body=R["bg_panel"], rule=R["border"])
 
     draw = ImageDraw.Draw(img, "RGBA")
 
-    # Two columns.
+    def heading(x, y, text):
+        draw.text((x, y), text, font=font_h2, fill=R["fg_emphasis"])
+        return y + 22
+
     col_gap = 16
     col_w = (cw - col_gap - 48) // 2
     L = cx + 24
-    R = L + col_w + col_gap
-    # ---- left column ----
-    y = cy + 18
+    R_x = L + col_w + col_gap
 
-    # Buttons.
-    draw.text((L, y), "Buttons", font=font_h2, fill=glow["warm"])
-    y += 22
+    # ---- left column ----
+    y = heading(L, cy + 16, "Buttons")
     btn_h = 32
     bx = L
     for label, bg, fg in [
-        ("Save",   mist["blue"],   hearth["deep"]),
-        ("Cancel", hearth["elev"], glow["warm"]),
-        ("Delete", spark["red"],   hearth["deep"]),
-        ("Submit", hearth["elev"], glow["dim"]),
+        ("Save",   R["button_bg"],  R["fg_on_accent"]),   # button.background / foreground
+        ("Cancel", R["bg_active"],  R["fg"]),             # button.secondaryBackground / Foreground
+        ("Delete", R["error"],      R["fg_on_accent"]),   # destructive: error fill, on-accent text
+        ("Submit", R["bg_raised"],  R["fg_muted"]),       # disabled: Button bg, ForegroundInactive
     ]:
         bw = text_w(draw, label, font_body) + 36
-        draw.rounded_rectangle([bx, y, bx + bw, y + btn_h], radius=5, fill=bg,
-                               outline=hearth["high"])
+        draw.rounded_rectangle([bx, y, bx + bw, y + btn_h], radius=5, fill=bg)
         draw.text((bx + 18, y + 8), label, font=font_body, fill=fg)
         bx += bw + 10
-    y += btn_h + 26
+    y += btn_h + 22
 
-    # Chips.
-    draw.text((L, y), "Chips", font=font_h2, fill=glow["warm"])
-    y += 22
+    y = heading(L, y, "Chips")
     chip_h = 26
     bx = L
     for label, color in [
-        ("OK",      spark["green"]),
-        ("Warning", spark["amber"]),
-        ("Error",   spark["red"]),
-        ("Info",    mist["blue"]),
-        ("Neutral", glow["dim"]),
+        ("OK",      R["success"]),
+        ("Warning", R["warning"]),
+        ("Error",   R["error"]),
+        ("Info",    R["info"]),
+        ("Neutral", R["fg_muted"]),
     ]:
         cw_chip = text_w(draw, label, font_body) + 28
         draw.rounded_rectangle([bx, y, bx + cw_chip, y + chip_h],
-                               radius=chip_h // 2, fill=hearth["high"])
-        # Color dot.
+                               radius=chip_h // 2, fill=R["bg_raised"])
         dot_r = 4
         draw.ellipse([bx + 8, y + chip_h // 2 - dot_r,
-                      bx + 8 + dot_r * 2, y + chip_h // 2 + dot_r],
-                     fill=color)
-        draw.text((bx + 22, y + 5), label, font=font_body, fill=glow["warm"])
+                      bx + 8 + dot_r * 2, y + chip_h // 2 + dot_r], fill=color)
+        draw.text((bx + 22, y + 5), label, font=font_body, fill=R["fg"])
         bx += cw_chip + 8
-    y += chip_h + 26
+    y += chip_h + 22
 
-    # Tabs.
-    draw.text((L, y), "Tabs", font=font_h2, fill=glow["warm"])
-    y += 22
+    # Tabs: panelTitle.activeBorder / activeForeground / inactiveForeground.
+    y = heading(L, y, "Tabs")
     tab_h = 30
     bx = L
     for label, active in [("Overview", True), ("Settings", False), ("Logs", False)]:
         tw_tab = text_w(draw, label, font_body) + 24
+        draw.text((bx + 12, y + 7), label, font=font_body,
+                  fill=R["fg_emphasis"] if active else R["fg_muted"])
         if active:
-            draw.text((bx + 12, y + 7), label, font=font_body, fill=glow["warm"])
-            draw.rectangle([bx, y + tab_h - 3, bx + tw_tab, y + tab_h],
-                           fill=glow["peach"])
-        else:
-            draw.text((bx + 12, y + 7), label, font=font_body, fill=glow["dim"])
+            draw.rectangle([bx, y + tab_h - 2, bx + tw_tab, y + tab_h], fill=R["accent"])
         bx += tw_tab + 2
-    draw.line([L, y + tab_h, L + col_w, y + tab_h], fill=hearth["high"])
-    y += tab_h + 26
+    draw.line([L, y + tab_h + 1, L + col_w, y + tab_h + 1], fill=R["border"])
+    y += tab_h + 22
 
-    # Form fields.
-    draw.text((L, y), "Form fields", font=font_h2, fill=glow["warm"])
-    y += 22
+    # Form fields: input.background / border, focusBorder, placeholder.
+    y = heading(L, y, "Form fields")
     inp_h = 32
-    # Email input — focused state with mist.blue ring.
     draw.rounded_rectangle([L, y, L + col_w - 20, y + inp_h], radius=4,
-                           fill=hearth["deep"], outline=mist["blue"], width=2)
-    draw.text((L + 12, y + 9), "viscous-values@example.com",
-              font=font_body, fill=glow["warm"])
-    y += inp_h + 14
-    # Checkbox.
+                           fill=R["bg"], outline=R["focus_ring"], width=2)
+    end = _draw_runs(draw, L + 12, y + 8, [("viscous-values@example.com", R["fg"])], font_body)
+    draw.line([end + 2, y + 8, end + 2, y + inp_h - 8], fill=R["cursor"], width=1)
+    y += inp_h + 10
+    draw.rounded_rectangle([L, y, L + col_w - 20, y + inp_h], radius=4,
+                           fill=R["bg"], outline=R["input_border"], width=1)
+    draw.text((L + 12, y + 8), "Search settings…", font=font_body, fill=R["fg_muted"])
+    y += inp_h + 12
+    # Checkbox: checkbox.background / border / foreground.
     cb = 18
     draw.rounded_rectangle([L, y, L + cb, y + cb], radius=3,
-                           fill=spark["green"], outline=hearth["high"])
-    # Check glyph.
-    draw.line([L + 4, y + 9, L + 8, y + 13], fill=hearth["deep"], width=2)
-    draw.line([L + 8, y + 13, L + 14, y + 5], fill=hearth["deep"], width=2)
-    draw.text((L + cb + 10, y + 2), "Remember me on this device",
-              font=font_body, fill=glow["warm"])
-    y += cb + 14
-    # Radio (selected).
+                           fill=R["bg"], outline=R["input_border"])
+    draw.line([L + 4, y + 9, L + 8, y + 13], fill=R["fg"], width=2)
+    draw.line([L + 8, y + 13, L + 14, y + 5], fill=R["fg"], width=2)
+    draw.text((L + cb + 10, y + 1), "Remember me on this device",
+              font=font_body, fill=R["fg"])
+    y += cb + 12
+    # Radio: control outline, accent dot (an active indicator).
     rr = 9
-    draw.ellipse([L, y, L + rr * 2, y + rr * 2], outline=mist["blue"], width=2)
-    draw.ellipse([L + 4, y + 4, L + rr * 2 - 4, y + rr * 2 - 4], fill=mist["blue"])
+    draw.ellipse([L, y, L + rr * 2, y + rr * 2], fill=R["bg"], outline=R["input_border"])
+    draw.ellipse([L + 5, y + 5, L + rr * 2 - 5, y + rr * 2 - 5], fill=R["accent"])
     draw.text((L + rr * 2 + 10, y + 1), "Standard tier",
-              font=font_body, fill=glow["warm"])
+              font=font_body, fill=R["fg"])
     y += rr * 2 + 18
 
-    # Links.
-    draw.text((L, y), "Links", font=font_h2, fill=glow["warm"])
-    y += 22
-    # Default.
-    txt = "Visit the docs"
-    draw.text((L, y), txt, font=font_body, fill=mist["blue"])
-    tl_w = text_w(draw, txt, font_body)
-    draw.line([L, y + font_body.size + 1, L + tl_w, y + font_body.size + 1],
-              fill=mist["blue"])
-    # Visited.
-    txt2 = "Read changelog"
-    draw.text((L + tl_w + 24, y), txt2, font=font_body, fill=spark["violet"])
-    tl_w2 = text_w(draw, txt2, font_body)
-    draw.line([L + tl_w + 24, y + font_body.size + 1,
-               L + tl_w + 24 + tl_w2, y + font_body.size + 1],
-              fill=spark["violet"])
+    y = heading(L, y, "Links")
+    lx = L
+    for txt, color in [("Visit the docs", R["link"]), ("Read changelog", R["link_visited"])]:
+        draw.text((lx, y), txt, font=font_body, fill=color)
+        tl_w = text_w(draw, txt, font_body)
+        draw.line([lx, y + font_body.size + 3, lx + tl_w, y + font_body.size + 3], fill=color)
+        lx += tl_w + 24
+    y += font_body.size + 22
+
+    # List: list.activeSelection*, list.hoverBackground on a [Colors:View] base.
+    y = heading(L, y, "List")
+    row_h = 26
+    lw = col_w - 20
+    draw.rectangle([L, y, L + lw, y + row_h * 3 + 4], fill=R["bg"], outline=R["border"])
+    ry = y + 2
+    for name, detail, state in [("Documents", "12 items", "selected"),
+                                ("Downloads", "3 items", "hover"),
+                                ("Pictures", "48 items", None)]:
+        box = [L + 2, ry, L + lw - 2, ry + row_h - 1]
+        if state == "selected":
+            draw.rectangle(box, fill=R["selection_bg"])
+            n_color, d_color = sel["fg"], sel["fg_inactive"]
+        elif state == "hover":
+            draw.rectangle(box, fill=R["bg_raised"])
+            n_color, d_color = R["fg"], R["fg_muted"]
+        else:
+            n_color, d_color = R["fg"], R["fg_muted"]
+        draw.text((L + 12, ry + 5), name, font=font_body, fill=n_color)
+        dw = text_w(draw, detail, font_small)
+        draw.text((L + lw - dw - 12, ry + 6), detail, font=font_small, fill=d_color)
+        ry += row_h
 
     # ---- right column ----
-    y = cy + 18
-    draw.text((R, y), "Alerts", font=font_h2, fill=glow["warm"])
-    y += 22
-    alerts = [
-        ("Saved successfully.",             spark["green"]),
-        ("Configuration may be incomplete.", spark["amber"]),
-        ("Failed to apply theme.",           spark["red"]),
-        ("3 updates available.",             mist["blue"]),
-    ]
-    for msg, accent in alerts:
+    y = heading(R_x, cy + 16, "Alerts")
+    for msg, accent in [
+        ("Saved successfully.",              R["success"]),
+        ("Configuration may be incomplete.", R["warning"]),
+        ("Failed to apply theme.",           R["error"]),
+        ("3 updates available.",             R["info"]),
+    ]:
         ah = 38
-        draw.rectangle([R, y, R + col_w - 20, y + ah], fill=hearth["elev"])
-        draw.rectangle([R, y, R + 4, y + ah], fill=accent)
-        draw.text((R + 16, y + 11), msg, font=font_body, fill=glow["warm"])
+        draw.rectangle([R_x, y, R_x + col_w - 20, y + ah], fill=R["bg_raised"])
+        draw.rectangle([R_x, y, R_x + 4, y + ah], fill=accent)
+        draw.text((R_x + 16, y + 11), msg, font=font_body, fill=R["fg"])
         y += ah + 6
-    y += 14
+    y += 12
 
-    # Toast.
-    draw.text((R, y), "Toast", font=font_h2, fill=glow["warm"])
-    y += 22
+    # Toast: notifications.background / border, notificationsInfoIcon.
+    y = heading(R_x, y, "Toast")
     th_t = 50
-    draw.rounded_rectangle([R, y, R + col_w - 60, y + th_t], radius=6,
-                           fill=hearth["base"], outline=hearth["high"])
-    draw.rectangle([R, y, R + 4, y + th_t], fill=mist["blue"])
-    draw.text((R + 16, y + 8), "Palette saved.", font=font_body, fill=glow["warm"])
-    draw.text((R + 16, y + 26), "Click to view file.",
-              font=font_small, fill=glow["dim"])
-    y += th_t + 22
+    tx2 = R_x + col_w - 60
+    for k in range(3):
+        draw.rounded_rectangle([R_x - k, y + 1, tx2 + k, y + th_t + k + 2], radius=6 + k,
+                               fill=R["shadow"] + (40 - k * 12,))
+    draw.rounded_rectangle([R_x, y, tx2, y + th_t], radius=6,
+                           fill=R["bg_panel"], outline=R["border"])
+    draw.ellipse([R_x + 12, y + 10, R_x + 28, y + 26], outline=R["info"], width=2)
+    draw.line([R_x + 20, y + 16, R_x + 20, y + 21], fill=R["info"], width=2)
+    draw.point([(R_x + 20, y + 13), (R_x + 19, y + 13)], fill=R["info"])
+    draw.text((R_x + 38, y + 8), "Palette saved.", font=font_body, fill=R["fg"])
+    draw.text((R_x + 38, y + 26), "Click to view file.", font=font_small, fill=R["fg_muted"])
+    y += th_t + 20
 
-    # Progress.
-    draw.text((R, y), "Progress", font=font_h2, fill=glow["warm"])
-    y += 22
+    # Progress: progressBar.background on a bg groove.
+    y = heading(R_x, y, "Progress")
     pr_h = 8
     pr_w = col_w - 30
-    draw.rounded_rectangle([R, y, R + pr_w, y + pr_h], radius=pr_h // 2,
-                           fill=hearth["base"])
-    draw.rounded_rectangle([R, y, R + int(pr_w * 0.62), y + pr_h],
-                           radius=pr_h // 2, fill=mist["blue"])
-    draw.text((R + pr_w + 8, y - 2), "62%", font=font_small, fill=glow["dim"])
-    y += pr_h + 22
+    draw.rounded_rectangle([R_x, y, R_x + pr_w, y + pr_h], radius=pr_h // 2, fill=R["bg"])
+    draw.rounded_rectangle([R_x, y, R_x + int(pr_w * 0.62), y + pr_h],
+                           radius=pr_h // 2, fill=R["interactive"])
+    draw.text((R_x + pr_w + 8, y - 2), "62%", font=font_small, fill=R["fg_muted"])
+    y += pr_h + 20
 
-    # Scrollbar sample.
-    draw.text((R, y), "Scrollbar", font=font_h2, fill=glow["warm"])
-    y += 22
+    # Scrollbar: scrollbarSlider (bg_active) on a bg groove.
+    y = heading(R_x, y, "Scrollbar")
     sc_w = col_w - 30
     sc_h = 8
-    draw.rounded_rectangle([R, y, R + sc_w, y + sc_h], radius=sc_h // 2,
-                           fill=hearth["base"])
+    draw.rounded_rectangle([R_x, y, R_x + sc_w, y + sc_h], radius=sc_h // 2, fill=R["bg"])
     th_thumb = int(sc_w * 0.25)
-    draw.rounded_rectangle([R + 30, y, R + 30 + th_thumb, y + sc_h],
-                           radius=sc_h // 2, fill=glow["dim"])
-    y += sc_h + 22
+    draw.rounded_rectangle([R_x + 30, y, R_x + 30 + th_thumb, y + sc_h],
+                           radius=sc_h // 2, fill=R["bg_active"])
+    y += sc_h + 20
 
-    # Code chips (for completeness — show all 5 spark + 4 mist hexes inline).
-    draw.text((R, y), "Tier roles", font=font_h2, fill=glow["warm"])
-    y += 22
-    role_y = y
-    for label, color in [
-        ("spark.red",    spark["red"]),
-        ("spark.orange", spark["orange"]),
-        ("spark.amber",  spark["amber"]),
-        ("spark.green",  spark["green"]),
-        ("spark.violet", spark["violet"]),
-        ("mist.deep",    mist["deep"]),
-        ("mist.teal",    mist["teal"]),
-        ("mist.blue",    mist["blue"]),
-        ("mist.sky",     mist["sky"]),
-    ]:
-        draw.rectangle([R, role_y + 4, R + 14, role_y + 14], fill=color,
-                       outline=hearth["high"])
-        draw.text((R + 22, role_y), label, font=font_small, fill=glow["dim"])
-        role_y += 16
+    # Legend: the roles this page draws with, resolved for this palette.
+    y = heading(R_x, y, "Roles")
+    for key in ("accent", "selection_bg", "link", "link_visited", "info",
+                "success", "warning", "error", "hint"):
+        draw.rectangle([R_x, y + 4, R_x + 14, y + 14], fill=R[key], outline=R["border"])
+        draw.text((R_x + 22, y), f"role.{key}", font=font_small, fill=R["fg_muted"])
+        draw.text((R_x + 150, y), pal["role"][key], font=font_small, fill=R["fg_muted"])
+        y += 16
 
     return img
 
@@ -971,12 +1066,12 @@ def main():
                 args.out_filemanager, args.out_textsample, args.out_ui_catalog]):
         ap.error("at least one --out-* flag is required")
 
-    palette = load_palette(args.palette)
+    pal = load_palette(args.palette)
     title = args.title or derive_title(args.palette)
 
     # Desktop view (full + thumb share a single render).
     if args.out_full or args.out_thumb:
-        full = render_desktop(1920, 1214, palette, title)
+        full = render_desktop(1920, 1214, pal, title)
         if args.out_full:
             args.out_full.parent.mkdir(parents=True, exist_ok=True)
             full.save(args.out_full, quality=88, optimize=True)
@@ -987,29 +1082,15 @@ def main():
             thumb.save(args.out_thumb, optimize=True)
             print(f"Wrote {args.out_thumb}")
 
-    if args.out_swatches:
-        img = render_swatches(palette, title)
-        args.out_swatches.parent.mkdir(parents=True, exist_ok=True)
-        img.save(args.out_swatches, optimize=True)
-        print(f"Wrote {args.out_swatches}")
-
-    if args.out_filemanager:
-        img = render_filemanager(palette, title)
-        args.out_filemanager.parent.mkdir(parents=True, exist_ok=True)
-        img.save(args.out_filemanager, optimize=True)
-        print(f"Wrote {args.out_filemanager}")
-
-    if args.out_textsample:
-        img = render_textsample(palette, title)
-        args.out_textsample.parent.mkdir(parents=True, exist_ok=True)
-        img.save(args.out_textsample, optimize=True)
-        print(f"Wrote {args.out_textsample}")
-
-    if args.out_ui_catalog:
-        img = render_ui_catalog(palette, title)
-        args.out_ui_catalog.parent.mkdir(parents=True, exist_ok=True)
-        img.save(args.out_ui_catalog, optimize=True)
-        print(f"Wrote {args.out_ui_catalog}")
+    for path, render in [(args.out_swatches,    render_swatches),
+                         (args.out_filemanager, render_filemanager),
+                         (args.out_textsample,  render_textsample),
+                         (args.out_ui_catalog,  render_ui_catalog)]:
+        if path:
+            img = render(pal, title)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            img.save(path, optimize=True)
+            print(f"Wrote {path}")
 
 
 if __name__ == "__main__":
