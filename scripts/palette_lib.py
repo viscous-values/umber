@@ -41,6 +41,17 @@ def variant_slug(path):
     return slug
 
 
+def is_unshipped(path):
+    """True for palettes in a subdirectory of palettes/ (drafts in next/, archive/...).
+
+    Those files share their names with shipped variants, so rendering one would
+    overwrite that variant's shipped outputs.
+    """
+    resolved = Path(path).resolve()
+    shipped_dir = PALETTES_DIR.resolve()
+    return resolved.is_relative_to(shipped_dir) and resolved.parent != shipped_dir
+
+
 def load_toml(path):
     with open(path, "rb") as f:
         return tomllib.load(f)

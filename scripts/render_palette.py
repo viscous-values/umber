@@ -276,15 +276,9 @@ def check_one(palette, variant):
     return drift
 
 
-def is_unshipped(palette_path):
-    """True for palettes in a subdirectory of palettes/ (drafts in next/, archive/...)."""
-    resolved = Path(palette_path).resolve()
-    return resolved.is_relative_to(PALETTES_DIR.resolve()) and resolved.parent != PALETTES_DIR.resolve()
-
-
 def cmd_render(args):
     palette_path = args.palette or PALETTE_FILE
-    if is_unshipped(palette_path) and not args.force:
+    if palette_lib.is_unshipped(palette_path) and not args.force:
         sys.exit(f"{palette_path} is not a shipped palette: rendering it would overwrite the "
                  f"shipped {derive_variant(palette_path)} files. Move it into palettes/ (or "
                  f"palette.toml) first, or pass --force.")
