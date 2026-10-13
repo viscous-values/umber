@@ -18,8 +18,8 @@
 
   <!-- password field (focused) -->
   <g transform="translate(195, 234)">
-    <rect width="250" height="38" rx="20" fill="none" stroke="#BD7564" stroke-width="2"/>
-    <text x="125" y="26" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="14" fill="#BD7564" letter-spacing="3">••••••••</text>
+    <rect width="250" height="38" rx="20" fill="none" stroke="#CF8A7A" stroke-width="2"/>
+    <text x="125" y="26" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="14" fill="#CF8A7A" letter-spacing="3">••••••••</text>
   </g>
 
   <!-- login button -->

@@ -199,7 +199,7 @@ def check_specs():
     for fg in ("fg", "fg_muted"):
         for bg in ("bg", "bg_panel", "bg_raised"):
             contrast_spec(fg, bg)
-    for fg, bg in (("fg_emphasis", "bg_active"), ("fg_strong", "bg_raised"), ("link", "bg_panel"),
+    for fg, bg in (("fg_emphasis", "bg_active"), ("fg_strong", "bg_raised"), ("fg", "bg_overlay"), ("link", "bg_panel"),
                    ("link_visited", "bg_panel"), ("fg_on_accent", "button_bg"), ("fg_on_accent", "interactive"),
                    ("fg_on_accent", "error"), ("fg_on_accent", "warning"), ("fg_on_accent", "debug")):
         contrast_spec(fg, bg)
@@ -216,7 +216,10 @@ def check_specs():
     # Non-text: focus indicators and control boundaries.
     contrast_spec("focus_ring", "bg", nontext)
     contrast_spec("focus_ring", "bg_panel", nontext)
-    contrast_spec("decoration_focus", "bg_panel", nontext)
+    # SDDM and the lockscreen use AccentColor (decoration_focus) for typed text
+    # and hover labels, and draw AccentTextColor (fg_on_accent) on it: text rules.
+    contrast_spec("decoration_focus", "bg_panel")
+    contrast_spec("fg_on_accent", "decoration_focus")
     contrast_spec("input_border", "bg", nontext)
     contrast_spec("input_border", "bg_panel", nontext)
 

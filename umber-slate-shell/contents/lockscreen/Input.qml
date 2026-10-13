@@ -28,7 +28,7 @@ Column {
 
     // Hardcoded SDDM theme.conf values (no theme.conf on lockscreen side).
     readonly property int roundCorners: 20
-    readonly property color cardColor: "#444"
+    readonly property color accentTextColor: lockScreenUi.accentTextColor
     readonly property color bgColor: "#2D2823"
 
     KeyboardIndicator.KeyState {
@@ -186,19 +186,19 @@ Column {
                     name: "pressed"
                     when: loginButton.down
                     PropertyChanges { target: buttonBackground; color: Qt.darker(lockScreenUi.palette.highlight, 1.1); opacity: 1 }
-                    PropertyChanges { target: loginButton.contentItem; color: inputContainer.cardColor }
+                    PropertyChanges { target: loginButton.contentItem; color: inputContainer.accentTextColor }
                 },
                 State {
                     name: "hovered"
                     when: loginButton.hovered
                     PropertyChanges { target: buttonBackground; color: lockScreenUi.palette.highlight; opacity: 1 }
-                    PropertyChanges { target: loginButton.contentItem; opacity: 1; color: inputContainer.cardColor }
+                    PropertyChanges { target: loginButton.contentItem; opacity: 1; color: inputContainer.accentTextColor }
                 },
                 State {
                     name: "focused"
                     when: loginButton.visualFocus
                     PropertyChanges { target: buttonBackground; color: lockScreenUi.palette.highlight; opacity: 1 }
-                    PropertyChanges { target: loginButton.contentItem; opacity: 1; color: inputContainer.cardColor }
+                    PropertyChanges { target: loginButton.contentItem; opacity: 1; color: inputContainer.accentTextColor }
                 },
                 State {
                     name: "enabled"

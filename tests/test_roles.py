@@ -77,6 +77,26 @@ class RolesTest(unittest.TestCase):
                     offenders.append(f"{tmpl.name}:{no} {stripped}")
         self.assertEqual(offenders, [], "colors belong in the palette or roles.toml")
 
+    def test_greeter_qml_has_no_hardcoded_grey(self):
+        # "#444" was sugar-dark's text-on-accent and popup color; on Umber's
+        # signature accents it fails AA. Greeter colors come from theme.conf.
+        offenders = [f"{q.relative_to(REPO)}:{n}"
+                     for q in sorted(REPO.glob("umber*-sddm/**/*.qml")) + sorted(REPO.glob("umber*-shell/**/*.qml"))
+                     for n, line in enumerate(q.read_text().splitlines(), 1) if '"#444"' in line]
+        self.assertEqual(offenders, [])
+
+    def test_greeter_config_carries_text_on_accent_and_popup_colors(self):
+        import configparser
+        for path in all_palettes():
+            with self.subTest(palette=path.name):
+                pal = palette_lib.prepare(path)
+                slug = palette_lib.variant_slug(path)
+                conf = configparser.ConfigParser()
+                sddm_dir = ("umber" if slug == "umber" else f"umber-{slug}") + "-sddm"
+                conf.read(REPO / sddm_dir / "theme.conf")
+                self.assertEqual(conf["General"]["AccentTextColor"].strip('"'), pal["role"]["fg_on_accent"])
+                self.assertEqual(conf["General"]["PopupColor"].strip('"'), pal["role"]["bg_overlay"])
+
     def test_rendered_consumers_match_templates(self):
         result = subprocess.run(
             [sys.executable, "-B", str(REPO / "scripts" / "render_palette.py"), "check"],

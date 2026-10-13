@@ -32,7 +32,7 @@ Pane {
 
     // Umber palette, hardcoded to match umber-sddm/theme.conf.
     palette.text: "#CAC9C4"        // MainColor
-    palette.highlight: "#BD7564"   // AccentColor
+    palette.highlight: "#CF8A7A"   // AccentColor
     palette.window: "#272727"      // BackgroundColor
     palette.button: "transparent"
     palette.buttonText: "#CAC9C4"
@@ -45,6 +45,7 @@ Pane {
     LayoutMirroring.childrenInherit: true
 
     readonly property color umberFloor: "#272727"
+    readonly property color accentTextColor: "#1C1C1C"   // text drawn on palette.highlight
     readonly property real umberScrimOpacity: 0.55
 
     function handleMessage(msg) {

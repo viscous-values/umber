@@ -102,7 +102,7 @@ Column {
                     text: model.realName != "" ? model.realName : model.name
                     font.pointSize: root.font.pointSize * 0.8
                     font.capitalization: Font.Capitalize
-                    color: selectUser.highlightedIndex === index ? "#444" : root.palette.highlight
+                    color: selectUser.highlightedIndex === index ? config.AccentTextColor : root.palette.text
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -128,7 +128,7 @@ Column {
 
                 background: Rectangle {
                     radius: config.RoundCorners / 2
-                    color: "#444"
+                    color: config.PopupColor
                     layer.enabled: true
                     layer.effect: DropShadow {
                         transparentBorder: true
@@ -433,7 +433,7 @@ Column {
                     }
                     PropertyChanges {
                         target: loginButton.contentItem
-                        color: "#444"
+                        color: config.AccentTextColor
                     }
                 },
                 State {
@@ -447,7 +447,7 @@ Column {
                     PropertyChanges {
                         target: loginButton.contentItem
                         opacity: 1
-                        color: "#444"
+                        color: config.AccentTextColor
                     }
                 },
                 State {
@@ -461,7 +461,7 @@ Column {
                     PropertyChanges {
                         target: loginButton.contentItem
                         opacity: 1
-                        color: "#444"
+                        color: config.AccentTextColor
                     }
                 },
                 State {

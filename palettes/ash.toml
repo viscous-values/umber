@@ -70,5 +70,8 @@ faint_magenta       = "#856287"   # L 0.545 C 0.070 h 325
 faint_cyan          = "#599595"   # L 0.630 C 0.063 h 195
 
 # Variant-specific role overrides (defaults live in roles.toml).
+[role]
+decoration_focus = "accent.signature_hover"   # greeters draw typed text in it: needs 4.5:1
+
 [role.syntax]
 string = "spark.amber"

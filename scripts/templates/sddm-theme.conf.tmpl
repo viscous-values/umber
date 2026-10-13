@@ -3,7 +3,7 @@
 ## [Background]
 
 BackgroundColor="{{ role.bg_panel }}"
-## Solid background color. Charcoal matches the Plasma window background.
+## Solid background color: the Plasma window background (role.bg_panel).
 
 Background=
 ## Left empty so no image is loaded. Set to a filename in this directory to use an image instead.
@@ -16,10 +16,19 @@ ScaleImageCropped=true
 ## [Design Customizations]
 
 MainColor="{{ role.fg }}"
-## Foreground color for unfocused elements. Muted navajowhite.
+## Foreground for unfocused elements: body text (role.fg).
 
 AccentColor="{{ role.decoration_focus }}"
-## Color for focused/hovered/pressed elements. Soft off-white.
+## Focused/hovered/pressed elements and typed text: the variant's signature
+## (role.decoration_focus), held to 4.5:1 on the background.
+
+AccentTextColor="{{ role.fg_on_accent }}"
+## Text drawn on AccentColor: the highlighted dropdown item, the hovered or
+## focused login button.
+
+PopupColor="{{ role.bg_overlay }}"
+## Background of the user and session dropdowns, and of the form card when
+## HaveFormBackground is on.
 
 RoundCorners=20
 ## Radius of input fields and login button.
