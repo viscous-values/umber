@@ -185,11 +185,11 @@ Each variant is a self-contained WebExtension theme — `manifest.json` plus a `
 
 **Install from AMO (one-click, signed, persistent):**
 
-- [Umber](https://addons.mozilla.org/en-US/firefox/addon/umber/) — canonical warm
-- [Umber Ash](https://addons.mozilla.org/en-US/firefox/addon/umber-ash/) — neutral charcoal
-- [Umber Slate](https://addons.mozilla.org/en-US/firefox/addon/umber-slate/) — overcast
-- [Umber Tide](https://addons.mozilla.org/en-US/firefox/addon/umber-tide/) — teal dusk
-- [Umber Storm](https://addons.mozilla.org/en-US/firefox/addon/umber-storm/) — slate-blue night sea
+- [Umber](https://addons.mozilla.org/en-US/firefox/addon/umber/) — fireside: cream on raw umber, burnt-sienna accent
+- [Umber Ash](https://addons.mozilla.org/en-US/firefox/addon/umber-ash/) — charcoal and sanguine: paper white on graphite, red-chalk accent
+- [Umber Slate](https://addons.mozilla.org/en-US/firefox/addon/umber-slate/) — pewter overcast: silver on blue-grey pewter, moss accent
+- [Umber Tide](https://addons.mozilla.org/en-US/firefox/addon/umber-tide/) — sea glass: sea-foam on deep teal, coral accent
+- [Umber Storm](https://addons.mozilla.org/en-US/firefox/addon/umber-storm/) — indigo night: moonlit text on indigo, lightning-amber accent
 
 Build signed-ready `.xpi` archives locally (e.g. when adding a variant before AMO submission):
 ```fish
