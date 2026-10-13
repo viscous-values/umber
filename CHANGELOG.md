@@ -50,6 +50,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `scripts/apply-variant.sh` wrapper script: `plasma-apply-lookandfeel` + the BreezeLight → real-scheme dance that defeats the `plasma-apply-colorscheme` "already set" short-circuit.
 - `--all-variants` flag for `install.sh`.
 - `--variant N` flag for `install.sh`.
+- `install.sh` gathers its root steps into a single sudo prompt.
 
 ### Changed
 - Firefox WebExtension gecko ids changed `<variant>@legacy` → `<variant>@viscous-values` to dodge an AMO duplicate-id reservation.
@@ -62,7 +63,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - Stripped `contents/colors/` from the installed LookAndFeel package. Plasma 6's `plasma-apply-lookandfeel` strips `[Colors:*]` from `kdeglobals` when an LnF package ships its own `colors/` dir and never repopulates — the System Settings KCM tile picker hit this constantly. Source-of-truth `.colors` files stay in the package source for the renderer.
 - Identity sweep: removed pre-rebrand author email + handle from manifests, metadata, preview SVGs, and form-field mockups in `render_previews.py`.
 
-## [1.0.0] — 2026-04-26
+## [1.0.0] — 2026-04-29
 
 ### Added
 - Initial Umber theme suite — five-palette family: canonical Umber + Ash, Slate, Tide, Storm.
@@ -75,7 +76,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - SDDM greeter theme — Qt6 port of MarianArlt's sddm-sugar-dark.
 - Cursor theme — pixel-by-pixel recolor of Nordic-cursors via `scripts/recolor_nordic_inplace.py`.
 - 4K wallpaper — procedural charcoal-to-peach gradient.
-- `install.sh` — one-shot installer with consolidated sudo block and `--migrate` flag for Hush → Umber.
+- `install.sh` — one-shot installer with `--migrate` flag for Hush → Umber.
 - `scripts/render_palette.py` — single-source-of-truth template renderer.
 - `scripts/render_previews.py` — generates per-variant mockup PNGs/JPGs.
 
