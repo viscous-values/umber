@@ -8,7 +8,7 @@ Theme=Newaita-reborn-light-brown-dark
 widgetStyle=Breeze
 
 [kcminputrc][Mouse]
-cursorTheme=Umber-cursor
+cursorTheme=Umber-Storm-cursor
 
 [ksplashrc][KSplash]
 Theme=io.github.viscous-values.umber-storm

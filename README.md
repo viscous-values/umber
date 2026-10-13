@@ -79,9 +79,8 @@ To switch between installed variants, either pick one from KRunner / the app lau
 | `preview.svg` | Small thumbnail for store listings, rendered from the palette | — |
 
 Bundled assets:
-- **Cursor:** `cursors/Umber-cursor/` — pre-built recolor of [Nordic-cursors](https://github.com/EliverLara/Nordic-cursors) (Nord palette → Umber palette, pixel-by-pixel). Regeneratable via `scripts/build-cursor.sh` if you have Nordic-cursors at `~/.icons/Nordic-cursors`.
+- **Cursors:** `cursors/Umber-cursor/`, `cursors/Umber-Ash-cursor/`, `cursors/Umber-Slate-cursor/`, `cursors/Umber-Tide-cursor/`, `cursors/Umber-Storm-cursor/` — one per variant, pre-built recolors of [Nordic-cursors](https://github.com/EliverLara/Nordic-cursors). The body takes the variant's ground hue and the outline its text color (both at Nordic's lightness, so the cursor reads on dark and light windows), spinners and the help badge take its signature accent, and the no-entry and copy badges its error and success colors. Each Global Theme selects its own. Rebuild with `scripts/build-cursor.sh` (needs Nordic-cursors at `~/.icons/Nordic-cursors`); the test suite fails if a committed cursor no longer matches its palette.
 - **Wallpaper:** `io.github.viscous-values.umber/contents/wallpapers/Umber/` — 4K palette-tinted gradient. Regeneratable via `scripts/render_wallpaper.py`.
-- The cursor recolor reads canonical `palette.toml` at build time; the committed cursor still carries the pre-redesign canonical colors until it is rebuilt with `scripts/build-cursor.sh`.
 
 External dependency (auto-installed by `install.sh`):
 - **Icons:** [Newaita-reborn-light-brown-dark](https://github.com/cbrnix/Newaita-reborn) — desaturated taupe folders match Umber's `glow.dim` register. The Global Theme references it by name; `install.sh` clones and copies the `Newaita-reborn-light-brown-dark/` variant if it isn't already present at `~/.local/share/icons/`.
@@ -116,7 +115,7 @@ The `--variant` flag is fully orthogonal — each variant installs into its own 
 |-----------|:---:|---|
 | Color scheme (Umber) | yes | via `defaults` |
 | Window decoration colors | yes | reads `[WM]` from the colorscheme |
-| Cursor (Umber-cursor) | yes | needs cursor installed first; `install.sh` handles |
+| Cursor (Umber-cursor, Umber-Ash-cursor, …) | yes | needs cursor installed first; `install.sh` handles |
 | Icons (Newaita-reborn-light-brown-dark) | yes | needs icons installed first; `install.sh` handles |
 | Splash screen | yes | the `Splash.qml` in this LnF |
 | Lockscreen UI | yes | shipped via the `umber-shell` Plasma/Shell package; `install.sh` flips `kscreenlockerrc [Greeter]/Theme` |
@@ -225,7 +224,7 @@ Build signed-ready `.xpi` archives locally (e.g. when adding a variant before AM
 
 - **Sugar Dark** by [Marian Arlt](https://github.com/MarianArlt/sddm-sugar-dark) (2018) — base for the SDDM theme and the warm-on-dark direction. Umber muted the palette (`#FFDEAD` navajowhite → `#D4BC91`; pure white `#FFFFFF` → `#E1E1E1`; View bg lifted `#1F1F1F` → `#242424`) and ported the QML to Qt6/Plasma 6. Upstream QML in `umber-sddm/` retains its GPL headers, and `umber-sddm/AUTHORS` + `CREDITS` + `COPYING` are preserved verbatim.
 - **Atom One Dark** and **Nord** ([arcticicestudio/nord](https://www.nordtheme.com/)): the Spark and Mist accents through v1.0.1 came from One Dark and leaned on Nord's `nord8/9/10`. The 2026-10 redesign replaced them with per-variant pigments; the earlier values are kept in `palettes/archive/classic/`.
-- **Nordic-cursors** by [EliverLara](https://github.com/EliverLara/Nordic-cursors) — pixel-source for `cursors/Umber-cursor/`. The recolor in `scripts/recolor_nordic_inplace.py` walks every xcursor binary and remaps Nord palette → Umber palette while preserving anti-aliased edges.
+- **Nordic-cursors** by [EliverLara](https://github.com/EliverLara/Nordic-cursors) — pixel-source for every theme under `cursors/`. The recolor in `scripts/recolor_nordic_inplace.py` walks every xcursor binary and maps each Nord color Nordic-cursors is drawn with onto a role in the variant's palette, preserving anti-aliased edges.
 - **Newaita-reborn** by [cbrnix](https://github.com/cbrnix/Newaita-reborn) — paired icon set (`Newaita-reborn-light-brown-dark` variant); auto-installed by `install.sh`. Not redistributed in this repo.
 
 Licensed GPL-3.0-or-later. See `LICENSE` at the repo root.

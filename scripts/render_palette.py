@@ -14,6 +14,7 @@ Templates live in scripts/templates/ and use {{ key }} placeholders:
     {{ var.slug }}              -> "umber" / "umber-ash"
     {{ var.scheme }}            -> "Umber" / "Umber-Ash"  (filename-style)
     {{ var.color_scheme }}      -> "Umber" / "UmberAsh"   (Plasma color scheme id)
+    {{ var.cursor }}            -> "Umber-cursor" / "Umber-Ash-cursor" (cursors/<name>/)
     {{ var.id }}                -> "io.github.viscous-values.umber" / "io.github.viscous-values.umber-ash"
     {{ var.shell_id }}          -> "io.github.viscous-values.umber-shell" / "io.github.viscous-values.umber-ash-shell"
     {{ var.shell_name }}        -> "Umber Shell" / "Umber Ash Shell"
@@ -67,6 +68,11 @@ def color_scheme_id(variant):
     return "Umber" if variant == "umber" else f"Umber{variant.title()}"
 
 
+def cursor_theme(variant):
+    """Cursor theme dir under cursors/ (built by scripts/build-cursor.sh)."""
+    return "Umber-cursor" if variant == "umber" else f"Umber-{variant.title()}-cursor"
+
+
 def compute_var(palette, variant):
     """Build the `var.*` namespace injected into the palette dict for templates."""
     is_canon = (variant == "umber")
@@ -88,6 +94,7 @@ def compute_var(palette, variant):
         "slug":        slug,
         "scheme":      scheme,
         "color_scheme": color_scheme_id(variant),
+        "cursor":      cursor_theme(variant),
         "id":          pkg_id,
         "shell_id":    shell_id,
         "shell_name":  shell_name,
