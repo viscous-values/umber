@@ -7,8 +7,14 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 ### Added
 - A cursor per variant: `Umber-Ash-cursor`, `Umber-Slate-cursor`, `Umber-Tide-cursor` and `Umber-Storm-cursor` beside `Umber-cursor`. The body takes the variant's ground hue and the outline its text color, spinners and the help badge its signature accent, and the no-entry and copy badges its error and success colors. Each Global Theme selects its own cursor, and `install.sh` installs them all. `scripts/build-cursor.sh` rebuilds all five, and the test suite fails if a committed cursor no longer matches its palette.
 
+### Removed
+- `install.sh --migrate`. It cleaned up installs from the pre-release package namespaces (April–May 2026); nothing installed since needs it.
+
 ### Fixed
 - The Umber cursor's body was still Nordic's slate blue-grey and its no-entry badge grey. The recolor treated Nord's slightly blue body as a blue badge, and mapped one red hue range to blue. It now maps each Nord color Nordic-cursors uses to a palette role.
+
+### Repository
+- History was rewritten on 2026-10-19 to take the maintainer's personal name and former username out of file contents, paths, commit messages and commit identities. Every commit ID changed; `docs/history-rewrite-2026-10-commit-map.txt` maps old IDs to new, and the tags `v1.0.0`, `v1.0.1` and `v2.0.0` point at the rewritten commits. Clones made before that date should be replaced with a fresh clone.
 
 ## [2.0.0] — 2026-10-12
 
@@ -18,9 +24,8 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - Templates name semantic roles from the new `roles.toml` instead of raw palette tiers, so a variant can remap any job (`link`, `focus_ring`, `syntax.type`, …). Chromium new-tab links and the Firefox url-field focus border now follow the link and focus roles like every other consumer.
 - SDDM greeter previews and the store thumbnail (`preview.svg`) render from the palette instead of being hand-made; each variant gets its own SDDM preview. Browser-extension icons take their accent line from the signature. The 4K wallpapers, mockups and Plasma theme previews are regenerated from the new palettes, and each desktop preview shows its variant's concept.
 - SDDM and the lock screen take text-on-accent and popup colors from new `AccentTextColor` / `PopupColor` theme keys instead of a hard-coded `#444`; typed text in the accent meets 4.5:1 in every variant.
-- KDE LookAndFeel + Plasma Shell package namespace migrated from `com.legacy.<variant>` to `io.github.viscous-values.<variant>`. Existing installs are auto-cleaned when running `install.sh --migrate`.
-- VSCode extension rebranded `legacy.umber` → `viscous-values.umber`; bumped to `1.1.1`.
-- `install.sh --migrate` now handles two legacy namespaces in one pass: the original Hush install AND the `com.legacy.*` Umber namespace.
+- KDE LookAndFeel + Plasma Shell packages moved from the pre-release namespace to `io.github.viscous-values.<variant>`; `install.sh --migrate` cleaned up installs from it and from the original Hush name.
+- VSCode extension moved to the `viscous-values` publisher (`viscous-values.umber`); bumped to `1.1.1`.
 
 ### Added
 - `scripts/palette_audit.py`: WCAG contrast, OKLab role separation, color-blindness simulation and cross-variant identity checks; `--strict` gates palette changes.
@@ -53,7 +58,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `install.sh` gathers its root steps into a single sudo prompt.
 
 ### Changed
-- Firefox WebExtension gecko ids changed `<variant>@legacy` → `<variant>@viscous-values` to dodge an AMO duplicate-id reservation.
+- Firefox WebExtension gecko ids changed to `<variant>@viscous-values` to dodge an AMO duplicate-id reservation.
 - VSCode template selection backgrounds, list/menu highlights, and active-state borders now use `accent.highlight` instead of `glow.1`.
 - Firefox manifest highlight/border-focus/tab-line refs now use `accent.highlight`.
 - Plasma color scheme `[Colors:Selection]/BackgroundNormal` now uses `accent.highlight`.

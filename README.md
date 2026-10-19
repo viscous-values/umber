@@ -101,7 +101,6 @@ Tools `install.sh` invokes: `git`, `python3`, `plasma-apply-lookandfeel`, `plasm
 ./install.sh                     # canonical warm Umber
 ./install.sh --variant ash       # any single variant; see Variants section above
 ./install.sh --all-variants      # canonical + all four variants in one run
-./install.sh --migrate           # one-time: clean up legacy "Hush" / com.legacy.* installs
 ./install.sh --no-sudo           # skip the SDDM sudo prompt; print manual steps
 ```
 

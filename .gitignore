@@ -14,3 +14,6 @@ __pycache__/
 *.xpi
 *.crx
 *.zip
+
+# Local Claude Code state
+.claude/

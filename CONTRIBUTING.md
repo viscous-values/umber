@@ -89,8 +89,7 @@ python3 -m unittest discover -s tests         # must pass (node needed for the l
 python3 scripts/render_palette.py check       # must pass
 python3 scripts/palette_audit.py              # contrast, role separation, variant identity
 python3 scripts/render_lab.py                 # refresh mockups/palette-lab.html after palette changes
-git grep -nE "com\.user|legacy\.umber"        # only the 3 hush-migration lines should appear
 ./scripts/build-firefox-xpi.sh                # smoke-test xpi packaging if you touched browser themes
 ```
 
-If you touch `install.sh`, also run `./install.sh --migrate --no-sudo --yes` against a clean `~/.local/share/plasma/look-and-feel/` to verify your change doesn't break the migration path.
+If you touch `install.sh`, also run `./install.sh --no-sudo --yes` against a clean `~/.local/share/plasma/look-and-feel/` to verify a fresh install still lands.

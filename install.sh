@@ -2,19 +2,17 @@
 # Umber — one-shot installer for the full theme suite on KDE Plasma 6.
 # Idempotent: safe to re-run. Steps that need root (SDDM theme install,
 # /etc/sddm.conf.d/ shadow-file cleanup, /etc/sddm.conf.d/kde_settings.conf
-# Current= rewrite, removal of legacy /usr/share/sddm/themes/hush) are
+# Current= rewrite) are
 # bundled into a single sudo prompt that fires AFTER the user-space file
 # installs but BEFORE the live Plasma reload — so if plasma-apply-lookandfeel
 # wedges the running session, all persistent state is already on disk and a
 # logout/login finishes the job. The script prints the exact commands first
 # and releases the sudo cache (sudo -k) as soon as those commands finish.
 #
-# Usage: ./install.sh [--yes] [--migrate] [--variant N] [--all-variants] [--no-sudo]
+# Usage: ./install.sh [--yes] [--variant N] [--all-variants] [--no-sudo]
 #   --yes           skip the overwrite confirmation (for non-interactive use);
 #                   also auto-accepts the sudo offer (sudo itself may still
 #                   prompt for the password if no ticket is cached).
-#   --migrate       clean up artifacts from the legacy "Hush" install before
-#                   installing Umber (refuses to install otherwise if found)
 #   --variant N     install variant N. N ∈ {umber, ash, slate, tide, storm}.
 #                   Default: umber. With --all-variants this names the ACTIVE
 #                   variant (the one applied to the live session and set as
@@ -31,7 +29,6 @@
 set -euo pipefail
 
 ASSUME_YES=0
-MIGRATE=0
 VARIANT="umber"
 ALL_VARIANTS=0
 NO_SUDO=0
@@ -39,13 +36,12 @@ VARIANT_EXPLICIT=0   # tracks whether user passed --variant (for --all-variants 
 while (( $# > 0 )); do
     case "$1" in
         -y|--yes)         ASSUME_YES=1 ;;
-        --migrate)        MIGRATE=1 ;;
         --variant)        shift; VARIANT="${1:-}"; VARIANT_EXPLICIT=1 ;;
         --variant=*)      VARIANT="${1#--variant=}"; VARIANT_EXPLICIT=1 ;;
         --all-variants)   ALL_VARIANTS=1 ;;
         --no-sudo)        NO_SUDO=1 ;;
         -h|--help)
-            sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         *) echo "Unknown argument: $1" >&2; exit 2 ;;
@@ -137,15 +133,13 @@ note() { printf "    \033[0;36m..\033[0m %s\n" "$1"; }
 err()  { printf "\033[1;31mERROR:\033[0m %s\n" "$1" >&2; }
 
 # ---------------------------------------------------------------------------
-# Elevated-step orchestration. Hush-migration leftovers and the SDDM shadow
-# scan set HAS_* flags; per-variant SDDM theme installs accumulate into the
+# Elevated-step orchestration. The SDDM shadow scan sets HAS_SHADOW_MOVES;
+# per-variant SDDM theme installs accumulate into the
 # SDDM_INSTALL_VARIANTS array (populated only if /etc/sddm.conf.d exists).
 # run_pending_elevated() prints the full command list, prompts once,
 # acquires sudo, runs everything inline, and releases the cache (sudo -k).
 # DID_* flags drive the post-run manual-steps printout — anything that ran
 # is omitted from the tail.
-HAS_HUSH_SDDM_REWRITE=0
-HAS_HUSH_SDDM_DIR_REMOVE=0
 HAS_SHADOW_MOVES=0
 DID_SDDM_INSTALL=0
 DID_SHADOW_MOVES=0
@@ -156,12 +150,6 @@ SDDM_KDE_CONF="/etc/sddm.conf.d/kde_settings.conf"
 build_elevated_label_list() {
     local labels=()
     local f v slug target dir_name active_slug
-    if (( HAS_HUSH_SDDM_REWRITE )); then
-        labels+=("sed -i 's/^Current=hush\$/Current=umber/' $SDDM_KDE_CONF")
-    fi
-    if (( HAS_HUSH_SDDM_DIR_REMOVE )); then
-        labels+=("rm -rf /usr/share/sddm/themes/hush")
-    fi
     if (( HAS_SHADOW_MOVES )); then
         for f in "${SHADOW_FILES[@]}"; do
             labels+=("mv \"$f\" \"/etc/$(basename "$f")\"")
@@ -182,8 +170,7 @@ build_elevated_label_list() {
 }
 
 run_pending_elevated() {
-    local total=$(( HAS_HUSH_SDDM_REWRITE + HAS_HUSH_SDDM_DIR_REMOVE \
-                    + HAS_SHADOW_MOVES + ${#SDDM_INSTALL_VARIANTS[@]} ))
+    local total=$(( HAS_SHADOW_MOVES + ${#SDDM_INSTALL_VARIANTS[@]} ))
     if (( total == 0 )); then
         return 0
     fi
@@ -212,20 +199,6 @@ run_pending_elevated() {
     fi
 
     local rc=0 f v slug target dir_name active_slug install_rc
-    if (( HAS_HUSH_SDDM_REWRITE )); then
-        if sudo sed -i 's/^Current=hush$/Current=umber/' "$SDDM_KDE_CONF"; then
-            ok "rewrote Current=hush -> Current=umber in $SDDM_KDE_CONF"
-        else
-            err "failed: sed Current=hush -> umber in $SDDM_KDE_CONF"; rc=1
-        fi
-    fi
-    if (( HAS_HUSH_SDDM_DIR_REMOVE )); then
-        if sudo rm -rf /usr/share/sddm/themes/hush; then
-            ok "removed legacy /usr/share/sddm/themes/hush"
-        else
-            err "failed: rm -rf /usr/share/sddm/themes/hush"; rc=1
-        fi
-    fi
     if (( HAS_SHADOW_MOVES )); then
         for f in "${SHADOW_FILES[@]}"; do
             if sudo mv "$f" "/etc/$(basename "$f")"; then
@@ -343,197 +316,6 @@ if (( ${#existing[@]} > 0 )) && (( ASSUME_YES == 0 )); then
         y|Y|yes|YES) ;;
         *) echo "Aborted."; exit 0 ;;
     esac
-fi
-
-# ---------------------------------------------------------------------------
-# Hush → Umber migration. Variant-agnostic: cleans up artifacts from the
-# legacy "Hush" project name on the system regardless of which Umber variants
-# are being installed now. Only rewrites configs to canonical "Umber" — the
-# active variant's apply step at the end retargets to $NAME if needed.
-hush_artifacts=()
-[[ -d "$LNF_DIR/com.legacy.hush" ]]       && hush_artifacts+=("$LNF_DIR/com.legacy.hush")
-[[ -f "$SCHEMES_DIR/Hush.colors" ]]      && hush_artifacts+=("$SCHEMES_DIR/Hush.colors")
-[[ -d "$ICONS_DIR/Hush-cursor" ]]        && hush_artifacts+=("$ICONS_DIR/Hush-cursor")
-[[ -f "$KONSOLE_DIR/Hush.colorscheme" ]] && hush_artifacts+=("$KONSOLE_DIR/Hush.colorscheme")
-[[ -e "$VSCODE_EXT_DIR/legacy.hush-1.0.0" ]] && hush_artifacts+=("$VSCODE_EXT_DIR/legacy.hush-1.0.0")
-
-if (( ${#hush_artifacts[@]} > 0 )); then
-    if (( MIGRATE == 1 )); then
-        step "Migrating from Hush"
-        for p in "${hush_artifacts[@]}"; do
-            if [[ -L "$p" ]]; then
-                unlink "$p"
-                ok "unlinked $p"
-            else
-                rm -rf "$p"
-                ok "removed $p"
-            fi
-        done
-        for cfg in "$HOME/.config/kdedefaults/kdeglobals" "$HOME/.config/kdeglobals"; do
-            [[ -f "$cfg" ]] || continue
-            if grep -q '^ColorScheme=Hush$' "$cfg" 2>/dev/null; then
-                sed -i 's/^ColorScheme=Hush$/ColorScheme=Umber/' "$cfg"
-                ok "rewrote ColorScheme= in $cfg"
-            fi
-            if grep -q '^LookAndFeelPackage=com\.legacy\.hush$' "$cfg" 2>/dev/null; then
-                sed -i 's|^LookAndFeelPackage=com\.legacy\.hush$|LookAndFeelPackage=io.github.viscous-values.umber|' "$cfg"
-                ok "rewrote LookAndFeelPackage= in $cfg"
-            fi
-        done
-        if [[ -f "$HOME/.config/plasmarc" ]] && grep -q '^name=com\.legacy\.hush$' "$HOME/.config/plasmarc" 2>/dev/null; then
-            sed -i 's|^name=com\.legacy\.hush$|name=io.github.viscous-values.umber|' "$HOME/.config/plasmarc"
-            ok "rewrote name= in plasmarc"
-        fi
-        if [[ -f "$HOME/.config/kcminputrc" ]] && grep -q '^cursorTheme=Hush-cursor$' "$HOME/.config/kcminputrc" 2>/dev/null; then
-            sed -i 's/^cursorTheme=Hush-cursor$/cursorTheme=Umber-cursor/' "$HOME/.config/kcminputrc"
-            ok "rewrote cursorTheme= in kcminputrc"
-        fi
-        if [[ -f "$VSCODE_EXT_DIR/extensions.json" ]]; then
-            python3 - <<'PYEOF'
-import json, pathlib
-p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
-try:
-    data = json.loads(p.read_text() or "[]")
-except (FileNotFoundError, json.JSONDecodeError):
-    data = []
-before = len(data)
-data = [e for e in data if e.get("identifier", {}).get("id") != "legacy.hush"]
-if len(data) != before:
-    p.write_text(json.dumps(data))
-    print("    .. removed legacy.hush entry from extensions.json")
-PYEOF
-        fi
-        # SDDM-side leftovers need root; queue for the consolidated sudo block.
-        if [[ -f "$SDDM_KDE_CONF" ]] && grep -q '^Current=hush$' "$SDDM_KDE_CONF" 2>/dev/null; then
-            HAS_HUSH_SDDM_REWRITE=1
-            note "queued: rewrite Current=hush -> Current=umber in $SDDM_KDE_CONF"
-        fi
-        if [[ -d /usr/share/sddm/themes/hush ]]; then
-            HAS_HUSH_SDDM_DIR_REMOVE=1
-            note "queued: remove legacy /usr/share/sddm/themes/hush"
-        fi
-        note "Firefox: remove the old hush@legacy temporary add-on from about:debugging before loading Umber."
-        ok "Hush user-space migration complete (any queued root steps run later)"
-    else
-        step "Existing Hush install detected"
-        for p in "${hush_artifacts[@]}"; do note "$p"; done
-        cat <<EOF
-
-The previous "Hush" install must be cleaned up before installing Umber.
-Re-run with --migrate to do this automatically:
-
-    ./install.sh --migrate
-
-Or remove the artifacts manually:
-
-EOF
-        for p in "${hush_artifacts[@]}"; do echo "    rm -rf $p"; done
-        cat <<EOF
-
-Plus rewrite these config keys if present:
-    ~/.config/kdedefaults/kdeglobals    ColorScheme=Hush             → Umber
-                                         LookAndFeelPackage=com.legacy.hush → io.github.viscous-values.umber
-    ~/.config/plasmarc                  name=com.legacy.hush          → io.github.viscous-values.umber
-    ~/.config/kcminputrc                cursorTheme=Hush-cursor      → Umber-cursor
-    /etc/sddm.conf.d/kde_settings.conf  Current=hush                 → umber  (needs sudo)
-    ~/.vscode/extensions/extensions.json   remove legacy.hush entry
-
-Refusing to install on top of existing Hush state to avoid the dual-install
-footgun (both themes half-applied across config files).
-EOF
-        exit 1
-    fi
-fi
-
-# ---------------------------------------------------------------------------
-# com.legacy.* → io.github.viscous-values.* namespace migration. Older Umber
-# installs (pre-rebrand) used the com.legacy.<variant> reverse-DNS namespace.
-# The new namespace is io.github.viscous-values.<variant>. This block detects
-# the legacy install state and cleans it up so the fresh install can land
-# without colliding. Variant-agnostic: catches all five variants in one pass.
-ns_artifacts=()
-for v in umber umber-ash umber-slate umber-tide umber-storm; do
-    [[ -d "$LNF_DIR/com.legacy.$v" ]]                && ns_artifacts+=("$LNF_DIR/com.legacy.$v")
-    [[ -d "$SHELLS_DIR/com.legacy.$v-shell" ]]       && ns_artifacts+=("$SHELLS_DIR/com.legacy.$v-shell")
-done
-[[ -e "$VSCODE_EXT_DIR/legacy.umber-1.0.0" ]] && ns_artifacts+=("$VSCODE_EXT_DIR/legacy.umber-1.0.0")
-
-if (( ${#ns_artifacts[@]} > 0 )); then
-    if (( MIGRATE == 1 )); then
-        step "Migrating com.legacy.* → io.github.viscous-values.*"
-        for p in "${ns_artifacts[@]}"; do
-            if [[ -L "$p" ]]; then
-                unlink "$p"
-                ok "unlinked $p"
-            else
-                rm -rf "$p"
-                ok "removed $p"
-            fi
-        done
-        # Rewrite kdeglobals LookAndFeelPackage=com.legacy.umber* → new namespace
-        for cfg in "$HOME/.config/kdedefaults/kdeglobals" "$HOME/.config/kdeglobals"; do
-            [[ -f "$cfg" ]] || continue
-            if grep -qE '^LookAndFeelPackage=com\.legacy\.umber' "$cfg" 2>/dev/null; then
-                sed -i 's|^LookAndFeelPackage=com\.legacy\.\(umber[^[:space:]]*\)$|LookAndFeelPackage=io.github.viscous-values.\1|' "$cfg"
-                ok "rewrote LookAndFeelPackage= in $cfg"
-            fi
-        done
-        # Rewrite plasmarc name=com.legacy.umber* if present
-        if [[ -f "$HOME/.config/plasmarc" ]] && grep -qE '^name=com\.legacy\.umber' "$HOME/.config/plasmarc" 2>/dev/null; then
-            sed -i 's|^name=com\.legacy\.\(umber[^[:space:]]*\)$|name=io.github.viscous-values.\1|' "$HOME/.config/plasmarc"
-            ok "rewrote name= in plasmarc"
-        fi
-        # Rewrite kscreenlockerrc [Greeter]/Theme=com.legacy.umber*-shell
-        if [[ -f "$HOME/.config/kscreenlockerrc" ]] && grep -qE '^Theme=com\.legacy\.umber' "$HOME/.config/kscreenlockerrc" 2>/dev/null; then
-            sed -i 's|^Theme=com\.legacy\.\(umber[^[:space:]]*\)$|Theme=io.github.viscous-values.\1|' "$HOME/.config/kscreenlockerrc"
-            ok "rewrote Theme= in kscreenlockerrc"
-        fi
-        # Drop the legacy.umber entry from VSCode's extensions.json (the install
-        # re-adds it under the new viscous-values.umber id below).
-        if [[ -f "$VSCODE_EXT_DIR/extensions.json" ]]; then
-            python3 - <<'PYEOF'
-import json, pathlib
-p = pathlib.Path.home() / ".vscode" / "extensions" / "extensions.json"
-try:
-    data = json.loads(p.read_text() or "[]")
-except (FileNotFoundError, json.JSONDecodeError):
-    data = []
-before = len(data)
-data = [e for e in data if e.get("identifier", {}).get("id") != "legacy.umber"]
-if len(data) != before:
-    p.write_text(json.dumps(data))
-    print("    .. removed legacy.umber entry from extensions.json")
-PYEOF
-        fi
-        ok "namespace migration complete"
-    else
-        step "Legacy com.legacy.* install detected"
-        for p in "${ns_artifacts[@]}"; do note "$p"; done
-        cat <<EOF
-
-A previous Umber install used the com.legacy.* package namespace. The
-current package layout uses io.github.viscous-values.*. Re-run with
---migrate to clean up the legacy paths automatically:
-
-    ./install.sh --migrate
-
-Or remove the artifacts manually:
-
-EOF
-        for p in "${ns_artifacts[@]}"; do echo "    rm -rf $p"; done
-        cat <<EOF
-
-Plus rewrite these config keys if present:
-    ~/.config/kdeglobals          LookAndFeelPackage=com.legacy.umber* → io.github.viscous-values.umber*
-    ~/.config/plasmarc            name=com.legacy.umber*               → io.github.viscous-values.umber*
-    ~/.config/kscreenlockerrc     Theme=com.legacy.umber*-shell        → io.github.viscous-values.umber*-shell
-    ~/.vscode/extensions/extensions.json   remove legacy.umber entry
-
-Refusing to install on top of legacy namespace state to avoid the
-dual-install footgun (both old + new packages half-applied).
-EOF
-        exit 1
-    fi
 fi
 
 # ---------------------------------------------------------------------------
