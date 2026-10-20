@@ -14,7 +14,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - The Umber cursor's body was still Nordic's slate blue-grey and its no-entry badge grey. The recolor treated Nord's slightly blue body as a blue badge, and mapped one red hue range to blue. It now maps each Nord color Nordic-cursors uses to a palette role.
 
 ### Repository
-- History was rewritten on 2026-10-19 to take the maintainer's personal name and former username out of file contents, paths, commit messages and commit identities. Every commit ID changed; `docs/history-rewrite-2026-10-commit-map.txt` maps old IDs to new, and the tags `v1.0.0`, `v1.0.1` and `v2.0.0` point at the rewritten commits. Clones made before that date should be replaced with a fresh clone.
+- History was rewritten on 2026-10-19, in two passes, to take the maintainer's personal name, former username and personal email address out of file contents, paths, commit messages, commit identities and images. The second pass changed only images: eleven preview and mockup images from April–October 2026 that showed the name or the address were replaced by versions showing placeholder text. Every commit ID changed; `docs/history-rewrite-2026-10-commit-map.txt` maps the original IDs to the current ones, and the tags `v1.0.0`, `v1.0.1` and `v2.0.0` point at the rewritten commits. Replace any clone made before 2026-10-20 with a fresh one.
 
 ## [2.0.0] — 2026-10-12
 

@@ -1,6 +1,6 @@
 # Palette revisit (closed)
 
-Opened 2026-10-12, when the owner found that the variants and the roles inside each variant ran together, and that the WCAG AA selection fix (`2707ee0`) had made it worse. Closed the same month by the redesign on `feat/palette-rework`.
+Opened 2026-10-12, when the owner found that the variants and the roles inside each variant ran together, and that the WCAG AA selection fix (`db700cc`) had made it worse. Closed the same month by the redesign on `feat/palette-rework`.
 
 The pre-redesign palettes are kept in [`palettes/archive/classic/`](palettes/archive/classic) and the last release before the redesign is tagged `v1.0.1`.
 
