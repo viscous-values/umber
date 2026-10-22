@@ -125,6 +125,8 @@ def outputs_for(variant):
         # Browser themes — per-variant directories at top level.
         "firefox-manifest.json.tmpl":  f"{slug}-firefox/manifest.json",
         "chromium-manifest.json.tmpl": f"{slug}-chromium/manifest.json",
+        # Web export — CSS custom properties for every role, one file per variant.
+        "web-theme.css.tmpl":          f"umber-web/{slug}.css",
         # SDDM — per-variant theme directory.
         "sddm-theme.conf.tmpl":        f"{slug}-sddm/theme.conf",
         "sddm-metadata.desktop.tmpl":  f"{slug}-sddm/metadata.desktop",
