@@ -1,6 +1,6 @@
 # Contributing to Umber
 
-Umber is a generated theme suite — the colors, manifests, metadata files, and QML for every consumer (Plasma, Konsole, VSCode, Firefox, Chromium, SDDM) are rendered from a single palette TOML through templates under `scripts/templates/`. **Do not hand-edit the rendered files** — your changes will be wiped the next time someone runs the renderer.
+Umber is a generated theme suite — the colors, manifests, metadata files, and QML for every consumer (Plasma, Konsole, VSCode, Firefox, Chromium, SDDM, the web/CSS export) are rendered from a single palette TOML through templates under `scripts/templates/`. **Do not hand-edit the rendered files** — your changes will be wiped the next time someone runs the renderer.
 
 ## The render pipeline
 
@@ -14,7 +14,7 @@ To make a change that should propagate everywhere (e.g. a hex value in the palet
 
 1. Edit the right source file:
    - **Color value** → `palette.toml` (canonical) or `palettes/<variant>.toml`
-   - **Which color a UI element uses** → `roles.toml` (all variants) or the variant's `[role]` table
+   - **Which color a UI element uses** → `roles.toml` (all variants) or the variant's `[role]` table. A new role also goes in `scripts/templates/web-theme.css.tmpl`, which carries every role; `tests/test_web_export.py` fails until it does.
    - **Per-consumer styling** → the matching `scripts/templates/*.tmpl` (reference `role.*`, never raw tiers)
 2. Re-render every variant:
    ```

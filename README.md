@@ -76,6 +76,7 @@ To switch between installed variants, either pick one from KRunner / the app lau
 | `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/viscous-values.umber-2.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
 | `umber-firefox/` | Firefox WebExtension theme (manifest v2) | loaded via `about:debugging` (temporary) or signed for permanent install |
 | `umber-chromium/` | Chromium / Chrome theme extension (manifest v3) | loaded unpacked via `chrome://extensions/` |
+| `umber-web/` | CSS custom properties (`--umber-*`) for every role, one file per variant | vendored into a web app; see [Web / CSS](#web--css) |
 | `preview.svg` | Small thumbnail for store listings, rendered from the palette | — |
 
 Bundled assets:
@@ -212,6 +213,30 @@ Build signed-ready `.xpi` archives locally (e.g. when adding a variant before AM
 #   3. "Load unpacked" → pick the umber-chromium/ folder
 ```
 
+### Web / CSS
+`umber-web/<variant>.css` (`umber.css`, `umber-ash.css`, `umber-slate.css`, `umber-storm.css`, `umber-tide.css`) sets `color-scheme: dark` and one custom property per role in `roles.toml`, under `[data-theme="<variant>"]`. Copy the files into your app, import them, and set the attribute on the root element:
+
+```html
+<html data-theme="umber-tide">
+```
+
+A property's name is its role path with `.` and `_` written as `-`: `bg_panel` → `--umber-bg-panel`, `fg_on_accent` → `--umber-fg-on-accent`, `on_selection.fg` → `--umber-on-selection-fg`, `syntax.keyword` → `--umber-syntax-keyword`. Values are plain hex, so mix tints in CSS:
+
+```css
+.alert-error {
+  color: var(--umber-error);
+  background: color-mix(in srgb, var(--umber-error) 12%, var(--umber-bg));
+}
+```
+
+Lay surfaces out the way Umber's own themes do (the VSCode theme is the closest model for an app with a sidebar):
+- content and text inputs on `bg`, with `input_border` outlining each control;
+- sidebars, menus, widgets and cards on `bg_panel`; hover and raised panes on `bg_raised`;
+- primary buttons, badges and other filled accents in `button_bg` with `fg_on_accent` text, hovering to `button_hover`;
+- accent-colored text in `decoration_focus` (Ash's signature is too dark for small text on its panels, so Ash points it at the hover tone); links in `link`, info in `info`, selections in `selection_bg` with `on_selection.fg` text.
+
+The files are generated from `scripts/templates/web-theme.css.tmpl`; the test suite fails if a role in `roles.toml` is missing from them. They are licensed GPL-3.0-or-later **or** MIT (`umber-web/LICENSE-MIT`), so MIT-licensed apps can vendor them.
+
 ## Known gotchas
 
 - **`plasma-apply-colorscheme Umber` says "already set" and is a no-op** when the scheme is already current — Plasma keeps any stale inline `[WM]` values in `~/.config/kdeglobals`. Toggle through another scheme (e.g. `BreezeLight`) first to force the rewrite.
@@ -226,4 +251,4 @@ Build signed-ready `.xpi` archives locally (e.g. when adding a variant before AM
 - **Nordic-cursors** by [EliverLara](https://github.com/EliverLara/Nordic-cursors) — pixel-source for every theme under `cursors/`. The recolor in `scripts/recolor_nordic_inplace.py` walks every xcursor binary and maps each Nord color Nordic-cursors is drawn with onto a role in the variant's palette, preserving anti-aliased edges.
 - **Newaita-reborn** by [cbrnix](https://github.com/cbrnix/Newaita-reborn) — paired icon set (`Newaita-reborn-light-brown-dark` variant); auto-installed by `install.sh`. Not redistributed in this repo.
 
-Licensed GPL-3.0-or-later. See `LICENSE` at the repo root.
+Licensed GPL-3.0-or-later. See `LICENSE` at the repo root. The web export in `umber-web/` is also offered under MIT (`umber-web/LICENSE-MIT`).

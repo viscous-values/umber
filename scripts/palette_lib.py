@@ -7,8 +7,8 @@ any role in its own [role] table. Role values are either a literal
 "#RRGGBB" or a reference to another key ("mist.2", "role.interactive").
 
     pal = prepare(Path("palettes/slate.toml"))
-    pal["role"]["link"]            -> "#A8BDD6"
-    resolve(pal, "role.syntax.type") -> "#E5C07B"
+    pal["role"]["link"]            -> "#94B3E1"
+    resolve(pal, "role.syntax.type") -> "#78CFCC"
 
 After prepare(), every role leaf is plain hex, so readers that walk the
 dict directly (icon renderer, previews, audit) never see references.
