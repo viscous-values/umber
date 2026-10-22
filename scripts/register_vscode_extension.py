@@ -8,7 +8,7 @@ than kept, so a version bump moves the registration along with the link. A
 malformed extensions.json is left untouched: rewriting it would drop every
 other extension the user has installed.
 
-    python3 scripts/register_vscode_extension.py --extensions-dir ~/.vscode/extensions --version 2.0.0
+    python3 scripts/register_vscode_extension.py --extensions-dir ~/.vscode/extensions --version 2.1.0
 """
 
 import argparse

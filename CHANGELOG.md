@@ -4,6 +4,8 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+## [2.1.0] — 2026-10-22
+
 ### Added
 - A web export: `umber-web/<variant>.css`, one file per variant that sets `color-scheme: dark` and a `--umber-*` custom property for every role under `[data-theme="<variant>"]` (`--umber-bg`, `--umber-fg-on-accent`, `--umber-syntax-keyword`, …), for web apps to vendor. The README's Web / CSS section gives the naming rule and the surface layering Umber's own themes use. The files are licensed GPL-3.0-or-later or MIT, and the test suite fails if a role in `roles.toml` is missing from them.
 - A cursor per variant: `Umber-Ash-cursor`, `Umber-Slate-cursor`, `Umber-Tide-cursor` and `Umber-Storm-cursor` beside `Umber-cursor`. The body takes the variant's ground hue and the outline its text color, spinners and the help badge its signature accent, and the no-entry and copy badges its error and success colors. Each Global Theme selects its own cursor, and `install.sh` installs them all. `scripts/build-cursor.sh` rebuilds all five, and the test suite fails if a committed cursor no longer matches its palette.
@@ -89,7 +91,8 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 ### Origin
 Adapted from [MarianArlt/sddm-sugar-dark](https://github.com/MarianArlt/sddm-sugar-dark), muted for long-session comfort and built out into a full Nord-style palette. Spark accent hexes adapted from Atom One Dark; Mist tier informed by Nord; Newaita-reborn (cbrnix) for icons; Nordic-cursors (EliverLara) as cursor source.
 
-[Unreleased]: https://github.com/viscous-values/umber/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/viscous-values/umber/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/viscous-values/umber/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/viscous-values/umber/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/viscous-values/umber/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/viscous-values/umber/releases/tag/v1.0.0

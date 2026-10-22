@@ -73,7 +73,7 @@ To switch between installed variants, either pick one from KRunner / the app lau
 | `umber-shell/` | Plasma 6 Shell package — overrides only `contents/lockscreen/` to match the SDDM layout (charcoal floor + 0.55 scrim); falls back to `org.kde.plasma.desktop` for everything else | `~/.local/share/plasma/shells/io.github.viscous-values.umber-shell/`, activated via `kscreenlockerrc [Greeter]/Theme=io.github.viscous-values.umber-shell` |
 | `konsole/Umber.colorscheme` | Konsole 16-ANSI palette | `~/.local/share/konsole/Umber.colorscheme` (referenced by a Konsole profile) |
 | `umber-sddm/` | SDDM greeter theme — Qt6 port of sddm-sugar-dark with solid charcoal background | `/usr/share/sddm/themes/umber/` (system-wide; needs sudo) |
-| `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/viscous-values.umber-2.0.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
+| `umber-vscode/` | VSCode / code-oss color theme extension | `~/.vscode-oss/extensions/viscous-values.umber-2.1.0` (or `~/.vscode/extensions/` for Microsoft VSCode) |
 | `umber-firefox/` | Firefox WebExtension theme (manifest v2) | loaded via `about:debugging` (temporary) or signed for permanent install |
 | `umber-chromium/` | Chromium / Chrome theme extension (manifest v3) | loaded unpacked via `chrome://extensions/` |
 | `umber-web/` | CSS custom properties (`--umber-*`) for every role, one file per variant | vendored into a web app; see [Web / CSS](#web--css) |
@@ -171,12 +171,12 @@ sudo sed -i 's/^Current=.*/Current=umber/' /etc/sddm.conf.d/kde_settings.conf
 
 ### VSCode / code-oss
 ```fish
-ln -sfn $PWD/umber-vscode ~/.vscode/extensions/viscous-values.umber-2.0.0
+ln -sfn $PWD/umber-vscode ~/.vscode/extensions/viscous-values.umber-2.1.0
 # (or ~/.vscode-oss/extensions/ for code-oss)
 # Microsoft VSCode caches its extension list and won't pick up a symlink until
 # extensions.json lists it. This adds (or updates) that entry; then fully quit
 # and relaunch the editor:
-python3 scripts/register_vscode_extension.py --extensions-dir ~/.vscode/extensions --version 2.0.0
+python3 scripts/register_vscode_extension.py --extensions-dir ~/.vscode/extensions --version 2.1.0
 # Then Ctrl+K Ctrl+T → Umber.
 ```
 
